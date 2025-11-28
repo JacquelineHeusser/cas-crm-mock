@@ -80,15 +80,15 @@ function getNavItems(role: UserRole) {
   const customerItems = [
     { href: '/dashboard', label: 'Home', icon: Home },
     { href: '/policen', label: 'Meine Policen', icon: FileText },
-    { href: '/schaden', label: 'Meine Schäden', icon: AlertCircle },
-    { href: '/kontakt', label: 'Kontakt', icon: Phone },
+    { href: '/claims/new', label: 'Meine Schäden', icon: AlertCircle },
+    { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 
   const underwriterItems = [
     { href: '/dashboard', label: 'Home', icon: Home },
     { href: '/underwriting', label: 'Underwriting', icon: FileText },
     { href: '/quotes', label: 'Alle Offerten', icon: FileText },
-    { href: '/kontakt', label: 'Kontakt', icon: Phone },
+    { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 
   return role === UserRole.UNDERWRITER ? underwriterItems : customerItems;
