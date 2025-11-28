@@ -60,14 +60,15 @@ const policiesData: Record<string, any> = {
   },
 };
 
-export default async function PolicyDetailPage({ params }: { params: { id: string } }) {
+export default async function PolicyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
 
   if (!user) {
     redirect('/login');
   }
 
-  const policy = policiesData[params.id];
+  const { id } = await params;
+  const policy = policiesData[id];
 
   if (!policy) {
     redirect('/dashboard');
