@@ -19,11 +19,11 @@ const policiesData: Record<string, any> = {
     color: 'bg-[#008C95]',
     payments: {
       annual: 'CHF 2\'500',
-      nextPayment: '29/10/2025',
+      nextPayment: '29.10.2025',
     },
     documents: [
-      { name: 'Versicherungspolice', date: '01/07/2020' },
-      { name: 'AVB', date: '29/11/2025' },
+      { name: 'Versicherungspolice', date: '01.07.2020' },
+      { name: 'AVB', date: '29.11.2025' },
     ],
   },
   '72584941': {
@@ -35,11 +35,11 @@ const policiesData: Record<string, any> = {
     color: 'bg-[#0032A0]',
     payments: {
       annual: 'CHF 3\'200',
-      nextPayment: '15/12/2025',
+      nextPayment: '15.12.2025',
     },
     documents: [
-      { name: 'Versicherungspolice', date: '12/03/2021' },
-      { name: 'AVB', date: '12/03/2021' },
+      { name: 'Versicherungspolice', date: '12.03.2021' },
+      { name: 'AVB', date: '12.03.2021' },
     ],
   },
   '72584945': {
@@ -51,11 +51,11 @@ const policiesData: Record<string, any> = {
     color: 'bg-[#008C95]',
     payments: {
       annual: 'CHF 1\'800',
-      nextPayment: '01/01/2026',
+      nextPayment: '01.01.2026',
     },
     documents: [
-      { name: 'Versicherungspolice', date: '20/06/2022' },
-      { name: 'AVB', date: '20/06/2022' },
+      { name: 'Versicherungspolice', date: '20.06.2022' },
+      { name: 'AVB', date: '20.06.2022' },
     ],
   },
 };
