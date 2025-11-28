@@ -52,20 +52,107 @@ export default async function DashboardPage() {
 
       {/* Meine Policen Section */}
       {user.role === 'CUSTOMER' && (
-        <div className="mb-6">
+        <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-light text-[#1A1A1A]">Meine Policen</h2>
-            <a href="/policen" className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline">
-              Alles ansehen (0)
+            <Link href="/policen" className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline">
+              Alles ansehen (2)
               <ChevronRight size={16} />
-            </a>
+            </Link>
           </div>
 
-          {/* Policen Cards - Placeholder */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <p className="text-gray-500 text-center">
-              Derzeit gibt es keine aktiven Policen.
-            </p>
+          {/* Policen Cards */}
+          <div className="space-y-3">
+            {/* Police 1 - Cyber Insurance */}
+            <div className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 bg-[#008C95] rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-[#1A1A1A] mb-1">Cyber Insurance</h3>
+                  <p className="text-sm text-gray-600">Policennummer 72584938</p>
+                </div>
+                <div className="text-right mr-4">
+                  <p className="text-sm text-gray-600 mb-1">Jahresprämie</p>
+                  <p className="font-medium text-[#1A1A1A]">CHF 2'500</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="px-3 py-1 bg-[#CADB2D] text-[#0032A0] text-xs font-medium rounded-full">
+                    Aktiv
+                  </span>
+                  <ChevronRight className="text-gray-400" size={20} />
+                </div>
+              </div>
+            </div>
+
+            {/* Police 2 - Relax Assistance */}
+            <div className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 bg-[#0032A0] rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-[#1A1A1A] mb-1">Relax Assistance</h3>
+                  <p className="text-sm text-gray-600">Policennummer 72584938</p>
+                </div>
+                <div className="text-right mr-4">
+                  <p className="text-sm text-gray-600 mb-1">Jahresprämie</p>
+                  <p className="font-medium text-[#1A1A1A]">CHF 450</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="px-3 py-1 bg-[#CADB2D] text-[#0032A0] text-xs font-medium rounded-full">
+                    Aktiv
+                  </span>
+                  <ChevronRight className="text-gray-400" size={20} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Meine Offerten Section */}
+      {user.role === 'CUSTOMER' && (
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-light text-[#1A1A1A]">Meine Offerten</h2>
+            <Link href="/quotes" className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline">
+              Alles ansehen (1)
+              <ChevronRight size={16} />
+            </Link>
+          </div>
+
+          {/* Offerten Cards */}
+          <div className="space-y-3">
+            {/* Offerte 1 - Draft */}
+            <div className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 bg-[#D9E8FC] rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-[#0032A0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-[#1A1A1A] mb-1">Cyber Insurance - Offerte</h3>
+                  <p className="text-sm text-gray-600">Erstellt am 28.11.2024</p>
+                </div>
+                <div className="text-right mr-4">
+                  <p className="text-sm text-gray-600 mb-1">Prämie (geschätzt)</p>
+                  <p className="font-medium text-[#1A1A1A]">CHF 2'500</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">
+                    Entwurf
+                  </span>
+                  <ChevronRight className="text-gray-400" size={20} />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
