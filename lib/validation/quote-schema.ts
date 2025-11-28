@@ -45,11 +45,10 @@ export const companyDataSchema = z.object({
 
 // Schritt 2: IT-Struktur
 export const itStructureSchema = z.object({
-  systems: z.array(z.string()).min(1, 'Mindestens ein System angeben'),
-  endOfLifeSystems: z.array(z.string()).default([]),
-  cloudServices: z.array(z.string()).default([]),
-  hasBackupSystem: z.boolean(),
-  backupFrequency: z.enum(['daily', 'weekly', 'monthly', 'none']).optional(),
+  itSystemsCount: z.number().int().min(1, 'Pflichtfeld'),
+  hasEndOfLifeSystems: z.enum(['yes', 'no']),
+  hasCloudServices: z.enum(['yes', 'no']),
+  hasBackupSystem: z.enum(['yes', 'no']),
 });
 
 // Schritt 3: Sicherheitsmassnahmen
@@ -66,10 +65,10 @@ export const securityMeasuresSchema = z.object({
 
 // Schritt 4: Cybervorfälle
 export const incidentsSchema = z.object({
-  incidentCount: z.number().int().min(0, 'Anzahl muss positiv sein').max(99),
-  ransomwareAttack: z.boolean(),
-  dataLeak: z.boolean(),
-  lastIncidents: z.array(z.string()).default([]),
+  hasIncidents: z.enum(['yes', 'no']),
+  incidentCount: z.number().int().min(0).optional(),
+  ransomwareAttack: z.boolean().default(false),
+  dataLeak: z.boolean().default(false),
 });
 
 // Schritt 5: Deckungswünsche
@@ -77,7 +76,6 @@ export const coverageSchema = z.object({
   coverageVariant: z.enum(['basic', 'standard', 'optimum']),
   sumInsured: z.number().min(100000, 'Mindestens CHF 100\'000').max(5000000, 'Maximal CHF 5\'000\'000'),
   deductible: z.number().min(5000, 'Mindestens CHF 5\'000').max(50000, 'Maximal CHF 50\'000'),
-  includeBusinessInterruption: z.boolean().default(false),
 });
 
 // Vollständiges Offert-Schema

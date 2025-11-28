@@ -272,36 +272,228 @@ function Step1CompanyData({ register, errors }: any) {
 
 function Step2ITStructure({ register, errors }: any) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-light mb-4">IT-Struktur</h2>
-      <p className="text-sm text-gray-600">Details folgen...</p>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">IT-Struktur</h2>
+      
+      {/* Anzahl IT-Systeme */}
+      <div>
+        <input
+          type="number"
+          placeholder="Anzahl IT-Systeme*"
+          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+          {...register('itSystemsCount', { valueAsNumber: true })}
+        />
+        {errors.itSystemsCount && (
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.itSystemsCount.message}</p>
+        )}
+      </div>
+
+      {/* End-of-Life Systeme */}
+      <div className="relative">
+        <select
+          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+          {...register('hasEndOfLifeSystems')}
+          defaultValue=""
+        >
+          <option value="" disabled className="text-[#0032A0]/60">
+            Veraltete End-of-Life Systeme vorhanden?*
+          </option>
+          <option value="no">Nein</option>
+          <option value="yes">Ja</option>
+        </select>
+        <ChevronRight 
+          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
+          size={20} 
+        />
+        {errors.hasEndOfLifeSystems && (
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.hasEndOfLifeSystems.message}</p>
+        )}
+      </div>
+
+      {/* Cloud-Services */}
+      <div className="relative">
+        <select
+          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+          {...register('hasCloudServices')}
+          defaultValue=""
+        >
+          <option value="" disabled className="text-[#0032A0]/60">
+            Cloud-Services für Backup/Redundanz?*
+          </option>
+          <option value="yes">Ja</option>
+          <option value="no">Nein</option>
+        </select>
+        <ChevronRight 
+          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
+          size={20} 
+        />
+        {errors.hasCloudServices && (
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.hasCloudServices.message}</p>
+        )}
+      </div>
+
+      {/* Backup-System */}
+      <div className="relative">
+        <select
+          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+          {...register('hasBackupSystem')}
+          defaultValue=""
+        >
+          <option value="" disabled className="text-[#0032A0]/60">
+            Regelmässiges Backup-System vorhanden?*
+          </option>
+          <option value="yes">Ja</option>
+          <option value="no">Nein</option>
+        </select>
+        <ChevronRight 
+          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
+          size={20} 
+        />
+        {errors.hasBackupSystem && (
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.hasBackupSystem.message}</p>
+        )}
+      </div>
     </div>
   );
 }
 
 function Step3Security({ register, errors }: any) {
+  const securityMeasures = [
+    { name: 'firewall', label: 'Firewall' },
+    { name: 'antivirus', label: 'Antivirus' },
+    { name: 'backup', label: 'Backup' },
+    { name: 'mfa', label: 'Multi-Faktor-Authentifizierung (MFA)' },
+    { name: 'encryption', label: 'Verschlüsselung' },
+    { name: 'incidentResponse', label: 'Incident Response Plan' },
+    { name: 'securityTraining', label: 'Sicherheitsschulungen' },
+    { name: 'patchManagement', label: 'Patch Management' },
+  ];
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-light mb-4">Sicherheitsmassnahmen</h2>
-      <p className="text-sm text-gray-600">Details folgen...</p>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Sicherheitsmassnahmen</h2>
+      <p className="text-gray-600 mb-6">Welche Sicherheitsmassnahmen sind implementiert?</p>
+      
+      <div className="space-y-4">
+        {securityMeasures.map((measure) => (
+          <label key={measure.name} className="flex items-center gap-4 p-4 bg-[#F5F5F5] rounded-full cursor-pointer hover:bg-[#E8E8E8] transition-colors">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-primary"
+              {...register(measure.name)}
+            />
+            <span className="text-[#0032A0]">{measure.label}</span>
+          </label>
+        ))}
+      </div>
     </div>
   );
 }
 
 function Step4Incidents({ register, errors }: any) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-light mb-4">Cybervorfälle</h2>
-      <p className="text-sm text-gray-600">Details folgen...</p>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Cybervorfälle</h2>
+      
+      {/* Vorfälle vorhanden */}
+      <div className="relative">
+        <select
+          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+          {...register('hasIncidents')}
+          defaultValue=""
+        >
+          <option value="" disabled className="text-[#0032A0]/60">
+            Gab es bereits Cybervorfälle?*
+          </option>
+          <option value="no">Nein</option>
+          <option value="yes">Ja</option>
+        </select>
+        <ChevronRight 
+          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
+          size={20} 
+        />
+        {errors.hasIncidents && (
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.hasIncidents.message}</p>
+        )}
+      </div>
+
+      {/* Checkboxen für spezifische Vorfälle */}
+      <div className="space-y-4">
+        <label className="flex items-center gap-4 p-4 bg-[#F5F5F5] rounded-full cursor-pointer hover:bg-[#E8E8E8] transition-colors">
+          <input
+            type="checkbox"
+            className="checkbox checkbox-primary"
+            {...register('ransomwareAttack')}
+          />
+          <span className="text-[#0032A0]">Ransomware-Angriff</span>
+        </label>
+
+        <label className="flex items-center gap-4 p-4 bg-[#F5F5F5] rounded-full cursor-pointer hover:bg-[#E8E8E8] transition-colors">
+          <input
+            type="checkbox"
+            className="checkbox checkbox-primary"
+            {...register('dataLeak')}
+          />
+          <span className="text-[#0032A0]">Datenleck</span>
+        </label>
+      </div>
     </div>
   );
 }
 
 function Step5Coverage({ register, errors }: any) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-light mb-4">Deckungswünsche</h2>
-      <p className="text-sm text-gray-600">Details folgen...</p>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Deckungswünsche</h2>
+      
+      {/* Deckungsvariante */}
+      <div className="relative">
+        <select
+          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+          {...register('coverageVariant')}
+          defaultValue=""
+        >
+          <option value="" disabled className="text-[#0032A0]/60">
+            Deckungsvariante wählen*
+          </option>
+          <option value="basic">Basic</option>
+          <option value="standard">Standard</option>
+          <option value="optimum">Optimum</option>
+        </select>
+        <ChevronRight 
+          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
+          size={20} 
+        />
+        {errors.coverageVariant && (
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.coverageVariant.message}</p>
+        )}
+      </div>
+
+      {/* Versicherungssumme */}
+      <div>
+        <input
+          type="number"
+          placeholder="Versicherungssumme (CHF)*"
+          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+          {...register('sumInsured', { valueAsNumber: true })}
+        />
+        {errors.sumInsured && (
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.sumInsured.message}</p>
+        )}
+      </div>
+
+      {/* Selbstbehalt */}
+      <div>
+        <input
+          type="number"
+          placeholder="Selbstbehalt (CHF)*"
+          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+          {...register('deductible', { valueAsNumber: true })}
+        />
+        {errors.deductible && (
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.deductible.message}</p>
+        )}
+      </div>
     </div>
   );
 }
