@@ -5,29 +5,29 @@
 
 import { z } from 'zod';
 
-// Branchen-Optionen
+// Branchen-Optionen (alphabetisch sortiert)
 export const INDUSTRIES = [
-  'Unterkunft und Verpflegungsdienste',
-  'Verwaltungs-, Unterstützungs-, Abfallwirtschafts- und Sanierungsdienste',
-  'Landwirtschaft, Forstwirtschaft, Fischerei und Jagd',
-  'Kunst, Unterhaltung und Erholung',
   'Bauwesen',
+  'Beratungs-, Wissenschafts- und technische Dienstleistungen',
+  'Bergbau, Steinbruch und Erdöl- und Erdgasförderung',
   'Bildungsdienste',
+  'Einzelhandel',
   'Energie',
   'Finanzen und Versicherungen',
   'Gesundheits- und Sozialwesen',
-  'Information',
-  'Verwaltung von Unternehmen und Betrieben',
-  'Herstellung',
-  'Bergbau, Steinbruch und Erdöl- und Erdgasförderung',
-  'Beratungs-, Wissenschafts- und technische Dienstleistungen',
-  'Öffentliche Verwaltung',
-  'Immobilien und Vermietung und Leasing',
-  'Einzelhandel',
-  'Transport und Lagerung',
-  'Versorgungsunternehmen',
   'Grosshandel',
+  'Herstellung',
+  'Immobilien und Vermietung und Leasing',
+  'Information',
+  'Kunst, Unterhaltung und Erholung',
+  'Landwirtschaft, Forstwirtschaft, Fischerei und Jagd',
+  'Öffentliche Verwaltung',
   'Sonstige',
+  'Transport und Lagerung',
+  'Unterkunft und Verpflegungsdienste',
+  'Versorgungsunternehmen',
+  'Verwaltung von Unternehmen und Betrieben',
+  'Verwaltungs-, Unterstützungs-, Abfallwirtschafts- und Sanierungsdienste',
 ] as const;
 
 // Schritt 1: Unternehmensdaten
