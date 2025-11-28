@@ -695,7 +695,7 @@ function Step4Premium({ register, errors, formData }: any) {
   ];
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6 w-full">
       <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Prämie</h2>
       
       <div className="bg-[#CADB2D]/20 p-4 rounded-lg mb-8">
@@ -707,9 +707,9 @@ function Step4Premium({ register, errors, formData }: any) {
       {/* Table Layout */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         {/* Header Row */}
-        <div className="grid grid-cols-4 gap-4 bg-[#F5F5F5] p-4 border-b border-gray-200">
-          <div></div>
-          <div className="text-center">
+        <div className="grid grid-cols-4 gap-0 bg-[#F5F5F5] border-b border-gray-200">
+          <div className="p-6"></div>
+          <div className={`text-center p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : ''}`}>
             <h3 className="text-[#0032A0] text-lg font-medium mb-2">BASIC</h3>
             <div className="text-2xl font-bold text-[#0032A0] mb-1">
               {formatCurrency(PACKAGES.BASIC.price)}
@@ -734,7 +734,7 @@ function Step4Premium({ register, errors, formData }: any) {
               className="hidden"
             />
           </div>
-          <div className="text-center">
+          <div className={`text-center p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : ''}`}>
             <h3 className="text-[#0032A0] text-lg font-medium mb-2">OPTIMUM</h3>
             <div className="text-2xl font-bold text-[#0032A0] mb-1">
               {formatCurrency(PACKAGES.OPTIMUM.price)}
@@ -759,7 +759,7 @@ function Step4Premium({ register, errors, formData }: any) {
               className="hidden"
             />
           </div>
-          <div className="text-center">
+          <div className={`text-center p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : ''}`}>
             <h3 className="text-[#0032A0] text-lg font-medium mb-2">PREMIUM</h3>
             <div className="text-2xl font-bold text-[#0032A0] mb-1">
               {formatCurrency(PACKAGES.PREMIUM.price)}
@@ -788,66 +788,66 @@ function Step4Premium({ register, errors, formData }: any) {
 
         {/* Coverage Rows */}
         {coverageRows.map((row, index) => (
-          <div key={index} className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50">
-            <div className="text-sm text-gray-700 flex items-center">{row.label}</div>
-            <div className="flex justify-center items-center">
+          <div key={index} className="grid grid-cols-4 gap-0 border-b border-gray-100">
+            <div className="text-sm font-medium text-gray-700 flex items-center p-6">{row.label}</div>
+            <div className={`flex justify-center items-center p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>
               {row.basic ? <CheckIcon /> : <CrossIcon />}
             </div>
-            <div className="flex justify-center items-center">
+            <div className={`flex justify-center items-center p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>
               {row.optimum ? <CheckIcon /> : <CrossIcon />}
             </div>
-            <div className="flex justify-center items-center">
+            <div className={`flex justify-center items-center p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>
               {row.premium ? <CheckIcon /> : <CrossIcon />}
             </div>
           </div>
         ))}
 
         {/* VS Eigenschäden */}
-        <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 bg-[#F5F5F5]">
-          <div className="text-sm font-medium text-[#0032A0] flex items-center">VS Eigenschäden</div>
-          <div className="text-center text-sm text-[#0032A0] font-medium">{formatCurrency(PACKAGES.BASIC.eigenSchadenSum)}</div>
-          <div className="text-center text-sm text-[#0032A0] font-medium">{formatCurrency(PACKAGES.OPTIMUM.eigenSchadenSum)}</div>
-          <div className="text-center text-sm text-[#0032A0] font-medium">{formatCurrency(PACKAGES.PREMIUM.eigenSchadenSum)}</div>
+        <div className="grid grid-cols-4 gap-0 border-b border-gray-100 bg-[#F5F5F5]">
+          <div className="text-sm font-medium text-[#0032A0] flex items-center p-6">VS Eigenschäden</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : ''}`}>{formatCurrency(PACKAGES.BASIC.eigenSchadenSum)}</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : ''}`}>{formatCurrency(PACKAGES.OPTIMUM.eigenSchadenSum)}</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : ''}`}>{formatCurrency(PACKAGES.PREMIUM.eigenSchadenSum)}</div>
         </div>
 
         {/* VS Cyber Haftpflicht */}
-        <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50">
-          <div className="text-sm text-gray-700 flex items-center">VS Cyber Haftpflicht</div>
-          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.BASIC.haftpflichtSum)}</div>
-          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.OPTIMUM.haftpflichtSum)}</div>
-          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.PREMIUM.haftpflichtSum)}</div>
+        <div className="grid grid-cols-4 gap-0 border-b border-gray-100">
+          <div className="text-sm font-medium text-gray-700 flex items-center p-6">VS Cyber Haftpflicht</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.BASIC.haftpflichtSum)}</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.OPTIMUM.haftpflichtSum)}</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.PREMIUM.haftpflichtSum)}</div>
         </div>
 
         {/* VS Cyber Rechtsschutz */}
-        <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50">
-          <div className="text-sm text-gray-700 flex items-center">VS Cyber Rechtsschutz</div>
-          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.BASIC.rechtsschutzSum)}</div>
-          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.OPTIMUM.rechtsschutzSum)}</div>
-          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.PREMIUM.rechtsschutzSum)}</div>
+        <div className="grid grid-cols-4 gap-0 border-b border-gray-100">
+          <div className="text-sm font-medium text-gray-700 flex items-center p-6">VS Cyber Rechtsschutz</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.BASIC.rechtsschutzSum)}</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.OPTIMUM.rechtsschutzSum)}</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.PREMIUM.rechtsschutzSum)}</div>
         </div>
 
         {/* VS Cyber Crime */}
-        <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50">
-          <div className="text-sm text-gray-700 flex items-center">VS Cyber Crime</div>
-          <div className="flex justify-center items-center"><CrossIcon /></div>
-          <div className="flex justify-center items-center"><CrossIcon /></div>
-          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.PREMIUM.crimeSum)}</div>
+        <div className="grid grid-cols-4 gap-0 border-b border-gray-100">
+          <div className="text-sm font-medium text-gray-700 flex items-center p-6">VS Cyber Crime</div>
+          <div className={`flex justify-center items-center p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}><CrossIcon /></div>
+          <div className={`flex justify-center items-center p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}><CrossIcon /></div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.PREMIUM.crimeSum)}</div>
         </div>
 
         {/* Selbstbehalt */}
-        <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50">
-          <div className="text-sm text-gray-700 flex items-center">Selbstbehalt</div>
-          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.BASIC.deductible)}</div>
-          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.OPTIMUM.deductible)}</div>
-          <div className="text-center text-sm text-[#0032A0]">CHF 0</div>
+        <div className="grid grid-cols-4 gap-0 border-b border-gray-100">
+          <div className="text-sm font-medium text-gray-700 flex items-center p-6">Selbstbehalt</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.BASIC.deductible)}</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.OPTIMUM.deductible)}</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>CHF 0</div>
         </div>
 
         {/* Wartefrist */}
-        <div className="grid grid-cols-4 gap-4 p-4">
-          <div className="text-sm text-gray-700 flex items-center">Wartefrist</div>
-          <div className="flex justify-center items-center"><CrossIcon /></div>
-          <div className="text-center text-sm text-[#0032A0]">{PACKAGES.OPTIMUM.waitingPeriod}</div>
-          <div className="text-center text-sm text-[#0032A0]">{PACKAGES.PREMIUM.waitingPeriod}</div>
+        <div className="grid grid-cols-4 gap-0">
+          <div className="text-sm font-medium text-gray-700 flex items-center p-6">Wartefrist</div>
+          <div className={`flex justify-center items-center p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}><CrossIcon /></div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{PACKAGES.OPTIMUM.waitingPeriod}</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{PACKAGES.PREMIUM.waitingPeriod}</div>
         </div>
       </div>
 
