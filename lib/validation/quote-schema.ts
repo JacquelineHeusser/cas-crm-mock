@@ -5,6 +5,31 @@
 
 import { z } from 'zod';
 
+// Branchen-Optionen
+export const INDUSTRIES = [
+  'Unterkunft und Verpflegungsdienste',
+  'Verwaltungs-, Unterstützungs-, Abfallwirtschafts- und Sanierungsdienste',
+  'Landwirtschaft, Forstwirtschaft, Fischerei und Jagd',
+  'Kunst, Unterhaltung und Erholung',
+  'Bauwesen',
+  'Bildungsdienste',
+  'Energie',
+  'Finanzen und Versicherungen',
+  'Gesundheits- und Sozialwesen',
+  'Information',
+  'Verwaltung von Unternehmen und Betrieben',
+  'Herstellung',
+  'Bergbau, Steinbruch und Erdöl- und Erdgasförderung',
+  'Beratungs-, Wissenschafts- und technische Dienstleistungen',
+  'Öffentliche Verwaltung',
+  'Immobilien und Vermietung und Leasing',
+  'Einzelhandel',
+  'Transport und Lagerung',
+  'Versorgungsunternehmen',
+  'Grosshandel',
+  'Sonstige',
+] as const;
+
 // Schritt 1: Unternehmensdaten
 export const companyDataSchema = z.object({
   companyName: z.string().min(2, 'Firmenname muss mindestens 2 Zeichen lang sein'),
@@ -13,7 +38,7 @@ export const companyDataSchema = z.object({
   city: z.string().min(2, 'Ort ist erforderlich'),
   country: z.string().default('CH'),
   url: z.string().url('Ungültige URL').optional().or(z.literal('')),
-  industry: z.string().min(2, 'Branche ist erforderlich'),
+  industry: z.enum(INDUSTRIES),
   revenue: z.number().min(0, 'Umsatz muss positiv sein'),
   employees: z.number().int().min(1, 'Mindestens 1 Mitarbeiter').max(250, 'Maximal 250 Mitarbeiter'),
 });

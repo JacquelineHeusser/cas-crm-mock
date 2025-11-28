@@ -15,6 +15,7 @@ import {
   securityMeasuresSchema,
   incidentsSchema,
   coverageSchema,
+  INDUSTRIES,
   type CompanyData,
   type ITStructure,
   type SecurityMeasures,
@@ -228,12 +229,25 @@ function Step1CompanyData({ register, errors }: any) {
       </div>
 
       {/* Branche */}
-      <div>
-        <input
-          type="text"
-          placeholder="Branche wählen*"
-          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+      <div className="relative">
+        <select
+          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
           {...register('industry')}
+          defaultValue=""
+        >
+          <option value="" disabled className="text-[#0032A0]/60">
+            Branche wählen*
+          </option>
+          {INDUSTRIES.map((industry) => (
+            <option key={industry} value={industry} className="text-[#0032A0]">
+              {industry}
+            </option>
+          ))}
+        </select>
+        {/* Dropdown Icon */}
+        <ChevronRight 
+          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
+          size={20} 
         />
         {errors.industry && (
           <p className="text-error text-xs mt-2 ml-6">{errors.industry.message}</p>
