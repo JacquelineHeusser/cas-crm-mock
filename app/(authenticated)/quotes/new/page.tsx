@@ -30,8 +30,8 @@ const STEPS = [
   { id: 1, title: 'Unternehmensdaten', schema: companyDataSchema },
   { id: 2, title: 'Cyber Risikoprofil', schema: cyberRiskProfileSchema },
   { id: 3, title: 'Cyber-Sicherheit', schema: cyberSecuritySchema },
-  { id: 4, title: 'Versicherte Leistungen', schema: coverageSchema },
-  { id: 5, title: 'Prämie', schema: premiumSchema },
+  { id: 4, title: 'Prämie', schema: premiumSchema },
+  { id: 5, title: 'Versicherte Leistungen', schema: coverageSchema },
   { id: 6, title: 'Zusammenfassung', schema: summarySchema },
   { id: 7, title: 'Bestätigung', schema: confirmationSchema },
 ];
@@ -205,8 +205,8 @@ export default function NewQuotePage() {
           {currentStep === 1 && <Step1CompanyData register={register} errors={errors} />}
           {currentStep === 2 && <Step2CyberRiskProfile register={register} errors={errors} />}
           {currentStep === 3 && <Step3CyberSecurity register={register} errors={errors} />}
-          {currentStep === 4 && <Step4Coverage register={register} errors={errors} />}
-          {currentStep === 5 && <Step5Premium register={register} errors={errors} formData={formData} />}
+          {currentStep === 4 && <Step4Premium register={register} errors={errors} formData={formData} />}
+          {currentStep === 5 && <Step5Coverage register={register} errors={errors} />}
           {currentStep === 6 && <Step6Summary formData={formData} />}
           {currentStep === 7 && <Step7Confirmation register={register} errors={errors} />}
 
@@ -549,8 +549,8 @@ function Step3CyberSecurity({ register, errors }: any) {
   );
 }
 
-// Step 4: Versicherte Leistungen
-function Step4Coverage({ register, errors }: any) {
+// Step 5: Versicherte Leistungen
+function Step5Coverage({ register, errors }: any) {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Versicherte Leistungen</h2>
@@ -664,106 +664,38 @@ function Step4Coverage({ register, errors }: any) {
   );
 }
 
-// Step 5: Prämie (Package Selection)
-function Step5Premium({ register, errors, formData }: any) {
+// Step 4: Prämie (Package Selection)
+function Step4Premium({ register, errors, formData }: any) {
   const [selectedPackage, setSelectedPackage] = useState<string>(formData.package || '');
 
   const formatCurrency = (amount: number) => {
     return `CHF ${amount.toLocaleString('de-CH')}`;
   };
 
-  const PackageCard = ({ packageKey, data }: { packageKey: string; data: any }) => {
-    const isSelected = selectedPackage === packageKey;
+  const CheckIcon = () => (
+    <svg className="w-5 h-5 text-[#008C95]" fill="currentColor" viewBox="0 0 20 20">
+      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+    </svg>
+  );
 
-    return (
-      <div
-        onClick={() => setSelectedPackage(packageKey)}
-        className={`relative rounded-lg p-6 cursor-pointer transition-all ${
-          isSelected
-            ? 'bg-[#D9E8FC] border-2 border-[#0032A0]'
-            : 'bg-white border-2 border-gray-200 hover:border-[#008C95]'
-        }`}
-      >
-        <input
-          type="radio"
-          value={packageKey}
-          {...register('package')}
-          checked={isSelected}
-          className="hidden"
-        />
-        
-        {/* Header */}
-        <div className="text-center mb-6">
-          <h3 className="text-[#0032A0] text-xl font-medium mb-2">{data.name}</h3>
-          <div className="text-3xl font-bold text-[#0032A0] mb-1">
-            {formatCurrency(data.price)}
-          </div>
-          <p className="text-sm text-gray-600">ab / Jahr</p>
-        </div>
+  const CrossIcon = () => (
+    <svg className="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+    </svg>
+  );
 
-        {/* Button */}
-        <button
-          type="button"
-          onClick={() => setSelectedPackage(packageKey)}
-          className={`w-full py-2.5 rounded-full font-medium mb-6 transition-colors ${
-            isSelected
-              ? 'bg-[#0032A0] text-white'
-              : 'bg-[#008C95] text-white hover:bg-[#006B73]'
-          }`}
-        >
-          {isSelected ? 'Ausgewählt' : 'Paket auswählen'}
-        </button>
-
-        {/* Coverage List */}
-        <div className="space-y-3 mb-6">
-          <h4 className="text-sm font-medium text-[#0032A0] mb-3">Versicherte Deckungen</h4>
-          {data.coverages.map((coverage: string, index: number) => (
-            <div key={index} className="flex items-start gap-2 text-sm">
-              <svg className="w-5 h-5 text-[#008C95] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              <span className="text-gray-700">{coverage}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Details */}
-        <div className="border-t border-gray-200 pt-4 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-gray-600">VS Eigenschäden</span>
-            <span className="font-medium text-[#0032A0]">{formatCurrency(data.eigenSchadenSum)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">VS Cyber Haftpflicht</span>
-            <span className="font-medium text-[#0032A0]">{formatCurrency(data.haftpflichtSum)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">VS Cyber Rechtsschutz</span>
-            <span className="font-medium text-[#0032A0]">{formatCurrency(data.rechtsschutzSum)}</span>
-          </div>
-          {data.crimeSum > 0 && (
-            <div className="flex justify-between">
-              <span className="text-gray-600">VS Cyber Crime</span>
-              <span className="font-medium text-[#0032A0]">{formatCurrency(data.crimeSum)}</span>
-            </div>
-          )}
-          <div className="flex justify-between">
-            <span className="text-gray-600">Selbstbehalt</span>
-            <span className="font-medium text-[#0032A0]">
-              {data.deductible > 0 ? formatCurrency(data.deductible) : 'CHF 0'}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Wartefrist</span>
-            <span className="font-medium text-[#0032A0]">{data.waitingPeriod}</span>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  const coverageRows = [
+    { label: 'Cyber Daten- und Systemwiederherstellung', basic: true, optimum: true, premium: true },
+    { label: 'Cyber Krisenmanagement', basic: true, optimum: true, premium: true },
+    { label: 'Cyber Haftpflicht', basic: true, optimum: true, premium: true },
+    { label: 'Cyber Rechtsschutz', basic: true, optimum: true, premium: true },
+    { label: 'Cyber Betriebsunterbruch', basic: false, optimum: true, premium: true },
+    { label: 'Cyber Diebstahl', basic: false, optimum: false, premium: true },
+    { label: 'Cyber Betrug', basic: false, optimum: false, premium: true },
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
       <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Prämie</h2>
       
       <div className="bg-[#CADB2D]/20 p-4 rounded-lg mb-8">
@@ -772,10 +704,151 @@ function Step5Premium({ register, errors, formData }: any) {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        <PackageCard packageKey="BASIC" data={PACKAGES.BASIC} />
-        <PackageCard packageKey="OPTIMUM" data={PACKAGES.OPTIMUM} />
-        <PackageCard packageKey="PREMIUM" data={PACKAGES.PREMIUM} />
+      {/* Table Layout */}
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        {/* Header Row */}
+        <div className="grid grid-cols-4 gap-4 bg-[#F5F5F5] p-4 border-b border-gray-200">
+          <div></div>
+          <div className="text-center">
+            <h3 className="text-[#0032A0] text-lg font-medium mb-2">BASIC</h3>
+            <div className="text-2xl font-bold text-[#0032A0] mb-1">
+              {formatCurrency(PACKAGES.BASIC.price)}
+            </div>
+            <p className="text-xs text-gray-600 mb-3">ab / Jahr</p>
+            <button
+              type="button"
+              onClick={() => setSelectedPackage('BASIC')}
+              className={`w-full py-2 rounded-full text-sm font-medium transition-colors ${
+                selectedPackage === 'BASIC'
+                  ? 'bg-[#0032A0] text-white'
+                  : 'bg-[#008C95] text-white hover:bg-[#006B73]'
+              }`}
+            >
+              {selectedPackage === 'BASIC' ? 'Ausgewählt' : 'Paket auswählen'}
+            </button>
+            <input
+              type="radio"
+              value="BASIC"
+              {...register('package')}
+              checked={selectedPackage === 'BASIC'}
+              className="hidden"
+            />
+          </div>
+          <div className="text-center">
+            <h3 className="text-[#0032A0] text-lg font-medium mb-2">OPTIMUM</h3>
+            <div className="text-2xl font-bold text-[#0032A0] mb-1">
+              {formatCurrency(PACKAGES.OPTIMUM.price)}
+            </div>
+            <p className="text-xs text-gray-600 mb-3">ab / Jahr</p>
+            <button
+              type="button"
+              onClick={() => setSelectedPackage('OPTIMUM')}
+              className={`w-full py-2 rounded-full text-sm font-medium transition-colors ${
+                selectedPackage === 'OPTIMUM'
+                  ? 'bg-[#0032A0] text-white'
+                  : 'bg-[#008C95] text-white hover:bg-[#006B73]'
+              }`}
+            >
+              {selectedPackage === 'OPTIMUM' ? 'Ausgewählt' : 'Paket auswählen'}
+            </button>
+            <input
+              type="radio"
+              value="OPTIMUM"
+              {...register('package')}
+              checked={selectedPackage === 'OPTIMUM'}
+              className="hidden"
+            />
+          </div>
+          <div className="text-center">
+            <h3 className="text-[#0032A0] text-lg font-medium mb-2">PREMIUM</h3>
+            <div className="text-2xl font-bold text-[#0032A0] mb-1">
+              {formatCurrency(PACKAGES.PREMIUM.price)}
+            </div>
+            <p className="text-xs text-gray-600 mb-3">ab / Jahr</p>
+            <button
+              type="button"
+              onClick={() => setSelectedPackage('PREMIUM')}
+              className={`w-full py-2 rounded-full text-sm font-medium transition-colors ${
+                selectedPackage === 'PREMIUM'
+                  ? 'bg-[#0032A0] text-white'
+                  : 'bg-[#008C95] text-white hover:bg-[#006B73]'
+              }`}
+            >
+              {selectedPackage === 'PREMIUM' ? 'Ausgewählt' : 'Paket auswählen'}
+            </button>
+            <input
+              type="radio"
+              value="PREMIUM"
+              {...register('package')}
+              checked={selectedPackage === 'PREMIUM'}
+              className="hidden"
+            />
+          </div>
+        </div>
+
+        {/* Coverage Rows */}
+        {coverageRows.map((row, index) => (
+          <div key={index} className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50">
+            <div className="text-sm text-gray-700 flex items-center">{row.label}</div>
+            <div className="flex justify-center items-center">
+              {row.basic ? <CheckIcon /> : <CrossIcon />}
+            </div>
+            <div className="flex justify-center items-center">
+              {row.optimum ? <CheckIcon /> : <CrossIcon />}
+            </div>
+            <div className="flex justify-center items-center">
+              {row.premium ? <CheckIcon /> : <CrossIcon />}
+            </div>
+          </div>
+        ))}
+
+        {/* VS Eigenschäden */}
+        <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 bg-[#F5F5F5]">
+          <div className="text-sm font-medium text-[#0032A0] flex items-center">VS Eigenschäden</div>
+          <div className="text-center text-sm text-[#0032A0] font-medium">{formatCurrency(PACKAGES.BASIC.eigenSchadenSum)}</div>
+          <div className="text-center text-sm text-[#0032A0] font-medium">{formatCurrency(PACKAGES.OPTIMUM.eigenSchadenSum)}</div>
+          <div className="text-center text-sm text-[#0032A0] font-medium">{formatCurrency(PACKAGES.PREMIUM.eigenSchadenSum)}</div>
+        </div>
+
+        {/* VS Cyber Haftpflicht */}
+        <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50">
+          <div className="text-sm text-gray-700 flex items-center">VS Cyber Haftpflicht</div>
+          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.BASIC.haftpflichtSum)}</div>
+          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.OPTIMUM.haftpflichtSum)}</div>
+          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.PREMIUM.haftpflichtSum)}</div>
+        </div>
+
+        {/* VS Cyber Rechtsschutz */}
+        <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50">
+          <div className="text-sm text-gray-700 flex items-center">VS Cyber Rechtsschutz</div>
+          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.BASIC.rechtsschutzSum)}</div>
+          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.OPTIMUM.rechtsschutzSum)}</div>
+          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.PREMIUM.rechtsschutzSum)}</div>
+        </div>
+
+        {/* VS Cyber Crime */}
+        <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50">
+          <div className="text-sm text-gray-700 flex items-center">VS Cyber Crime</div>
+          <div className="flex justify-center items-center"><CrossIcon /></div>
+          <div className="flex justify-center items-center"><CrossIcon /></div>
+          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.PREMIUM.crimeSum)}</div>
+        </div>
+
+        {/* Selbstbehalt */}
+        <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50">
+          <div className="text-sm text-gray-700 flex items-center">Selbstbehalt</div>
+          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.BASIC.deductible)}</div>
+          <div className="text-center text-sm text-[#0032A0]">{formatCurrency(PACKAGES.OPTIMUM.deductible)}</div>
+          <div className="text-center text-sm text-[#0032A0]">CHF 0</div>
+        </div>
+
+        {/* Wartefrist */}
+        <div className="grid grid-cols-4 gap-4 p-4">
+          <div className="text-sm text-gray-700 flex items-center">Wartefrist</div>
+          <div className="flex justify-center items-center"><CrossIcon /></div>
+          <div className="text-center text-sm text-[#0032A0]">{PACKAGES.OPTIMUM.waitingPeriod}</div>
+          <div className="text-center text-sm text-[#0032A0]">{PACKAGES.PREMIUM.waitingPeriod}</div>
+        </div>
       </div>
 
       {errors.package && (
