@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
-import { saveQuoteStep, loadUserDraftQuote } from '@/app/actions/quote';
+import { saveQuoteStep, loadUserDraftQuote, getUserId } from '@/app/actions/quote';
 import { 
   companyDataSchema, 
   cyberRiskProfileSchema,
@@ -56,11 +56,10 @@ export default function NewQuotePage() {
   // Beim Mounting: Lade letztes Draft Quote (falls vorhanden)
   useEffect(() => {
     const loadDraft = async () => {
-      // Hole User ID aus Session
-      const { getCurrentUserId } = await import('@/lib/auth/get-user');
-      const userId = await getCurrentUserId();
+      // Hole User ID aus Session (Server Action)
+      const { success, userId } = await getUserId();
       
-      if (!userId) {
+      if (!success || !userId) {
         // Nicht eingeloggt - redirect zu Login
         window.location.href = '/login';
         return;
@@ -106,11 +105,10 @@ export default function NewQuotePage() {
     const stepName = stepMapping[currentStep];
     
     if (stepName) {
-      // Hole User ID aus Session
-      const { getCurrentUserId } = await import('@/lib/auth/get-user');
-      const userId = await getCurrentUserId();
+      // Hole User ID aus Session (Server Action)
+      const { success, userId } = await getUserId();
       
-      if (!userId) {
+      if (!success || !userId) {
         window.location.href = '/login';
         return;
       }

@@ -7,6 +7,18 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getCurrentUserId } from '@/lib/auth/get-user';
+
+// Hole User ID aus Session (als Server Action)
+export async function getUserId() {
+  try {
+    const userId = await getCurrentUserId();
+    return { success: true, userId };
+  } catch (error) {
+    console.error('Error getting user ID:', error);
+    return { success: false, userId: null };
+  }
+}
 
 // Quote erstellen oder updaten
 export async function saveQuoteStep(data: {
