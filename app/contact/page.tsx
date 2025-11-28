@@ -7,6 +7,7 @@
 
 import { Phone, Mail, MapPin, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ContactPage() {
   return (
@@ -17,14 +18,16 @@ export default function ContactPage() {
           Kontakt
         </h1>
 
-        {/* Profilbild und Intro */}
+        {/* Logo und Intro */}
         <div className="text-center mb-12">
-          <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#0032A0] to-[#008C95] flex items-center justify-center overflow-hidden">
-            <div className="w-28 h-28 rounded-full bg-white flex items-center justify-center">
-              <div className="text-[#0032A0] text-4xl font-light">
-                ZO
-              </div>
-            </div>
+          <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-white border-4 border-gray-100 flex items-center justify-center overflow-hidden p-4">
+            <Image
+              src="/zurich-logo.png"
+              alt="Zurich"
+              width={120}
+              height={40}
+              className="object-contain"
+            />
           </div>
           <p className="text-lg text-gray-700">
             Ihr direkter Draht zu uns: Wir beraten und unterstützen Sie in allen Versicherungsfragen.
