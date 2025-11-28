@@ -199,7 +199,7 @@ export default function NewQuotePage() {
       </div>
 
       {/* Rechte Seite - Formular */}
-      <div className="flex-1 p-12 max-w-3xl">
+      <div className="flex-1 p-12">
         <form onSubmit={handleSubmit(onNext)}>
           {/* Dynamischer Content */}
           {currentStep === 1 && <Step1CompanyData register={register} errors={errors} />}
@@ -707,7 +707,7 @@ function Step4Premium({ register, errors, formData }: any) {
       {/* Table Layout */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         {/* Header Row */}
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-0 bg-[#F5F5F5] border-b border-gray-200">
+        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-0 bg-[#F5F5F5] border-b border-gray-200">
           <div className="p-8"></div>
           <div className={`text-center p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : ''}`}>
             <h3 className="text-[#0032A0] text-lg font-medium mb-2">BASIC</h3>
@@ -788,7 +788,7 @@ function Step4Premium({ register, errors, formData }: any) {
 
         {/* Coverage Rows */}
         {coverageRows.map((row, index) => (
-          <div key={index} className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-0 border-b border-gray-100">
+          <div key={index} className="grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-0 border-b border-gray-100">
             <div className="text-sm font-medium text-gray-700 flex items-center p-8">{row.label}</div>
             <div className={`flex justify-center items-center p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>
               {row.basic ? <CheckIcon /> : <CrossIcon />}
@@ -803,48 +803,48 @@ function Step4Premium({ register, errors, formData }: any) {
         ))}
 
         {/* VS Eigenschäden */}
-        <div className="grid grid-cols-4 gap-0 border-b border-gray-100 bg-[#F5F5F5]">
-          <div className="text-sm font-medium text-[#0032A0] flex items-center p-6">VS Eigenschäden</div>
-          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : ''}`}>{formatCurrency(PACKAGES.BASIC.eigenSchadenSum)}</div>
-          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : ''}`}>{formatCurrency(PACKAGES.OPTIMUM.eigenSchadenSum)}</div>
-          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : ''}`}>{formatCurrency(PACKAGES.PREMIUM.eigenSchadenSum)}</div>
+        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-0 border-b border-gray-100">
+          <div className="text-sm font-medium text-gray-700 flex items-center p-8">VS Eigenschäden</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.BASIC.eigenSchadenSum)}</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.OPTIMUM.eigenSchadenSum)}</div>
+          <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.PREMIUM.eigenSchadenSum)}</div>
         </div>
 
         {/* VS Cyber Haftpflicht */}
-        <div className="grid grid-cols-4 gap-0 border-b border-gray-100">
-          <div className="text-sm font-medium text-gray-700 flex items-center p-6">VS Cyber Haftpflicht</div>
+        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-0 border-b border-gray-100">
+          <div className="text-sm font-medium text-gray-700 flex items-center p-8">VS Cyber Haftpflicht</div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.BASIC.haftpflichtSum)}</div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.OPTIMUM.haftpflichtSum)}</div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.PREMIUM.haftpflichtSum)}</div>
         </div>
 
         {/* VS Cyber Rechtsschutz */}
-        <div className="grid grid-cols-4 gap-0 border-b border-gray-100">
-          <div className="text-sm font-medium text-gray-700 flex items-center p-6">VS Cyber Rechtsschutz</div>
+        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-0 border-b border-gray-100">
+          <div className="text-sm font-medium text-gray-700 flex items-center p-8">VS Cyber Rechtsschutz</div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.BASIC.rechtsschutzSum)}</div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.OPTIMUM.rechtsschutzSum)}</div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.PREMIUM.rechtsschutzSum)}</div>
         </div>
 
         {/* VS Cyber Crime */}
-        <div className="grid grid-cols-4 gap-0 border-b border-gray-100">
-          <div className="text-sm font-medium text-gray-700 flex items-center p-6">VS Cyber Crime</div>
+        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-0 border-b border-gray-100">
+          <div className="text-sm font-medium text-gray-700 flex items-center p-8">VS Cyber Crime</div>
           <div className={`flex justify-center items-center p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}><CrossIcon /></div>
           <div className={`flex justify-center items-center p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}><CrossIcon /></div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.PREMIUM.crimeSum)}</div>
         </div>
 
         {/* Selbstbehalt */}
-        <div className="grid grid-cols-4 gap-0 border-b border-gray-100">
-          <div className="text-sm font-medium text-gray-700 flex items-center p-6">Selbstbehalt</div>
+        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-0 border-b border-gray-100">
+          <div className="text-sm font-medium text-gray-700 flex items-center p-8">Selbstbehalt</div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.BASIC.deductible)}</div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{formatCurrency(PACKAGES.OPTIMUM.deductible)}</div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>CHF 0</div>
         </div>
 
         {/* Wartefrist */}
-        <div className="grid grid-cols-4 gap-0">
-          <div className="text-sm font-medium text-gray-700 flex items-center p-6">Wartefrist</div>
+        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-0">
+          <div className="text-sm font-medium text-gray-700 flex items-center p-8">Wartefrist</div>
           <div className={`flex justify-center items-center p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}><CrossIcon /></div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'OPTIMUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{PACKAGES.OPTIMUM.waitingPeriod}</div>
           <div className={`text-center text-sm text-[#0032A0] p-6 transition-colors ${selectedPackage === 'PREMIUM' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>{PACKAGES.PREMIUM.waitingPeriod}</div>
