@@ -1,28 +1,38 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-
+/* Zurich One Design System */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --zurich-blue: #0032A0;
+  --zurich-blue-dark: #001E5F;
+  --zurich-teal: #008C95;
+  --zurich-light-blue: #D9E8FC;
+  --zurich-lime: #CADB2D;
+  --background: #F5F7FA;
+  --foreground: #1A1A1A;
 }
 
 @theme inline {
+  --color-primary: var(--zurich-blue);
+  --color-secondary: var(--zurich-teal);
+  --color-accent: var(--zurich-lime);
+  --color-info: var(--zurich-light-blue);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 300;
+  letter-spacing: -0.01em;
 }

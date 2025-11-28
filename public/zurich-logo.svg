@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 100" fill="none">
+  <!-- Zurich Circle Logo -->
+  <circle cx="50" cy="50" r="48" fill="#0032A0"/>
+  
+  <!-- Z im Kreis - genau wie im Original -->
+  <g fill="white">
+    <!-- Oberer Teil des Z -->
+    <path d="M 25 28 L 75 28 L 75 35 L 38 35 L 75 67 L 75 72 L 25 72 L 25 65 L 62 65 L 25 33 Z"/>
+  </g>
+  
+  <!-- ZURICH Text -->
+  <g fill="#003781" font-family="'Times New Roman', serif" font-size="58" font-weight="bold">
+    <text x="120" y="72" letter-spacing="2">ZURICH</text>
+  </g>
+</svg>
