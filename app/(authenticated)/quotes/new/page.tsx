@@ -667,6 +667,15 @@ function Step5Coverage({ register, errors }: any) {
 // Step 4: Prämie (Package Selection)
 function Step4Premium({ register, errors, formData }: any) {
   const [selectedPackage, setSelectedPackage] = useState<string>(formData.package || '');
+  
+  const handlePackageSelect = (packageName: string) => {
+    setSelectedPackage(packageName);
+    // Trigger das versteckte Radio-Input
+    const radioInput = document.querySelector(`input[value="${packageName}"]`) as HTMLInputElement;
+    if (radioInput) {
+      radioInput.click();
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return `CHF ${amount.toLocaleString('de-CH')}`;
@@ -717,7 +726,7 @@ function Step4Premium({ register, errors, formData }: any) {
             <p className="text-xs text-gray-600 mb-3">ab / Jahr</p>
             <button
               type="button"
-              onClick={() => setSelectedPackage('BASIC')}
+              onClick={() => handlePackageSelect('BASIC')}
               className={`w-full py-2 rounded-full text-sm font-medium transition-colors ${
                 selectedPackage === 'BASIC'
                   ? 'bg-[#0032A0] text-white'
@@ -742,7 +751,7 @@ function Step4Premium({ register, errors, formData }: any) {
             <p className="text-xs text-gray-600 mb-3">ab / Jahr</p>
             <button
               type="button"
-              onClick={() => setSelectedPackage('OPTIMUM')}
+              onClick={() => handlePackageSelect('OPTIMUM')}
               className={`w-full py-2 rounded-full text-sm font-medium transition-colors ${
                 selectedPackage === 'OPTIMUM'
                   ? 'bg-[#0032A0] text-white'
@@ -767,7 +776,7 @@ function Step4Premium({ register, errors, formData }: any) {
             <p className="text-xs text-gray-600 mb-3">ab / Jahr</p>
             <button
               type="button"
-              onClick={() => setSelectedPackage('PREMIUM')}
+              onClick={() => handlePackageSelect('PREMIUM')}
               className={`w-full py-2 rounded-full text-sm font-medium transition-colors ${
                 selectedPackage === 'PREMIUM'
                   ? 'bg-[#0032A0] text-white'
