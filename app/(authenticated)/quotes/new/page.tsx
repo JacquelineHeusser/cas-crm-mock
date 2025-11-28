@@ -707,8 +707,8 @@ function Step4Premium({ register, errors, formData }: any) {
       {/* Table Layout */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         {/* Header Row */}
-        <div className="grid grid-cols-4 gap-0 bg-[#F5F5F5] border-b border-gray-200">
-          <div className="p-6"></div>
+        <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-0 bg-[#F5F5F5] border-b border-gray-200">
+          <div className="p-8"></div>
           <div className={`text-center p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : ''}`}>
             <h3 className="text-[#0032A0] text-lg font-medium mb-2">BASIC</h3>
             <div className="text-2xl font-bold text-[#0032A0] mb-1">
@@ -788,8 +788,8 @@ function Step4Premium({ register, errors, formData }: any) {
 
         {/* Coverage Rows */}
         {coverageRows.map((row, index) => (
-          <div key={index} className="grid grid-cols-4 gap-0 border-b border-gray-100">
-            <div className="text-sm font-medium text-gray-700 flex items-center p-6">{row.label}</div>
+          <div key={index} className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-0 border-b border-gray-100">
+            <div className="text-sm font-medium text-gray-700 flex items-center p-8">{row.label}</div>
             <div className={`flex justify-center items-center p-6 transition-colors ${selectedPackage === 'BASIC' ? 'bg-[#D9E8FC]' : 'hover:bg-gray-50'}`}>
               {row.basic ? <CheckIcon /> : <CrossIcon />}
             </div>
