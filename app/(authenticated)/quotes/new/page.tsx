@@ -136,8 +136,8 @@ export default function NewQuotePage() {
     );
   }
 
-  // Berechne Fortschritt
-  const progress = Math.round((currentStep / STEPS.length) * 100);
+  // Berechne Fortschritt (startet bei 0%)
+  const progress = Math.round(((currentStep - 1) / STEPS.length) * 100);
 
   return (
     <div className="flex flex-1 bg-white">
