@@ -1,6 +1,6 @@
 /**
- * Login-Seite
- * Formular für E-Mail/Passwort-Login mit React Hook Form + Zod
+ * Login-Seite - Zurich Design
+ * Formular für E-Mail/Passwort-Login
  */
 
 'use client';
@@ -10,6 +10,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { login } from '@/app/actions/auth';
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
+import Image from 'next/image';
 
 // Zod Schema für Login-Formular
 const loginSchema = z.object({
@@ -22,6 +24,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -45,90 +48,101 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200">
-      <div className="card w-96 bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title text-2xl font-bold mb-4">
-            ZurichOne Login
-          </h2>
-
-          {error && (
-            <div className="alert alert-error mb-4">
-              <span>{error}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* E-Mail Feld */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">E-Mail</span>
-              </label>
-              <input
-                type="email"
-                placeholder="name@firma.ch"
-                className={`input input-bordered ${
-                  errors.email ? 'input-error' : ''
-                }`}
-                {...register('email')}
-              />
-              {errors.email && (
-                <label className="label">
-                  <span className="label-text-alt text-error">
-                    {errors.email.message}
-                  </span>
-                </label>
-              )}
-            </div>
-
-            {/* Passwort Feld */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Passwort</span>
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className={`input input-bordered ${
-                  errors.password ? 'input-error' : ''
-                }`}
-                {...register('password')}
-              />
-              {errors.password && (
-                <label className="label">
-                  <span className="label-text-alt text-error">
-                    {errors.password.message}
-                  </span>
-                </label>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <div className="form-control mt-6">
-              <button
-                type="submit"
-                className={`btn btn-primary ${isLoading ? 'loading' : ''}`}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Wird eingeloggt...' : 'Einloggen'}
-              </button>
-            </div>
-          </form>
-
-          {/* Test-Accounts Hinweis */}
-          <div className="divider">Test-Accounts</div>
-          <div className="text-sm text-base-content/70">
-            <p className="font-semibold mb-2">Für Tests:</p>
-            <ul className="space-y-1">
-              <li>• Kunde: kontakt@swisstech.ch</li>
-              <li>• Broker: broker@swissquality.ch</li>
-              <li>• Underwriter: underwriter@zurich.ch</li>
-            </ul>
-            <p className="mt-2 text-xs">
-              (Passwort muss in Supabase Auth erstellt werden)
-            </p>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="w-full max-w-md px-8">
+        {/* Zurich Logo */}
+        <div className="flex justify-center mb-12">
+          <Image
+            src="/zurich-logo.png"
+            alt="Zurich"
+            width={200}
+            height={40}
+            priority
+          />
         </div>
+
+        {/* Titel */}
+        <h1 className="text-2xl font-light text-[#1A1A1A] mb-2 text-center">
+          Anmeldung bei Ihrem Konto
+        </h1>
+        <p className="text-center text-[#0032A0] text-sm mb-8">
+          Geben Sie Ihr Passwort ein.
+        </p>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* E-Mail Feld */}
+          <div className="relative">
+            <input
+              type="email"
+              placeholder="name@firma.ch"
+              className={`w-full px-6 py-4 border-2 rounded-full text-[#0032A0] placeholder:text-gray-400 focus:outline-none focus:border-[#008C95] ${
+                errors.email ? 'border-red-500' : 'border-[#008C95]'
+              }`}
+              {...register('email')}
+            />
+            <button
+              type="button"
+              className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] text-sm hover:underline"
+            >
+              Bearbeiten
+            </button>
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-2 ml-6">{errors.email.message}</p>
+            )}
+          </div>
+
+          {/* Passwort Feld */}
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Passwort*"
+              className={`w-full px-6 py-4 border-2 rounded-full text-[#0032A0] placeholder:text-gray-400 focus:outline-none focus:border-[#008C95] ${
+                errors.password ? 'border-red-500' : 'border-[#008C95]'
+              }`}
+              {...register('password')}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-2 ml-6">{errors.password.message}</p>
+            )}
+          </div>
+
+          {/* Passwort vergessen */}
+          <div className="text-left">
+            <a href="#" className="text-[#0032A0] text-sm hover:underline">
+              Passwort vergessen?
+            </a>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-[#0032A0] text-white py-4 rounded-full font-medium hover:bg-[#001E5F] transition-colors disabled:opacity-50"
+          >
+            {isLoading ? 'Wird angemeldet...' : 'Weiter'}
+          </button>
+
+          {/* Registrieren Link */}
+          <div className="text-center text-sm">
+            <span className="text-gray-600">Sie haben noch kein Konto? </span>
+            <a href="#" className="text-[#0032A0] hover:underline">
+              Registrieren
+            </a>
+          </div>
+        </form>
       </div>
     </div>
   );
