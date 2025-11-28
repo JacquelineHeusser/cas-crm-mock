@@ -37,7 +37,7 @@ export const companyDataSchema = z.object({
   zip: z.string().min(1, 'Pflichtfeld').regex(/^\d{4}$/, 'PLZ muss 4-stellig sein'),
   city: z.string().min(1, 'Pflichtfeld'),
   country: z.string().default('Schweiz'),
-  url: z.string().url('Ungültige URL').optional().or(z.literal('')),
+  url: z.string().optional().or(z.literal('')),
 });
 
 // Sektion: Cyber Risikoprofil
@@ -81,12 +81,23 @@ export const coverageSchema = z.object({
 });
 
 
+// Sektion: Zusammenfassung (keine Validierung nötig - nur Anzeige)
+export const summarySchema = z.object({});
+
+// Sektion: Bestätigung
+export const confirmationSchema = z.object({
+  acceptTerms: z.boolean().refine(val => val === true, {
+    message: 'Sie müssen die Bedingungen akzeptieren',
+  }),
+});
+
 // Vollständiges Offert-Schema
 export const fullQuoteSchema = z.object({
   companyData: companyDataSchema,
   cyberRiskProfile: cyberRiskProfileSchema,
   cyberSecurity: cyberSecuritySchema,
   coverage: coverageSchema,
+  confirmation: confirmationSchema,
 });
 
 // TypeScript Types aus Schemas

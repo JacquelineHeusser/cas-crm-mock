@@ -14,6 +14,8 @@ import {
   cyberRiskProfileSchema,
   cyberSecuritySchema,
   coverageSchema,
+  summarySchema,
+  confirmationSchema,
   INDUSTRIES,
   type CompanyData,
   type CyberRiskProfile,
@@ -27,6 +29,8 @@ const STEPS = [
   { id: 2, title: 'Cyber Risikoprofil', schema: cyberRiskProfileSchema },
   { id: 3, title: 'Cyber-Sicherheit', schema: cyberSecuritySchema },
   { id: 4, title: 'Versicherte Leistungen', schema: coverageSchema },
+  { id: 5, title: 'Zusammenfassung', schema: summarySchema },
+  { id: 6, title: 'Bestätigung', schema: confirmationSchema },
 ];
 
 export default function NewQuotePage() {
@@ -135,6 +139,8 @@ export default function NewQuotePage() {
           {currentStep === 2 && <Step2CyberRiskProfile register={register} errors={errors} />}
           {currentStep === 3 && <Step3CyberSecurity register={register} errors={errors} />}
           {currentStep === 4 && <Step4Coverage register={register} errors={errors} />}
+          {currentStep === 5 && <Step5Summary formData={formData} />}
+          {currentStep === 6 && <Step6Confirmation register={register} errors={errors} />}
 
           {/* Navigation Buttons */}
           <div className="flex justify-between items-center mt-12">
@@ -159,7 +165,7 @@ export default function NewQuotePage() {
               disabled={isSubmitting}
               className="btn bg-[#008C95] text-white hover:bg-[#006B73] rounded-full px-8 gap-2"
             >
-              {currentStep === STEPS.length ? 'Offerte berechnen' : 'Weiter'}
+              {currentStep === STEPS.length ? 'Offerte absenden' : 'Weiter'}
               <ChevronRight size={18} />
             </button>
           </div>
@@ -250,14 +256,11 @@ function Step1CompanyData({ register, errors }: any) {
 
       <QuestionField question="URL">
         <input
-          type="url"
+          type="text"
           placeholder="www.beispiel.ch"
           className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
           {...register('url')}
         />
-        {errors.url && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.url.message}</p>
-        )}
       </QuestionField>
     </div>
   );
@@ -589,6 +592,104 @@ function Step4Coverage({ register, errors }: any) {
           {errors.waitingPeriod && <p className="text-red-600 text-xs mt-2 ml-6">{errors.waitingPeriod.message}</p>}
         </div>
       </QuestionField>
+    </div>
+  );
+}
+
+// Step 5: Zusammenfassung (Read-Only)
+function Step5Summary({ formData }: { formData: any }) {
+  const SummarySection = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <div className="mb-8">
+      <h3 className="text-lg font-medium text-[#0032A0] mb-4 border-b border-gray-200 pb-2">{title}</h3>
+      {children}
+    </div>
+  );
+
+  const SummaryRow = ({ label, value }: { label: string; value: any }) => (
+    <div className="flex justify-between py-2 border-b border-gray-100">
+      <span className="text-gray-600">{label}</span>
+      <span className="text-[#0032A0] font-medium">{value || '-'}</span>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Zusammenfassung</h2>
+      <p className="text-gray-600 mb-6">Bitte prüfen Sie Ihre Angaben vor dem Absenden.</p>
+
+      {/* Unternehmensdaten */}
+      <SummarySection title="Unternehmensdaten">
+        <SummaryRow label="Versicherungsnehmer" value={formData.companyName} />
+        <SummaryRow label="Adresse" value={formData.address} />
+        <SummaryRow label="PLZ, Ort" value={formData.zip && formData.city ? `${formData.zip} ${formData.city}` : '-'} />
+        <SummaryRow label="Land" value={formData.country} />
+        <SummaryRow label="URL" value={formData.url} />
+      </SummarySection>
+
+      {/* Cyber Risikoprofil */}
+      <SummarySection title="Cyber Risikoprofil">
+        <SummaryRow label="Branche" value={formData.industry} />
+        <SummaryRow label="Keine Tochtergesellschaften im Ausland" value={formData.noForeignSubsidiaries} />
+        <SummaryRow label="Kein abgelehnter Versicherungsantrag" value={formData.noRejectedInsurance} />
+        <SummaryRow label="Anzahl Mitarbeitende" value={formData.employees} />
+        <SummaryRow label="Brutto-Gesamtumsatz" value={formData.revenue ? `CHF ${formData.revenue.toLocaleString('de-CH')}` : '-'} />
+        <SummaryRow label="E-Commerce Umsatzanteil" value={formData.eCommercePercentage} />
+        <SummaryRow label="Auslandsumsatz" value={formData.foreignRevenuePercentage} />
+      </SummarySection>
+
+      {/* Cyber-Sicherheit */}
+      <SummarySection title="Cyber-Sicherheit">
+        <SummaryRow label="Cybervorfälle in letzten 3 Jahren" value={formData.hadCyberIncidents} />
+        <SummaryRow label="Anzahl Personen-/Kundendaten" value={formData.personalDataCount} />
+        <SummaryRow label="Anzahl Medizinal-/Gesundheitsdaten" value={formData.medicalDataCount} />
+        <SummaryRow label="Anzahl Kreditkartendaten" value={formData.creditCardDataCount} />
+        <SummaryRow label="End-of-Life Systeme" value={formData.hasEndOfLifeSystems} />
+      </SummarySection>
+
+      {/* Versicherte Leistungen */}
+      <SummarySection title="Versicherte Leistungen">
+        <SummaryRow label="Deckungspaket" value={formData.package ? `${formData.package} Paket` : '-'} />
+        <SummaryRow label="Versicherungssumme Eigenschäden" value={formData.sumInsuredProperty} />
+        <SummaryRow label="Versicherungssumme Haftpflicht" value={formData.sumInsuredLiability} />
+        <SummaryRow label="Versicherungssumme Cyber Crime" value={formData.sumInsuredCyberCrime} />
+        <SummaryRow label="Selbstbehalt" value={formData.deductible} />
+        <SummaryRow label="Wartefrist Betriebsunterbruch" value={formData.waitingPeriod} />
+      </SummarySection>
+    </div>
+  );
+}
+
+// Step 6: Bestätigung
+function Step6Confirmation({ register, errors }: any) {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Bestätigung</h2>
+      
+      <div className="bg-[#D9E8FC] p-6 rounded-lg mb-8">
+        <p className="text-[#0032A0] text-sm">
+          Mit dem Absenden dieser Offertanfrage bestätigen Sie, dass alle Angaben wahrheitsgemäss und vollständig sind.
+        </p>
+      </div>
+
+      <label className="flex items-start gap-4 p-4 bg-[#F5F5F5] rounded-lg cursor-pointer">
+        <input
+          type="checkbox"
+          className="checkbox checkbox-primary mt-1"
+          {...register('acceptTerms')}
+        />
+        <span className="text-[#0032A0]">
+          Ich bestätige, dass alle gemachten Angaben korrekt und vollständig sind. Mir ist bewusst, dass falsche Angaben zur Ablehnung des Antrags oder zur Kündigung der Versicherung führen können.
+        </span>
+      </label>
+      {errors.acceptTerms && (
+        <p className="text-red-600 text-xs mt-2 ml-6">{errors.acceptTerms.message}</p>
+      )}
+
+      <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+        <p className="text-sm text-gray-600">
+          Nach dem Absenden wird Ihre Offertanfrage geprüft und Sie erhalten innerhalb von 2 Werktagen eine Rückmeldung.
+        </p>
+      </div>
     </div>
   );
 }
