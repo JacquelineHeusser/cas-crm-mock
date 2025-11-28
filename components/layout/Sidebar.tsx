@@ -7,7 +7,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, FileText, AlertCircle, Phone } from 'lucide-react';
+import { Home, FileText, AlertCircle, Phone, Calculator } from 'lucide-react';
 import { UserRole } from '@prisma/client';
 
 interface SidebarProps {
@@ -77,6 +77,7 @@ function getNavItems(role: UserRole) {
   const customerItems = [
     { href: '/dashboard', label: 'Home', icon: Home },
     { href: '/policen', label: 'Meine Policen', icon: FileText },
+    { href: '/offerten', label: 'Meine Offerten', icon: Calculator },
     { href: '/claims/new', label: 'Meine Schäden', icon: AlertCircle },
     { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
