@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
-import { saveQuoteStep, loadUserDraftQuote, getUserId } from '@/app/actions/quote';
+import { saveQuoteStep, getUserId } from '@/app/actions/quote';
 import { 
   companyDataSchema, 
   cyberRiskProfileSchema,
@@ -53,9 +53,9 @@ export default function NewQuotePage() {
     defaultValues: formData,
   });
 
-  // Beim Mounting: Lade letztes Draft Quote (falls vorhanden)
+  // Beim Mounting: Prüfe ob User eingeloggt ist
   useEffect(() => {
-    const loadDraft = async () => {
+    const checkAuth = async () => {
       // Hole User ID aus Session (Server Action)
       const { success, userId } = await getUserId();
       
@@ -65,28 +65,11 @@ export default function NewQuotePage() {
         return;
       }
       
-      const result = await loadUserDraftQuote(userId);
-      
-      if (result.success && result.quote) {
-        const quote = result.quote;
-        setQuoteId(quote.id);
-        
-        // Lade vorhandene Daten
-        const loadedData = {
-          ...(quote.companyData as any),
-          ...(quote.cyberRiskProfile as any),
-          ...(quote.cyberSecurity as any),
-          ...(quote.coverage as any),
-        };
-        
-        setFormData(loadedData);
-        reset(loadedData);
-      }
-      
+      // User ist eingeloggt - starte mit leerer Offerte
       setIsLoading(false);
     };
     
-    loadDraft();
+    checkAuth();
   }, []);
 
   // Nächster Schritt
