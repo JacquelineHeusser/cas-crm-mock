@@ -6,6 +6,7 @@
 import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { ChevronRight, Info } from 'lucide-react';
+import Link from 'next/link';
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -30,10 +31,11 @@ export default async function DashboardPage() {
           </p>
         </div>
         {user.role === 'CUSTOMER' && (
-          <button className="btn btn-outline border-[#0032A0] text-[#0032A0] hover:bg-[#0032A0] hover:text-white rounded-full px-6">
-            <Info size={18} />
-            Schaden melden
-          </button>
+          <Link href="/quotes/new">
+            <button className="btn bg-[#008C95] text-white hover:bg-[#006B73] rounded-full px-6">
+              Neue Offerte
+            </button>
+          </Link>
         )}
       </div>
 

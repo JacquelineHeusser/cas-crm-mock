@@ -1,0 +1,293 @@
+/**
+ * Neue Cyber-Offerte erstellen
+ * Mehrstufiger Wizard mit React Hook Form + Zod
+ */
+
+'use client';
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { 
+  companyDataSchema, 
+  itStructureSchema,
+  securityMeasuresSchema,
+  incidentsSchema,
+  coverageSchema,
+  type CompanyData,
+  type ITStructure,
+  type SecurityMeasures,
+  type Incidents,
+  type Coverage,
+} from '@/lib/validation/quote-schema';
+
+// Formular-Schritte
+const STEPS = [
+  { id: 1, title: 'Unternehmen', schema: companyDataSchema },
+  { id: 2, title: 'IT-Struktur', schema: itStructureSchema },
+  { id: 3, title: 'Sicherheit', schema: securityMeasuresSchema },
+  { id: 4, title: 'Vorfälle', schema: incidentsSchema },
+  { id: 5, title: 'Deckung', schema: coverageSchema },
+];
+
+export default function NewQuotePage() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState<any>({});
+
+  // Aktuelles Schema basierend auf Step
+  const currentSchema = STEPS[currentStep - 1].schema;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm({
+    resolver: zodResolver(currentSchema),
+    defaultValues: formData,
+  });
+
+  // Nächster Schritt
+  const onNext = async (data: any) => {
+    setFormData({ ...formData, ...data });
+    
+    if (currentStep < STEPS.length) {
+      setCurrentStep(currentStep + 1);
+      reset();
+    } else {
+      // Letzter Schritt: Offerte speichern
+      console.log('Finale Daten:', { ...formData, ...data });
+      // TODO: Server Action zum Speichern
+    }
+  };
+
+  // Vorheriger Schritt
+  const onBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  // Berechne Fortschritt
+  const progress = Math.round((currentStep / STEPS.length) * 100);
+
+  return (
+    <div className="flex flex-1 bg-white">
+      {/* Linke Sidebar - Progress */}
+      <div className="w-64 bg-[#F5F5F5] p-6">
+        <h2 className="text-[#0032A0] text-lg font-light mb-6">
+          Prämie berechnen
+        </h2>
+
+        {/* Progress Circle */}
+        <div className="mb-8">
+          <div className="relative w-20 h-20">
+            <svg className="transform -rotate-90 w-20 h-20">
+              <circle
+                cx="40"
+                cy="40"
+                r="36"
+                stroke="#E5E5E5"
+                strokeWidth="8"
+                fill="none"
+              />
+              <circle
+                cx="40"
+                cy="40"
+                r="36"
+                stroke="#0032A0"
+                strokeWidth="8"
+                fill="none"
+                strokeDasharray={`${2 * Math.PI * 36}`}
+                strokeDashoffset={`${2 * Math.PI * 36 * (1 - progress / 100)}`}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-[#0032A0] font-semibold">{progress}%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="space-y-2">
+          {STEPS.map((step) => (
+            <div
+              key={step.id}
+              className={`
+                py-2 px-3 rounded text-sm
+                ${currentStep === step.id 
+                  ? 'text-[#0032A0] font-medium bg-white/50' 
+                  : 'text-gray-600'
+                }
+              `}
+            >
+              {step.title}
+            </div>
+          ))}
+        </nav>
+      </div>
+
+      {/* Rechte Seite - Formular */}
+      <div className="flex-1 p-12 max-w-3xl">
+        <form onSubmit={handleSubmit(onNext)}>
+          {/* Dynamischer Content */}
+          {currentStep === 1 && <Step1CompanyData register={register} errors={errors} />}
+          {currentStep === 2 && <Step2ITStructure register={register} errors={errors} />}
+          {currentStep === 3 && <Step3Security register={register} errors={errors} />}
+          {currentStep === 4 && <Step4Incidents register={register} errors={errors} />}
+          {currentStep === 5 && <Step5Coverage register={register} errors={errors} />}
+
+          {/* Weiter Button - unten rechts, rund, teal */}
+          <div className="flex justify-end mt-12">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn bg-[#008C95] text-white hover:bg-[#006B73] rounded-full px-8 gap-2"
+            >
+              Weiter
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// Temporäre Step-Komponenten (werden später ausgelagert)
+function Step1CompanyData({ register, errors }: any) {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Ihr Unternehmen</h2>
+      
+      {/* Name des Unternehmens */}
+      <div>
+        <input
+          type="text"
+          placeholder="Name des Unternehmens*"
+          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+          {...register('companyName')}
+        />
+        {errors.companyName && (
+          <p className="text-error text-xs mt-2 ml-6">{errors.companyName.message}</p>
+        )}
+      </div>
+
+      {/* Adresse */}
+      <div>
+        <input
+          type="text"
+          placeholder="Adresse*"
+          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+          {...register('address')}
+        />
+        {errors.address && (
+          <p className="text-error text-xs mt-2 ml-6">{errors.address.message}</p>
+        )}
+      </div>
+
+      {/* PLZ & Ort */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <input
+            type="text"
+            placeholder="PLZ*"
+            className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+            {...register('zip')}
+          />
+          {errors.zip && (
+            <p className="text-error text-xs mt-2 ml-6">{errors.zip.message}</p>
+          )}
+        </div>
+        <div>
+          <input
+            type="text"
+            placeholder="Ort*"
+            className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+            {...register('city')}
+          />
+          {errors.city && (
+            <p className="text-error text-xs mt-2 ml-6">{errors.city.message}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Anzahl Mitarbeitende */}
+      <div>
+        <input
+          type="number"
+          placeholder="Anzahl Mitarbeitende (inkl. Geschäftsinhaber:in)*"
+          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+          {...register('employees', { valueAsNumber: true })}
+        />
+        {errors.employees && (
+          <p className="text-error text-xs mt-2 ml-6">{errors.employees.message}</p>
+        )}
+      </div>
+
+      {/* Branche */}
+      <div>
+        <input
+          type="text"
+          placeholder="Branche wählen*"
+          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+          {...register('industry')}
+        />
+        {errors.industry && (
+          <p className="text-error text-xs mt-2 ml-6">{errors.industry.message}</p>
+        )}
+      </div>
+
+      {/* Jahresumsatz */}
+      <div>
+        <input
+          type="number"
+          placeholder="Jahresumsatz (CHF)*"
+          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+          {...register('revenue', { valueAsNumber: true })}
+        />
+        {errors.revenue && (
+          <p className="text-error text-xs mt-2 ml-6">{errors.revenue.message}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Step2ITStructure({ register, errors }: any) {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-light mb-4">IT-Struktur</h2>
+      <p className="text-sm text-gray-600">Details folgen...</p>
+    </div>
+  );
+}
+
+function Step3Security({ register, errors }: any) {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-light mb-4">Sicherheitsmassnahmen</h2>
+      <p className="text-sm text-gray-600">Details folgen...</p>
+    </div>
+  );
+}
+
+function Step4Incidents({ register, errors }: any) {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-light mb-4">Cybervorfälle</h2>
+      <p className="text-sm text-gray-600">Details folgen...</p>
+    </div>
+  );
+}
+
+function Step5Coverage({ register, errors }: any) {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-light mb-4">Deckungswünsche</h2>
+      <p className="text-sm text-gray-600">Details folgen...</p>
+    </div>
+  );
+}
