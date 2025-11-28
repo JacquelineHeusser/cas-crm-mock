@@ -14,9 +14,139 @@ datasource db {
   directUrl  = env("DIRECT_DATABASE_URL")  // Session Pooler (Port 5432)
 }
 
-model TodoLoeschmich {
-  id        Int      @id @default(autoincrement())
-  title     String
-  done      Boolean  @default(false)
+// User-Tabelle für alle 3 Nutzergruppen
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      UserRole @default(CUSTOMER) // CUSTOMER, BROKER, UNDERWRITER
+  companyId String?  // Für Firmenkunden und Vermittler
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Beziehungen
+  company     Company?           @relation(fields: [companyId], references: [id])
+  quotes      Quote[]
+  underwritingCases UnderwritingCase[]
+
+  @@map("users")
+}
+
+// Unternehmen (KMU)
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  zip         String
+  city        String
+  country     String   @default("CH")
+  url         String?
+  industry    String
+  revenue     BigInt   // Umsatz in Rappen
+  employees   Int      // Anzahl Mitarbeitende
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Beziehungen
+  users User[]
+  quotes Quote[]
+
+  @@map("companies")
+}
+
+// Versicherungs-Offerten
+model Quote {
+  id          String      @id @default(cuid())
+  quoteNumber String      @unique
+  companyId   String
+  userId      String      // Erstellt von
+  status      QuoteStatus @default(DRAFT)
+  
+  // Unternehmensdaten (Snapshot)
+  companyData Json // Unternehmensdaten zum Offertzeitpunkt
+  
+  // IT-Struktur und Risikodaten
+  itStructure     Json // IT-Systeme, End-of-Life etc.
+  securityMeasures Json // Sicherheitsmassnahmen
+  incidents       Json // Bisherige Cybervorfälle
+  
+  // Deckungswünsche
+  coverageVariant String // z.B. "Optimum"
+  sumInsured      BigInt // Versicherungssumme
+  deductible      BigInt // Selbstbehalt
+  
+  // Risiko-Score
+  riskScore       RiskScore @default(A)
+  riskScoreReason String?
+  
+  // Preis
+  premium         BigInt // Prämie in Rappen
+  
+  // Zeitstempel
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Beziehungen
+  company Company @relation(fields: [companyId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  underwritingCase UnderwritingCase?
+
+  @@map("quotes")
+}
+
+// Underwriting-Fälle (für Score C-E)
+model UnderwritingCase {
+  id          String              @id @default(cuid())
+  quoteId     String              @unique
+  underwriterId String?           // Zugewiesener Underwriter
+  status      UnderwritingStatus  @default(PENDING)
+  decision    UnderwritingDecision?
+  notes       String?
+  internalNotes String?           // Nur für Underwriter sichtbar
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Beziehungen
+  quote       Quote @relation(fields: [quoteId], references: [id])
+  underwriter User? @relation(fields: [underwriterId], references: [id])
+
+  @@map("underwriting_cases")
+}
+
+// Enums
+enum UserRole {
+  CUSTOMER
+  BROKER
+  UNDERWRITER
+}
+
+enum QuoteStatus {
+  DRAFT
+  CALCULATED
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum RiskScore {
+  A // Sehr gut
+  B // Gut
+  C // Mittel
+  D // Schlecht
+  E // Sehr schlecht
+}
+
+enum UnderwritingStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  NEEDS_INFO
+}
+
+enum UnderwritingDecision {
+  APPROVE
+  REJECT
+  REQUEST_INFO
 }
