@@ -554,16 +554,26 @@ function Step5Coverage({ register, errors, formData }: any) {
   const selectedPackage = formData.package;
   const packageData = selectedPackage ? PACKAGES[selectedPackage as keyof typeof PACKAGES] : null;
   
-  // Formatiere Währungsbeträge für Defaults
-  const formatCurrency = (amount: number) => `CHF ${amount.toLocaleString('de-CH')}`;
+  // Formatiere Währungsbeträge für Defaults (mit Apostroph als Tausendertrennzeichen)
+  const formatCurrency = (amount: number) => {
+    if (amount === 0) return 'CHF 0';
+    const formatted = amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+    return `CHF ${formatted}`;
+  };
+  
+  // Konvertiere Wartefrist in Stunden-Format
+  const formatWaitingPeriod = (period: string) => {
+    if (period === '48 Stunden') return '48h';
+    if (period === '24 Stunden') return '24h';
+    return '';
+  };
   
   // Default-Werte basierend auf gewähltem Paket
   const defaultEigenSchadenSum = packageData ? formatCurrency(packageData.eigenSchadenSum) : '';
   const defaultHaftpflichtSum = packageData ? formatCurrency(packageData.haftpflichtSum) : '';
-  const defaultRechtsschutzSum = packageData ? formatCurrency(packageData.rechtsschutzSum) : '';
   const defaultCrimeSum = packageData && packageData.crimeSum > 0 ? formatCurrency(packageData.crimeSum) : '';
   const defaultDeductible = packageData ? formatCurrency(packageData.deductible) : '';
-  const defaultWaitingPeriod = packageData ? packageData.waitingPeriod : '';
+  const defaultWaitingPeriod = packageData ? formatWaitingPeriod(packageData.waitingPeriod) : '';
   
   // Zeige Cyber Crime nur bei PREMIUM
   const showCyberCrime = selectedPackage === 'PREMIUM';
@@ -630,20 +640,14 @@ function Step5Coverage({ register, errors, formData }: any) {
       </QuestionField>
 
       <QuestionField question="Versicherungssumme Rechtsschutz">
-        <div className="relative">
-          <select
-            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
-            {...register('sumInsuredLegalProtection')}
-            defaultValue={defaultRechtsschutzSum}
-          >
-            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
-            <option value="CHF 25'000">CHF 25'000</option>
-            <option value="CHF 50'000">CHF 50'000</option>
-            <option value="CHF 100'000">CHF 100'000</option>
-          </select>
-          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
-          {errors.sumInsuredLegalProtection && <p className="text-red-600 text-xs mt-2 ml-6">{errors.sumInsuredLegalProtection.message}</p>}
+        <div className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full text-[#0032A0] font-medium">
+          CHF 50'000
         </div>
+        <input
+          type="hidden"
+          {...register('sumInsuredLegalProtection')}
+          value="CHF 50'000"
+        />
       </QuestionField>
 
       {showCyberCrime && (
