@@ -23,6 +23,7 @@ import {
   type CyberSecurity,
   type Coverage,
 } from '@/lib/validation/quote-schema';
+import { premiumSchema, PACKAGES } from '@/lib/validation/premium-schema';
 
 // Formular-Schritte
 const STEPS = [
@@ -30,8 +31,9 @@ const STEPS = [
   { id: 2, title: 'Cyber Risikoprofil', schema: cyberRiskProfileSchema },
   { id: 3, title: 'Cyber-Sicherheit', schema: cyberSecuritySchema },
   { id: 4, title: 'Versicherte Leistungen', schema: coverageSchema },
-  { id: 5, title: 'Zusammenfassung', schema: summarySchema },
-  { id: 6, title: 'Bestätigung', schema: confirmationSchema },
+  { id: 5, title: 'Prämie', schema: premiumSchema },
+  { id: 6, title: 'Zusammenfassung', schema: summarySchema },
+  { id: 7, title: 'Bestätigung', schema: confirmationSchema },
 ];
 
 export default function NewQuotePage() {
@@ -204,8 +206,9 @@ export default function NewQuotePage() {
           {currentStep === 2 && <Step2CyberRiskProfile register={register} errors={errors} />}
           {currentStep === 3 && <Step3CyberSecurity register={register} errors={errors} />}
           {currentStep === 4 && <Step4Coverage register={register} errors={errors} />}
-          {currentStep === 5 && <Step5Summary formData={formData} />}
-          {currentStep === 6 && <Step6Confirmation register={register} errors={errors} />}
+          {currentStep === 5 && <Step5Premium register={register} errors={errors} formData={formData} />}
+          {currentStep === 6 && <Step6Summary formData={formData} />}
+          {currentStep === 7 && <Step7Confirmation register={register} errors={errors} />}
 
           {/* Navigation Buttons */}
           <div className="flex justify-between items-center mt-12">
@@ -661,8 +664,129 @@ function Step4Coverage({ register, errors }: any) {
   );
 }
 
-// Step 5: Zusammenfassung (Read-Only)
-function Step5Summary({ formData }: { formData: any }) {
+// Step 5: Prämie (Package Selection)
+function Step5Premium({ register, errors, formData }: any) {
+  const [selectedPackage, setSelectedPackage] = useState<string>(formData.package || '');
+
+  const formatCurrency = (amount: number) => {
+    return `CHF ${amount.toLocaleString('de-CH')}`;
+  };
+
+  const PackageCard = ({ packageKey, data }: { packageKey: string; data: any }) => {
+    const isSelected = selectedPackage === packageKey;
+
+    return (
+      <div
+        onClick={() => setSelectedPackage(packageKey)}
+        className={`relative rounded-lg p-6 cursor-pointer transition-all ${
+          isSelected
+            ? 'bg-[#D9E8FC] border-2 border-[#0032A0]'
+            : 'bg-white border-2 border-gray-200 hover:border-[#008C95]'
+        }`}
+      >
+        <input
+          type="radio"
+          value={packageKey}
+          {...register('package')}
+          checked={isSelected}
+          className="hidden"
+        />
+        
+        {/* Header */}
+        <div className="text-center mb-6">
+          <h3 className="text-[#0032A0] text-xl font-medium mb-2">{data.name}</h3>
+          <div className="text-3xl font-bold text-[#0032A0] mb-1">
+            {formatCurrency(data.price)}
+          </div>
+          <p className="text-sm text-gray-600">ab / Jahr</p>
+        </div>
+
+        {/* Button */}
+        <button
+          type="button"
+          onClick={() => setSelectedPackage(packageKey)}
+          className={`w-full py-2.5 rounded-full font-medium mb-6 transition-colors ${
+            isSelected
+              ? 'bg-[#0032A0] text-white'
+              : 'bg-[#008C95] text-white hover:bg-[#006B73]'
+          }`}
+        >
+          {isSelected ? 'Ausgewählt' : 'Paket auswählen'}
+        </button>
+
+        {/* Coverage List */}
+        <div className="space-y-3 mb-6">
+          <h4 className="text-sm font-medium text-[#0032A0] mb-3">Versicherte Deckungen</h4>
+          {data.coverages.map((coverage: string, index: number) => (
+            <div key={index} className="flex items-start gap-2 text-sm">
+              <svg className="w-5 h-5 text-[#008C95] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              <span className="text-gray-700">{coverage}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Details */}
+        <div className="border-t border-gray-200 pt-4 space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-600">VS Eigenschäden</span>
+            <span className="font-medium text-[#0032A0]">{formatCurrency(data.eigenSchadenSum)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">VS Cyber Haftpflicht</span>
+            <span className="font-medium text-[#0032A0]">{formatCurrency(data.haftpflichtSum)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">VS Cyber Rechtsschutz</span>
+            <span className="font-medium text-[#0032A0]">{formatCurrency(data.rechtsschutzSum)}</span>
+          </div>
+          {data.crimeSum > 0 && (
+            <div className="flex justify-between">
+              <span className="text-gray-600">VS Cyber Crime</span>
+              <span className="font-medium text-[#0032A0]">{formatCurrency(data.crimeSum)}</span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span className="text-gray-600">Selbstbehalt</span>
+            <span className="font-medium text-[#0032A0]">
+              {data.deductible > 0 ? formatCurrency(data.deductible) : 'CHF 0'}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Wartefrist</span>
+            <span className="font-medium text-[#0032A0]">{data.waitingPeriod}</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Prämie</h2>
+      
+      <div className="bg-[#CADB2D]/20 p-4 rounded-lg mb-8">
+        <p className="text-[#0032A0] text-sm">
+          Wählen Sie das passende Paket für Ihre Cyberversicherung.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-6">
+        <PackageCard packageKey="BASIC" data={PACKAGES.BASIC} />
+        <PackageCard packageKey="OPTIMUM" data={PACKAGES.OPTIMUM} />
+        <PackageCard packageKey="PREMIUM" data={PACKAGES.PREMIUM} />
+      </div>
+
+      {errors.package && (
+        <p className="text-red-600 text-sm mt-4">{errors.package.message}</p>
+      )}
+    </div>
+  );
+}
+
+// Step 6: Zusammenfassung (Read-Only)
+function Step6Summary({ formData }: { formData: any }) {
   const SummarySection = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="mb-8">
       <h3 className="text-lg font-medium text-[#0032A0] mb-4 border-b border-gray-200 pb-2">{title}</h3>
@@ -720,12 +844,22 @@ function Step5Summary({ formData }: { formData: any }) {
         <SummaryRow label="Selbstbehalt" value={formData.deductible} />
         <SummaryRow label="Wartefrist Betriebsunterbruch" value={formData.waitingPeriod} />
       </SummarySection>
+
+      {/* Prämie */}
+      {formData.package && PACKAGES[formData.package as keyof typeof PACKAGES] && (
+        <SummarySection title="Prämie">
+          <SummaryRow 
+            label="Gewähltes Paket" 
+            value={`${formData.package} - CHF ${PACKAGES[formData.package as keyof typeof PACKAGES].price.toLocaleString('de-CH')}/Jahr`} 
+          />
+        </SummarySection>
+      )}
     </div>
   );
 }
 
-// Step 6: Bestätigung
-function Step6Confirmation({ register, errors }: any) {
+// Step 7: Bestätigung
+function Step7Confirmation({ register, errors }: any) {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Bestätigung</h2>
