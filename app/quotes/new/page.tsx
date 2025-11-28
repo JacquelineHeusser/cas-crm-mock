@@ -5,10 +5,11 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { saveQuoteStep, loadUserDraftQuote } from '@/app/actions/quote';
 import { 
   companyDataSchema, 
   cyberRiskProfileSchema,
@@ -36,6 +37,8 @@ const STEPS = [
 export default function NewQuotePage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<any>({});
+  const [quoteId, setQuoteId] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Aktuelles Schema basierend auf Step
   const currentSchema = STEPS[currentStep - 1].schema;
@@ -50,17 +53,74 @@ export default function NewQuotePage() {
     defaultValues: formData,
   });
 
+  // Beim Mounting: Lade letztes Draft Quote (falls vorhanden)
+  useEffect(() => {
+    const loadDraft = async () => {
+      // TODO: User ID aus Session holen (aktuell hardcoded)
+      const userId = 'temp-user-id';
+      
+      const result = await loadUserDraftQuote(userId);
+      
+      if (result.success && result.quote) {
+        const quote = result.quote;
+        setQuoteId(quote.id);
+        
+        // Lade vorhandene Daten
+        const loadedData = {
+          ...(quote.companyData as any),
+          ...(quote.cyberRiskProfile as any),
+          ...(quote.cyberSecurity as any),
+          ...(quote.coverage as any),
+        };
+        
+        setFormData(loadedData);
+        reset(loadedData);
+      }
+      
+      setIsLoading(false);
+    };
+    
+    loadDraft();
+  }, []);
+
   // Nächster Schritt
   const onNext = async (data: any) => {
-    setFormData({ ...formData, ...data });
+    const updatedFormData = { ...formData, ...data };
+    setFormData(updatedFormData);
+    
+    // Speichere aktuellen Step in Datenbank
+    const stepMapping: Record<number, 'companyData' | 'cyberRiskProfile' | 'cyberSecurity' | 'coverage'> = {
+      1: 'companyData',
+      2: 'cyberRiskProfile',
+      3: 'cyberSecurity',
+      4: 'coverage',
+    };
+    
+    const stepName = stepMapping[currentStep];
+    
+    if (stepName) {
+      // TODO: User ID aus Session holen
+      const userId = 'temp-user-id';
+      
+      const result = await saveQuoteStep({
+        quoteId,
+        userId,
+        step: stepName,
+        stepData: data,
+      });
+      
+      if (result.success && result.quoteId) {
+        setQuoteId(result.quoteId);
+      }
+    }
     
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
       reset();
     } else {
-      // Letzter Schritt: Offerte speichern
-      console.log('Finale Daten:', { ...formData, ...data });
-      // TODO: Server Action zum Speichern
+      // Letzter Schritt: Offerte finalisieren
+      console.log('Offerte abgeschlossen:', quoteId);
+      // TODO: Redirect zu Bestätigungsseite
     }
   };
 
@@ -68,8 +128,19 @@ export default function NewQuotePage() {
   const onBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      // Lade Daten für vorherigen Step
+      reset(formData);
     }
   };
+
+  // Loading State
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-[#0032A0]">Lade Offertdaten...</div>
+      </div>
+    );
+  }
 
   // Berechne Fortschritt
   const progress = Math.round((currentStep / STEPS.length) * 100);
