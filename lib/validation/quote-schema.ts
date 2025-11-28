@@ -30,67 +30,68 @@ export const INDUSTRIES = [
   'Verwaltungs-, Unterstützungs-, Abfallwirtschafts- und Sanierungsdienste',
 ] as const;
 
-// Schritt 1: Unternehmensdaten
+// Sektion: Unternehmensdaten
 export const companyDataSchema = z.object({
   companyName: z.string().min(1, 'Pflichtfeld'),
   address: z.string().min(1, 'Pflichtfeld'),
   zip: z.string().min(1, 'Pflichtfeld').regex(/^\d{4}$/, 'PLZ muss 4-stellig sein'),
   city: z.string().min(1, 'Pflichtfeld'),
-  country: z.string().default('CH'),
+  country: z.string().default('Schweiz'),
   url: z.string().url('Ungültige URL').optional().or(z.literal('')),
+});
+
+// Sektion: Cyber Risikoprofil
+export const cyberRiskProfileSchema = z.object({
   industry: z.enum(INDUSTRIES),
-  revenue: z.number().min(0, 'Umsatz muss positiv sein'),
-  employees: z.number().int().min(1, 'Mindestens 1 Mitarbeiter').max(250, 'Maximal 250 Mitarbeiter'),
+  noForeignSubsidiaries: z.enum(['Trifft zu', 'Trifft nicht zu']),
+  noRejectedInsurance: z.enum(['Trifft zu', 'Trifft nicht zu']),
+  employees: z.number().int().min(1, 'Pflichtfeld'),
+  revenue: z.number().min(0, 'Pflichtfeld'),
+  eCommercePercentage: z.enum(['0%', '1 - 25%', '26 - 50%', 'Mehr als 50%']),
+  foreignRevenuePercentage: z.enum(['0%', '1 - 25%', '26 - 50%', 'Mehr als 50%']),
 });
 
-// Schritt 2: IT-Struktur
-export const itStructureSchema = z.object({
-  itSystemsCount: z.number().int().min(1, 'Pflichtfeld'),
-  hasEndOfLifeSystems: z.enum(['yes', 'no']),
-  hasCloudServices: z.enum(['yes', 'no']),
-  hasBackupSystem: z.enum(['yes', 'no']),
+// Sektion: Cyber-Sicherheit
+export const cyberSecuritySchema = z.object({
+  hadCyberIncidents: z.enum(['Ja', 'Nein']),
+  multipleIncidents: z.enum(['Ja', 'Nein']).optional(),
+  incidentDowntime72h: z.enum(['Ja', 'Nein']).optional(),
+  incidentFinancialLoss: z.enum(['Ja', 'Nein']).optional(),
+  incidentLiabilityClaims: z.enum(['Ja', 'Nein']).optional(),
+  businessContinuityAfterITFailure: z.enum([
+    'Alle Geschäftsprozesse können eine Woche fortgesetzt werden.',
+    'Die meisten Geschäftsprozesse können eine Woche fortgesetzt werden.',
+    'Die meisten Geschäftsprozesse können mindestens einen Tag, aber weniger als eine Woche, fortgesetzt werden.',
+    'Die meisten Geschäftsprozesse können weniger als einen Tag fortgesetzt werden oder kommen sofort zum Erliegen.'
+  ]).optional(),
+  personalDataCount: z.enum(['Keine', 'Bis 1\'000', 'Bis 10\'000', 'Bis 100\'000', 'Bis 1\'000\'000', 'Mehr als 1\'000\'000']),
+  medicalDataCount: z.enum(['Keine', 'Nur von Mitarbeitenden', 'Bis 10\'000', 'Bis 100\'000', 'Bis 1\'000\'000', 'Mehr als 1\'000\'000']),
+  creditCardDataCount: z.enum(['Keine oder durch einen externen Dienstleister verarbeitet', 'Nur von Mitarbeitenden', 'Bis 10\'000', 'Bis 100\'000', 'Bis 1\'000\'000', 'Mehr als 1\'000\'000']),
+  hasEndOfLifeSystems: z.enum(['Ja', 'Nein']),
 });
 
-// Schritt 3: Sicherheitsmassnahmen
-export const securityMeasuresSchema = z.object({
-  firewall: z.boolean(),
-  antivirus: z.boolean(),
-  backup: z.boolean(),
-  mfa: z.boolean(),
-  encryption: z.boolean(),
-  incidentResponse: z.boolean(),
-  securityTraining: z.boolean(),
-  patchManagement: z.boolean(),
-});
-
-// Schritt 4: Cybervorfälle
-export const incidentsSchema = z.object({
-  hasIncidents: z.enum(['yes', 'no']),
-  incidentCount: z.number().int().min(0).optional(),
-  ransomwareAttack: z.boolean().default(false),
-  dataLeak: z.boolean().default(false),
-});
-
-// Schritt 5: Deckungswünsche
+// Sektion: Versicherte Leistungen
 export const coverageSchema = z.object({
-  coverageVariant: z.enum(['basic', 'standard', 'optimum']),
-  sumInsured: z.number().min(100000, 'Mindestens CHF 100\'000').max(5000000, 'Maximal CHF 5\'000\'000'),
-  deductible: z.number().min(5000, 'Mindestens CHF 5\'000').max(50000, 'Maximal CHF 50\'000'),
+  package: z.enum(['BASIC', 'OPTIMUM', 'PREMIUM']),
+  sumInsuredProperty: z.enum(['CHF 50\'000', 'CHF 100\'000', 'CHF 250\'000', 'CHF 500\'000', 'CHF 1\'000\'000', 'CHF 2\'000\'000']),
+  sumInsuredLiability: z.enum(['CHF 500\'000', 'CHF 1\'000\'000', 'CHF 2\'000\'000']),
+  sumInsuredCyberCrime: z.enum(['CHF 50\'000', 'CHF 100\'000', 'CHF 250\'000']),
+  deductible: z.enum(['CHF 500', 'CHF 1\'000', 'CHF 2\'500', 'CHF 5\'000']),
+  waitingPeriod: z.enum(['12h', '24h', '48h']),
 });
+
 
 // Vollständiges Offert-Schema
 export const fullQuoteSchema = z.object({
-  company: companyDataSchema,
-  itStructure: itStructureSchema,
-  securityMeasures: securityMeasuresSchema,
-  incidents: incidentsSchema,
+  companyData: companyDataSchema,
+  cyberRiskProfile: cyberRiskProfileSchema,
+  cyberSecurity: cyberSecuritySchema,
   coverage: coverageSchema,
 });
 
 // TypeScript Types aus Schemas
 export type CompanyData = z.infer<typeof companyDataSchema>;
-export type ITStructure = z.infer<typeof itStructureSchema>;
-export type SecurityMeasures = z.infer<typeof securityMeasuresSchema>;
-export type Incidents = z.infer<typeof incidentsSchema>;
+export type CyberRiskProfile = z.infer<typeof cyberRiskProfileSchema>;
+export type CyberSecurity = z.infer<typeof cyberSecuritySchema>;
 export type Coverage = z.infer<typeof coverageSchema>;
 export type FullQuote = z.infer<typeof fullQuoteSchema>;

@@ -11,25 +11,22 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { 
   companyDataSchema, 
-  itStructureSchema,
-  securityMeasuresSchema,
-  incidentsSchema,
+  cyberRiskProfileSchema,
+  cyberSecuritySchema,
   coverageSchema,
   INDUSTRIES,
   type CompanyData,
-  type ITStructure,
-  type SecurityMeasures,
-  type Incidents,
+  type CyberRiskProfile,
+  type CyberSecurity,
   type Coverage,
 } from '@/lib/validation/quote-schema';
 
 // Formular-Schritte
 const STEPS = [
-  { id: 1, title: 'Unternehmen', schema: companyDataSchema },
-  { id: 2, title: 'IT-Struktur', schema: itStructureSchema },
-  { id: 3, title: 'Sicherheit', schema: securityMeasuresSchema },
-  { id: 4, title: 'Vorfälle', schema: incidentsSchema },
-  { id: 5, title: 'Deckung', schema: coverageSchema },
+  { id: 1, title: 'Unternehmensdaten', schema: companyDataSchema },
+  { id: 2, title: 'Cyber Risikoprofil', schema: cyberRiskProfileSchema },
+  { id: 3, title: 'Cyber-Sicherheit', schema: cyberSecuritySchema },
+  { id: 4, title: 'Versicherte Leistungen', schema: coverageSchema },
 ];
 
 export default function NewQuotePage() {
@@ -135,10 +132,9 @@ export default function NewQuotePage() {
         <form onSubmit={handleSubmit(onNext)}>
           {/* Dynamischer Content */}
           {currentStep === 1 && <Step1CompanyData register={register} errors={errors} />}
-          {currentStep === 2 && <Step2ITStructure register={register} errors={errors} />}
-          {currentStep === 3 && <Step3Security register={register} errors={errors} />}
-          {currentStep === 4 && <Step4Incidents register={register} errors={errors} />}
-          {currentStep === 5 && <Step5Coverage register={register} errors={errors} />}
+          {currentStep === 2 && <Step2CyberRiskProfile register={register} errors={errors} />}
+          {currentStep === 3 && <Step3CyberSecurity register={register} errors={errors} />}
+          {currentStep === 4 && <Step4Coverage register={register} errors={errors} />}
 
           {/* Navigation Buttons */}
           <div className="flex justify-between items-center mt-12">
@@ -173,27 +169,37 @@ export default function NewQuotePage() {
   );
 }
 
-// Temporäre Step-Komponenten (werden später ausgelagert)
+// Helper: Label + Input Komponente
+function QuestionField({ question, children }: { question: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-[#0032A0] text-sm font-normal mb-3">
+        {question}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+// Step 1: Unternehmensdaten
 function Step1CompanyData({ register, errors }: any) {
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Ihr Unternehmen</h2>
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Unternehmensdaten</h2>
       
-      {/* Name des Unternehmens */}
-      <div>
+      <QuestionField question="Versicherungsnehmer">
         <input
           type="text"
-          placeholder="Name des Unternehmens*"
+          placeholder="Versicherungsnehmer*"
           className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
           {...register('companyName')}
         />
         {errors.companyName && (
           <p className="text-red-600 text-xs mt-2 ml-6">{errors.companyName.message}</p>
         )}
-      </div>
+      </QuestionField>
 
-      {/* Adresse */}
-      <div>
+      <QuestionField question="Adresse">
         <input
           type="text"
           placeholder="Adresse*"
@@ -203,313 +209,386 @@ function Step1CompanyData({ register, errors }: any) {
         {errors.address && (
           <p className="text-red-600 text-xs mt-2 ml-6">{errors.address.message}</p>
         )}
-      </div>
+      </QuestionField>
 
-      {/* PLZ & Ort */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <input
-            type="text"
-            placeholder="PLZ*"
-            className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
-            {...register('zip')}
-          />
-          {errors.zip && (
-            <p className="text-red-600 text-xs mt-2 ml-6">{errors.zip.message}</p>
-          )}
+      <QuestionField question="PLZ, Ort">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <input
+              type="text"
+              placeholder="PLZ*"
+              className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+              {...register('zip')}
+            />
+            {errors.zip && (
+              <p className="text-red-600 text-xs mt-2 ml-6">{errors.zip.message}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="text"
+              placeholder="Ort*"
+              className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+              {...register('city')}
+            />
+            {errors.city && (
+              <p className="text-red-600 text-xs mt-2 ml-6">{errors.city.message}</p>
+            )}
+          </div>
         </div>
-        <div>
-          <input
-            type="text"
-            placeholder="Ort*"
-            className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
-            {...register('city')}
-          />
-          {errors.city && (
-            <p className="text-red-600 text-xs mt-2 ml-6">{errors.city.message}</p>
-          )}
-        </div>
-      </div>
+      </QuestionField>
 
-      {/* Anzahl Mitarbeitende */}
-      <div>
+      <QuestionField question="Land">
+        <input
+          type="text"
+          defaultValue="Schweiz"
+          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+          {...register('country')}
+          readOnly
+        />
+      </QuestionField>
+
+      <QuestionField question="URL">
+        <input
+          type="url"
+          placeholder="www.beispiel.ch"
+          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+          {...register('url')}
+        />
+        {errors.url && (
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.url.message}</p>
+        )}
+      </QuestionField>
+    </div>
+  );
+}
+
+// Step 2: Cyber Risikoprofil  
+function Step2CyberRiskProfile({ register, errors }: any) {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Cyber Risikoprofil</h2>
+      
+      <QuestionField question="Welche dieser Kategorien beschreibt die Geschäftstätigkeit Ihrer Firma am ehesten?">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('industry')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Branche wählen*</option>
+            {INDUSTRIES.map((industry) => (
+              <option key={industry} value={industry}>{industry}</option>
+            ))}
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.industry && <p className="text-red-600 text-xs mt-2 ml-6">{errors.industry.message}</p>}
+        </div>
+      </QuestionField>
+
+      <QuestionField question="Ihre Firma hat keine Tochtergesellschaften im Ausland und gehört zu keiner ausländischen Unternehmensgruppe.">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('noForeignSubsidiaries')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="Trifft zu">Trifft zu</option>
+            <option value="Trifft nicht zu">Trifft nicht zu</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.noForeignSubsidiaries && <p className="text-red-600 text-xs mt-2 ml-6">{errors.noForeignSubsidiaries.message}</p>}
+        </div>
+      </QuestionField>
+
+      <QuestionField question="Für die betreffenden Risiken wurde in den letzten 3 Jahren kein Versicherungsantrag abgelehnt.">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('noRejectedInsurance')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="Trifft zu">Trifft zu</option>
+            <option value="Trifft nicht zu">Trifft nicht zu</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.noRejectedInsurance && <p className="text-red-600 text-xs mt-2 ml-6">{errors.noRejectedInsurance.message}</p>}
+        </div>
+      </QuestionField>
+
+      <QuestionField question="Anzahl Mitarbeitende">
         <input
           type="number"
-          placeholder="Anzahl Mitarbeitende (inkl. Geschäftsinhaber:in)*"
+          placeholder="Anzahl Mitarbeitende*"
           className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
           {...register('employees', { valueAsNumber: true })}
         />
-        {errors.employees && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.employees.message}</p>
-        )}
-      </div>
+        {errors.employees && <p className="text-red-600 text-xs mt-2 ml-6">{errors.employees.message}</p>}
+      </QuestionField>
 
-      {/* Branche */}
-      <div className="relative">
-        <select
-          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
-          {...register('industry')}
-          defaultValue=""
-        >
-          <option value="" disabled className="text-[#0032A0]/60">
-            Branche wählen*
-          </option>
-          {INDUSTRIES.map((industry) => (
-            <option key={industry} value={industry} className="text-[#0032A0]">
-              {industry}
-            </option>
-          ))}
-        </select>
-        {/* Dropdown Icon */}
-        <ChevronRight 
-          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
-          size={20} 
-        />
-        {errors.industry && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.industry.message}</p>
-        )}
-      </div>
-
-      {/* Jahresumsatz */}
-      <div>
+      <QuestionField question="Brutto-Gesamtumsatz im vergangenen Geschäftsjahr">
         <input
           type="number"
-          placeholder="Jahresumsatz (CHF)*"
+          placeholder="Umsatz in CHF*"
           className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
           {...register('revenue', { valueAsNumber: true })}
         />
-        {errors.revenue && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.revenue.message}</p>
-        )}
-      </div>
+        {errors.revenue && <p className="text-red-600 text-xs mt-2 ml-6">{errors.revenue.message}</p>}
+      </QuestionField>
+
+      <QuestionField question="Wie viel Prozent des Gesamtumsatzes wurden durch E-Commerce erwirtschaftet?">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('eCommercePercentage')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="0%">0%</option>
+            <option value="1 - 25%">1 - 25%</option>
+            <option value="26 - 50%">26 - 50%</option>
+            <option value="Mehr als 50%">Mehr als 50%</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.eCommercePercentage && <p className="text-red-600 text-xs mt-2 ml-6">{errors.eCommercePercentage.message}</p>}
+        </div>
+      </QuestionField>
+
+      <QuestionField question="Wie viel Prozent des Gesamtumsatzes wurden ausserhalb der Schweiz und dem Fürstentum Liechtenstein erwirtschaftet?">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('foreignRevenuePercentage')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="0%">0%</option>
+            <option value="1 - 25%">1 - 25%</option>
+            <option value="26 - 50%">26 - 50%</option>
+            <option value="Mehr als 50%">Mehr als 50%</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.foreignRevenuePercentage && <p className="text-red-600 text-xs mt-2 ml-6">{errors.foreignRevenuePercentage.message}</p>}
+        </div>
+      </QuestionField>
     </div>
   );
 }
 
-function Step2ITStructure({ register, errors }: any) {
+// Step 3: Cyber-Sicherheit (erste Basisfelder - kann erweitert werden)
+function Step3CyberSecurity({ register, errors }: any) {
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">IT-Struktur</h2>
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Cyber-Sicherheit</h2>
       
-      {/* Anzahl IT-Systeme */}
-      <div>
-        <input
-          type="number"
-          placeholder="Anzahl IT-Systeme*"
-          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
-          {...register('itSystemsCount', { valueAsNumber: true })}
-        />
-        {errors.itSystemsCount && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.itSystemsCount.message}</p>
-        )}
-      </div>
+      <QuestionField question="Gab es in den letzten 3 Jahren Cybervorfälle oder -angriffe, durch die Informationen verloren gingen oder gestohlen wurden?">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('hadCyberIncidents')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="Nein">Nein</option>
+            <option value="Ja">Ja</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.hadCyberIncidents && <p className="text-red-600 text-xs mt-2 ml-6">{errors.hadCyberIncidents.message}</p>}
+        </div>
+      </QuestionField>
 
-      {/* End-of-Life Systeme */}
-      <div className="relative">
-        <select
-          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
-          {...register('hasEndOfLifeSystems')}
-          defaultValue=""
-        >
-          <option value="" disabled className="text-[#0032A0]/60">
-            Veraltete End-of-Life Systeme vorhanden?*
-          </option>
-          <option value="no">Nein</option>
-          <option value="yes">Ja</option>
-        </select>
-        <ChevronRight 
-          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
-          size={20} 
-        />
-        {errors.hasEndOfLifeSystems && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.hasEndOfLifeSystems.message}</p>
-        )}
-      </div>
+      <QuestionField question="Wie viele Personen- und Kundendaten bearbeitet Ihre Firma?">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('personalDataCount')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="Keine">Keine</option>
+            <option value="Bis 1'000">Bis 1'000</option>
+            <option value="Bis 10'000">Bis 10'000</option>
+            <option value="Bis 100'000">Bis 100'000</option>
+            <option value="Bis 1'000'000">Bis 1'000'000</option>
+            <option value="Mehr als 1'000'000">Mehr als 1'000'000</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.personalDataCount && <p className="text-red-600 text-xs mt-2 ml-6">{errors.personalDataCount.message}</p>}
+        </div>
+      </QuestionField>
 
-      {/* Cloud-Services */}
-      <div className="relative">
-        <select
-          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
-          {...register('hasCloudServices')}
-          defaultValue=""
-        >
-          <option value="" disabled className="text-[#0032A0]/60">
-            Cloud-Services für Backup/Redundanz?*
-          </option>
-          <option value="yes">Ja</option>
-          <option value="no">Nein</option>
-        </select>
-        <ChevronRight 
-          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
-          size={20} 
-        />
-        {errors.hasCloudServices && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.hasCloudServices.message}</p>
-        )}
-      </div>
+      <QuestionField question="Wie viele Medizinal- und Gesundheitsdaten bearbeitet Ihre Firma?">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('medicalDataCount')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="Keine">Keine</option>
+            <option value="Nur von Mitarbeitenden">Nur von Mitarbeitenden</option>
+            <option value="Bis 10'000">Bis 10'000</option>
+            <option value="Bis 100'000">Bis 100'000</option>
+            <option value="Bis 1'000'000">Bis 1'000'000</option>
+            <option value="Mehr als 1'000'000">Mehr als 1'000'000</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.medicalDataCount && <p className="text-red-600 text-xs mt-2 ml-6">{errors.medicalDataCount.message}</p>}
+        </div>
+      </QuestionField>
 
-      {/* Backup-System */}
-      <div className="relative">
-        <select
-          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
-          {...register('hasBackupSystem')}
-          defaultValue=""
-        >
-          <option value="" disabled className="text-[#0032A0]/60">
-            Regelmässiges Backup-System vorhanden?*
-          </option>
-          <option value="yes">Ja</option>
-          <option value="no">Nein</option>
-        </select>
-        <ChevronRight 
-          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
-          size={20} 
-        />
-        {errors.hasBackupSystem && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.hasBackupSystem.message}</p>
-        )}
-      </div>
+      <QuestionField question="Wie viele Kreditkartendaten bearbeitet Ihre Firma?">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('creditCardDataCount')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="Keine oder durch einen externen Dienstleister verarbeitet">Keine oder durch einen externen Dienstleister verarbeitet</option>
+            <option value="Nur von Mitarbeitenden">Nur von Mitarbeitenden</option>
+            <option value="Bis 10'000">Bis 10'000</option>
+            <option value="Bis 100'000">Bis 100'000</option>
+            <option value="Bis 1'000'000">Bis 1'000'000</option>
+            <option value="Mehr als 1'000'000">Mehr als 1'000'000</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.creditCardDataCount && <p className="text-red-600 text-xs mt-2 ml-6">{errors.creditCardDataCount.message}</p>}
+        </div>
+      </QuestionField>
+
+      <QuestionField question="Arbeiten Sie noch mit älteren Systemen, für die keine Sicherheits-Updates mehr bereitgestellt werden (z.B. Windows 10)?">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('hasEndOfLifeSystems')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="Nein">Nein</option>
+            <option value="Ja">Ja</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.hasEndOfLifeSystems && <p className="text-red-600 text-xs mt-2 ml-6">{errors.hasEndOfLifeSystems.message}</p>}
+        </div>
+      </QuestionField>
     </div>
   );
 }
 
-function Step3Security({ register, errors }: any) {
-  const securityMeasures = [
-    { name: 'firewall', label: 'Firewall' },
-    { name: 'antivirus', label: 'Antivirus' },
-    { name: 'backup', label: 'Backup' },
-    { name: 'mfa', label: 'Multi-Faktor-Authentifizierung (MFA)' },
-    { name: 'encryption', label: 'Verschlüsselung' },
-    { name: 'incidentResponse', label: 'Incident Response Plan' },
-    { name: 'securityTraining', label: 'Sicherheitsschulungen' },
-    { name: 'patchManagement', label: 'Patch Management' },
-  ];
-
+// Step 4: Versicherte Leistungen
+function Step4Coverage({ register, errors }: any) {
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Sicherheitsmassnahmen</h2>
-      <p className="text-gray-600 mb-6">Welche Sicherheitsmassnahmen sind implementiert?</p>
+      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Versicherte Leistungen</h2>
       
-      <div className="space-y-4">
-        {securityMeasures.map((measure) => (
-          <label key={measure.name} className="flex items-center gap-4 p-4 bg-[#F5F5F5] rounded-full cursor-pointer hover:bg-[#E8E8E8] transition-colors">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-primary"
-              {...register(measure.name)}
-            />
-            <span className="text-[#0032A0]">{measure.label}</span>
-          </label>
-        ))}
-      </div>
-    </div>
-  );
-}
+      <QuestionField question="Versicherte Deckungen">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('package')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Paket wählen*</option>
+            <option value="BASIC">BASIC Paket</option>
+            <option value="OPTIMUM">OPTIMUM Paket</option>
+            <option value="PREMIUM">PREMIUM Paket</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.package && <p className="text-red-600 text-xs mt-2 ml-6">{errors.package.message}</p>}
+        </div>
+      </QuestionField>
 
-function Step4Incidents({ register, errors }: any) {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Cybervorfälle</h2>
-      
-      {/* Vorfälle vorhanden */}
-      <div className="relative">
-        <select
-          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
-          {...register('hasIncidents')}
-          defaultValue=""
-        >
-          <option value="" disabled className="text-[#0032A0]/60">
-            Gab es bereits Cybervorfälle?*
-          </option>
-          <option value="no">Nein</option>
-          <option value="yes">Ja</option>
-        </select>
-        <ChevronRight 
-          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
-          size={20} 
-        />
-        {errors.hasIncidents && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.hasIncidents.message}</p>
-        )}
-      </div>
+      <QuestionField question="Versicherungssumme Eigenschäden">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('sumInsuredProperty')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="CHF 50'000">CHF 50'000</option>
+            <option value="CHF 100'000">CHF 100'000</option>
+            <option value="CHF 250'000">CHF 250'000</option>
+            <option value="CHF 500'000">CHF 500'000</option>
+            <option value="CHF 1'000'000">CHF 1'000'000</option>
+            <option value="CHF 2'000'000">CHF 2'000'000</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.sumInsuredProperty && <p className="text-red-600 text-xs mt-2 ml-6">{errors.sumInsuredProperty.message}</p>}
+        </div>
+      </QuestionField>
 
-      {/* Checkboxen für spezifische Vorfälle */}
-      <div className="space-y-4">
-        <label className="flex items-center gap-4 p-4 bg-[#F5F5F5] rounded-full cursor-pointer hover:bg-[#E8E8E8] transition-colors">
-          <input
-            type="checkbox"
-            className="checkbox checkbox-primary"
-            {...register('ransomwareAttack')}
-          />
-          <span className="text-[#0032A0]">Ransomware-Angriff</span>
-        </label>
+      <QuestionField question="Versicherungssumme Haftpflicht">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('sumInsuredLiability')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="CHF 500'000">CHF 500'000</option>
+            <option value="CHF 1'000'000">CHF 1'000'000</option>
+            <option value="CHF 2'000'000">CHF 2'000'000</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.sumInsuredLiability && <p className="text-red-600 text-xs mt-2 ml-6">{errors.sumInsuredLiability.message}</p>}
+        </div>
+      </QuestionField>
 
-        <label className="flex items-center gap-4 p-4 bg-[#F5F5F5] rounded-full cursor-pointer hover:bg-[#E8E8E8] transition-colors">
-          <input
-            type="checkbox"
-            className="checkbox checkbox-primary"
-            {...register('dataLeak')}
-          />
-          <span className="text-[#0032A0]">Datenleck</span>
-        </label>
-      </div>
-    </div>
-  );
-}
+      <QuestionField question="Versicherungssumme Cyber Crime">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('sumInsuredCyberCrime')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="CHF 50'000">CHF 50'000</option>
+            <option value="CHF 100'000">CHF 100'000</option>
+            <option value="CHF 250'000">CHF 250'000</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.sumInsuredCyberCrime && <p className="text-red-600 text-xs mt-2 ml-6">{errors.sumInsuredCyberCrime.message}</p>}
+        </div>
+      </QuestionField>
 
-function Step5Coverage({ register, errors }: any) {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Deckungswünsche</h2>
-      
-      {/* Deckungsvariante */}
-      <div className="relative">
-        <select
-          className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
-          {...register('coverageVariant')}
-          defaultValue=""
-        >
-          <option value="" disabled className="text-[#0032A0]/60">
-            Deckungsvariante wählen*
-          </option>
-          <option value="basic">Basic</option>
-          <option value="standard">Standard</option>
-          <option value="optimum">Optimum</option>
-        </select>
-        <ChevronRight 
-          className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" 
-          size={20} 
-        />
-        {errors.coverageVariant && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.coverageVariant.message}</p>
-        )}
-      </div>
+      <QuestionField question="Selbstbehalt">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('deductible')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="CHF 500">CHF 500</option>
+            <option value="CHF 1'000">CHF 1'000</option>
+            <option value="CHF 2'500">CHF 2'500</option>
+            <option value="CHF 5'000">CHF 5'000</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.deductible && <p className="text-red-600 text-xs mt-2 ml-6">{errors.deductible.message}</p>}
+        </div>
+      </QuestionField>
 
-      {/* Versicherungssumme */}
-      <div>
-        <input
-          type="number"
-          placeholder="Versicherungssumme (CHF)*"
-          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
-          {...register('sumInsured', { valueAsNumber: true })}
-        />
-        {errors.sumInsured && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.sumInsured.message}</p>
-        )}
-      </div>
-
-      {/* Selbstbehalt */}
-      <div>
-        <input
-          type="number"
-          placeholder="Selbstbehalt (CHF)*"
-          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
-          {...register('deductible', { valueAsNumber: true })}
-        />
-        {errors.deductible && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.deductible.message}</p>
-        )}
-      </div>
+      <QuestionField question="Wartefrist Betriebsunterbruch">
+        <div className="relative">
+          <select
+            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+            {...register('waitingPeriod')}
+            defaultValue=""
+          >
+            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="12h">12h</option>
+            <option value="24h">24h</option>
+            <option value="48h">48h</option>
+          </select>
+          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+          {errors.waitingPeriod && <p className="text-red-600 text-xs mt-2 ml-6">{errors.waitingPeriod.message}</p>}
+        </div>
+      </QuestionField>
     </div>
   );
 }
