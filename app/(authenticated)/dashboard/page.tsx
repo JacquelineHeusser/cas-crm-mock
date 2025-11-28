@@ -60,7 +60,7 @@ export default async function DashboardPage() {
           {/* Policen Cards */}
           <div className="space-y-3">
             {/* Police 1 - Zurich Cyberversicherung */}
-            <div className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+            <Link href="/policen/72584938" className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
               <div className="flex items-center gap-4 flex-1">
                 <div className="w-12 h-12 bg-[#008C95] rounded-full flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,10 +82,10 @@ export default async function DashboardPage() {
                   <ChevronRight className="text-gray-400" size={20} />
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Police 2 - Zurich Sachversicherung */}
-            <div className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+            <Link href="/policen/72584941" className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
               <div className="flex items-center gap-4 flex-1">
                 <div className="w-12 h-12 bg-[#0032A0] rounded-full flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,10 +107,10 @@ export default async function DashboardPage() {
                   <ChevronRight className="text-gray-400" size={20} />
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Police 3 - Zurich Betriebshaftpflichtversicherung */}
-            <div className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+            <Link href="/policen/72584945" className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
               <div className="flex items-center gap-4 flex-1">
                 <div className="w-12 h-12 bg-[#008C95] rounded-full flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,7 +132,7 @@ export default async function DashboardPage() {
                   <ChevronRight className="text-gray-400" size={20} />
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       )}
