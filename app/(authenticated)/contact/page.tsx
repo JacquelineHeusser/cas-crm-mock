@@ -11,8 +11,8 @@ import Image from 'next/image';
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="p-8">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <h1 className="text-4xl font-light text-[#0032A0] mb-8">
           Kontakt
