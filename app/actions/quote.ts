@@ -35,6 +35,19 @@ export async function saveQuoteStep(data: {
     // Sonst: Neues Quote erstellen
     const quoteNumber = `Q-${Date.now()}`; // Temporäre Quote-Nummer
     
+    // Erstelle temporären User falls nicht vorhanden
+    let user = await prisma.user.findFirst({ where: { id: userId } });
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          id: userId,
+          email: 'temp@example.com',
+          name: 'Temporärer User',
+          role: 'CUSTOMER',
+        },
+      });
+    }
+    
     const newQuote = await prisma.quote.create({
       data: {
         quoteNumber,
