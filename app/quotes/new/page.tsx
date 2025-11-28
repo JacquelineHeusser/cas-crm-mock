@@ -56,8 +56,15 @@ export default function NewQuotePage() {
   // Beim Mounting: Lade letztes Draft Quote (falls vorhanden)
   useEffect(() => {
     const loadDraft = async () => {
-      // TODO: User ID aus Session holen (aktuell hardcoded)
-      const userId = 'temp-user-id';
+      // Hole User ID aus Session
+      const { getCurrentUserId } = await import('@/lib/auth/get-user');
+      const userId = await getCurrentUserId();
+      
+      if (!userId) {
+        // Nicht eingeloggt - redirect zu Login
+        window.location.href = '/login';
+        return;
+      }
       
       const result = await loadUserDraftQuote(userId);
       
@@ -99,8 +106,14 @@ export default function NewQuotePage() {
     const stepName = stepMapping[currentStep];
     
     if (stepName) {
-      // TODO: User ID aus Session holen
-      const userId = 'temp-user-id';
+      // Hole User ID aus Session
+      const { getCurrentUserId } = await import('@/lib/auth/get-user');
+      const userId = await getCurrentUserId();
+      
+      if (!userId) {
+        window.location.href = '/login';
+        return;
+      }
       
       const result = await saveQuoteStep({
         quoteId,
