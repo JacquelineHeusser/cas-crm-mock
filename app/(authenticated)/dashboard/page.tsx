@@ -53,17 +53,13 @@ export default async function DashboardPage() {
       {/* Meine Policen Section */}
       {user.role === 'CUSTOMER' && (
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
+          <div className="mb-4">
             <h2 className="text-xl font-light text-[#1A1A1A]">Meine Policen</h2>
-            <Link href="/policen" className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline">
-              Alles ansehen (2)
-              <ChevronRight size={16} />
-            </Link>
           </div>
 
           {/* Policen Cards */}
           <div className="space-y-3">
-            {/* Police 1 - Cyber Insurance */}
+            {/* Police 1 - Zurich Cyberversicherung */}
             <div className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
               <div className="flex items-center gap-4 flex-1">
                 <div className="w-12 h-12 bg-[#008C95] rounded-full flex items-center justify-center flex-shrink-0">
@@ -72,7 +68,7 @@ export default async function DashboardPage() {
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-medium text-[#1A1A1A] mb-1">Cyber Insurance</h3>
+                  <h3 className="font-medium text-[#1A1A1A] mb-1">Zurich Cyberversicherung</h3>
                   <p className="text-sm text-gray-600">Policennummer 72584938</p>
                 </div>
                 <div className="text-right mr-4">
@@ -88,21 +84,46 @@ export default async function DashboardPage() {
               </div>
             </div>
 
-            {/* Police 2 - Relax Assistance */}
+            {/* Police 2 - Zurich Sachversicherung */}
             <div className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
               <div className="flex items-center gap-4 flex-1">
                 <div className="w-12 h-12 bg-[#0032A0] rounded-full flex items-center justify-center flex-shrink-0">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-medium text-[#1A1A1A] mb-1">Relax Assistance</h3>
-                  <p className="text-sm text-gray-600">Policennummer 72584938</p>
+                  <h3 className="font-medium text-[#1A1A1A] mb-1">Zurich Sachversicherung</h3>
+                  <p className="text-sm text-gray-600">Policennummer 72584941</p>
                 </div>
                 <div className="text-right mr-4">
                   <p className="text-sm text-gray-600 mb-1">Jahresprämie</p>
-                  <p className="font-medium text-[#1A1A1A]">CHF 450</p>
+                  <p className="font-medium text-[#1A1A1A]">CHF 3'200</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="px-3 py-1 bg-[#CADB2D] text-[#0032A0] text-xs font-medium rounded-full">
+                    Aktiv
+                  </span>
+                  <ChevronRight className="text-gray-400" size={20} />
+                </div>
+              </div>
+            </div>
+
+            {/* Police 3 - Zurich Betriebshaftpflichtversicherung */}
+            <div className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 bg-[#008C95] rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-[#1A1A1A] mb-1">Zurich Betriebshaftpflichtversicherung</h3>
+                  <p className="text-sm text-gray-600">Policennummer 72584945</p>
+                </div>
+                <div className="text-right mr-4">
+                  <p className="text-sm text-gray-600 mb-1">Jahresprämie</p>
+                  <p className="font-medium text-[#1A1A1A]">CHF 1'800</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="px-3 py-1 bg-[#CADB2D] text-[#0032A0] text-xs font-medium rounded-full">
@@ -119,12 +140,8 @@ export default async function DashboardPage() {
       {/* Meine Offerten Section */}
       {user.role === 'CUSTOMER' && (
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
+          <div className="mb-4">
             <h2 className="text-xl font-light text-[#1A1A1A]">Meine Offerten</h2>
-            <Link href="/quotes" className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline">
-              Alles ansehen (1)
-              <ChevronRight size={16} />
-            </Link>
           </div>
 
           {/* Offerten Cards */}
@@ -138,7 +155,7 @@ export default async function DashboardPage() {
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-medium text-[#1A1A1A] mb-1">Cyber Insurance - Offerte</h3>
+                  <h3 className="font-medium text-[#1A1A1A] mb-1">Zurich Cyberversicherung - Offerte</h3>
                   <p className="text-sm text-gray-600">Erstellt am 28.11.2024</p>
                 </div>
                 <div className="text-right mr-4">
