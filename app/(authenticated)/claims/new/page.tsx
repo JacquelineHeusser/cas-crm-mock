@@ -3,32 +3,40 @@
  * Placeholder für zukünftige Schadensmeldung
  */
 
-'use client';
-
-import { AlertCircle, ArrowLeft } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { getCurrentUser } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
-export default function NewClaimPage() {
+export default async function NewClaimPage() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  // Extrahiere Vornamen
+  const firstName = user.name.split(' ')[0];
+
   return (
     <div className="p-8">
       <div className="max-w-2xl mx-auto">
-        {/* Back Link */}
-        <Link
-          href="/contact"
-          className="inline-flex items-center gap-2 text-[#0032A0] hover:gap-3 transition-all mb-8"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Zurück
-        </Link>
-
         {/* Header */}
+        <h1 className="text-3xl font-light text-[#1A1A1A] mb-2">
+          Guten Tag {firstName}
+        </h1>
+        <p className="text-gray-600 text-sm mb-8">
+          Wir sind immer für Sie da.
+        </p>
+
+        {/* Content */}
         <div className="text-center mb-12">
           <div className="w-20 h-20 bg-[#0032A0] rounded-full flex items-center justify-center mx-auto mb-6">
             <AlertCircle className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-light text-[#0032A0] mb-4">
+          <h2 className="text-2xl font-light text-[#0032A0] mb-4">
             Schadenfall melden
-          </h1>
+          </h2>
           <p className="text-gray-700">
             Diese Funktionalität wird in Kürze verfügbar sein.
           </p>

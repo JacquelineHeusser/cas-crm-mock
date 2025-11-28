@@ -3,20 +3,32 @@
  * Kontaktinformationen und Support-Optionen für Kunden
  */
 
-'use client';
-
 import { Phone, Mail, MapPin, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getCurrentUser } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  // Extrahiere Vornamen
+  const firstName = user.name.split(' ')[0];
+
   return (
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <h1 className="text-4xl font-light text-[#0032A0] mb-8">
-          Kontakt
+        <h1 className="text-3xl font-light text-[#1A1A1A] mb-2">
+          Guten Tag {firstName}
         </h1>
+        <p className="text-gray-600 text-sm mb-8">
+          Wir sind immer für Sie da.
+        </p>
 
         {/* Logo und Intro */}
         <div className="text-center mb-12">
