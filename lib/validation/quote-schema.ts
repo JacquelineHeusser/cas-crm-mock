@@ -75,9 +75,10 @@ export const coverageSchema = z.object({
   package: z.enum(['BASIC', 'OPTIMUM', 'PREMIUM']),
   sumInsuredProperty: z.enum(['CHF 50\'000', 'CHF 100\'000', 'CHF 250\'000', 'CHF 500\'000', 'CHF 1\'000\'000', 'CHF 2\'000\'000']),
   sumInsuredLiability: z.enum(['CHF 500\'000', 'CHF 1\'000\'000', 'CHF 2\'000\'000']),
-  sumInsuredCyberCrime: z.enum(['CHF 50\'000', 'CHF 100\'000', 'CHF 250\'000']),
-  deductible: z.enum(['CHF 500', 'CHF 1\'000', 'CHF 2\'500', 'CHF 5\'000']),
-  waitingPeriod: z.enum(['12h', '24h', '48h']),
+  sumInsuredLegalProtection: z.enum(['CHF 25\'000', 'CHF 50\'000', 'CHF 100\'000']),
+  sumInsuredCyberCrime: z.enum(['CHF 50\'000', 'CHF 100\'000', 'CHF 250\'000']).optional(),
+  deductible: z.enum(['CHF 0', 'CHF 500', 'CHF 1\'000', 'CHF 2\'500', 'CHF 5\'000']),
+  waitingPeriod: z.enum(['12h', '24h', '48h']).optional(),
 });
 
 

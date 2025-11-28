@@ -206,7 +206,7 @@ export default function NewQuotePage() {
           {currentStep === 2 && <Step2CyberRiskProfile register={register} errors={errors} />}
           {currentStep === 3 && <Step3CyberSecurity register={register} errors={errors} />}
           {currentStep === 4 && <Step4Premium register={register} errors={errors} formData={formData} />}
-          {currentStep === 5 && <Step5Coverage register={register} errors={errors} />}
+          {currentStep === 5 && <Step5Coverage register={register} errors={errors} formData={formData} />}
           {currentStep === 6 && <Step6Summary formData={formData} />}
           {currentStep === 7 && <Step7Confirmation register={register} errors={errors} />}
 
@@ -550,7 +550,27 @@ function Step3CyberSecurity({ register, errors }: any) {
 }
 
 // Step 5: Versicherte Leistungen
-function Step5Coverage({ register, errors }: any) {
+function Step5Coverage({ register, errors, formData }: any) {
+  const selectedPackage = formData.package;
+  const packageData = selectedPackage ? PACKAGES[selectedPackage as keyof typeof PACKAGES] : null;
+  
+  // Formatiere Währungsbeträge für Defaults
+  const formatCurrency = (amount: number) => `CHF ${amount.toLocaleString('de-CH')}`;
+  
+  // Default-Werte basierend auf gewähltem Paket
+  const defaultEigenSchadenSum = packageData ? formatCurrency(packageData.eigenSchadenSum) : '';
+  const defaultHaftpflichtSum = packageData ? formatCurrency(packageData.haftpflichtSum) : '';
+  const defaultRechtsschutzSum = packageData ? formatCurrency(packageData.rechtsschutzSum) : '';
+  const defaultCrimeSum = packageData && packageData.crimeSum > 0 ? formatCurrency(packageData.crimeSum) : '';
+  const defaultDeductible = packageData ? formatCurrency(packageData.deductible) : '';
+  const defaultWaitingPeriod = packageData ? packageData.waitingPeriod : '';
+  
+  // Zeige Cyber Crime nur bei PREMIUM
+  const showCyberCrime = selectedPackage === 'PREMIUM';
+  
+  // Zeige Wartefrist bei OPTIMUM und PREMIUM
+  const showWaitingPeriod = selectedPackage === 'OPTIMUM' || selectedPackage === 'PREMIUM';
+  
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Versicherte Leistungen</h2>
@@ -560,7 +580,7 @@ function Step5Coverage({ register, errors }: any) {
           <select
             className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
             {...register('package')}
-            defaultValue=""
+            defaultValue={selectedPackage || ''}
           >
             <option value="" disabled className="text-[#0032A0]/60">Paket wählen*</option>
             <option value="BASIC">BASIC Paket</option>
@@ -577,7 +597,7 @@ function Step5Coverage({ register, errors }: any) {
           <select
             className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
             {...register('sumInsuredProperty')}
-            defaultValue=""
+            defaultValue={defaultEigenSchadenSum}
           >
             <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
             <option value="CHF 50'000">CHF 50'000</option>
@@ -597,7 +617,7 @@ function Step5Coverage({ register, errors }: any) {
           <select
             className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
             {...register('sumInsuredLiability')}
-            defaultValue=""
+            defaultValue={defaultHaftpflichtSum}
           >
             <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
             <option value="CHF 500'000">CHF 500'000</option>
@@ -609,57 +629,79 @@ function Step5Coverage({ register, errors }: any) {
         </div>
       </QuestionField>
 
-      <QuestionField question="Versicherungssumme Cyber Crime">
+      <QuestionField question="Versicherungssumme Rechtsschutz">
         <div className="relative">
           <select
             className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
-            {...register('sumInsuredCyberCrime')}
-            defaultValue=""
+            {...register('sumInsuredLegalProtection')}
+            defaultValue={defaultRechtsschutzSum}
           >
             <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+            <option value="CHF 25'000">CHF 25'000</option>
             <option value="CHF 50'000">CHF 50'000</option>
             <option value="CHF 100'000">CHF 100'000</option>
-            <option value="CHF 250'000">CHF 250'000</option>
           </select>
           <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
-          {errors.sumInsuredCyberCrime && <p className="text-red-600 text-xs mt-2 ml-6">{errors.sumInsuredCyberCrime.message}</p>}
+          {errors.sumInsuredLegalProtection && <p className="text-red-600 text-xs mt-2 ml-6">{errors.sumInsuredLegalProtection.message}</p>}
         </div>
       </QuestionField>
+
+      {showCyberCrime && (
+        <QuestionField question="Versicherungssumme Cyber Crime">
+          <div className="relative">
+            <select
+              className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+              {...register('sumInsuredCyberCrime')}
+              defaultValue={defaultCrimeSum}
+            >
+              <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+              <option value="CHF 50'000">CHF 50'000</option>
+              <option value="CHF 100'000">CHF 100'000</option>
+              <option value="CHF 250'000">CHF 250'000</option>
+            </select>
+            <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            {errors.sumInsuredCyberCrime && <p className="text-red-600 text-xs mt-2 ml-6">{errors.sumInsuredCyberCrime.message}</p>}
+          </div>
+        </QuestionField>
+      )}
 
       <QuestionField question="Selbstbehalt">
         <div className="relative">
           <select
             className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
             {...register('deductible')}
-            defaultValue=""
+            defaultValue={defaultDeductible}
           >
             <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
             <option value="CHF 500">CHF 500</option>
             <option value="CHF 1'000">CHF 1'000</option>
             <option value="CHF 2'500">CHF 2'500</option>
             <option value="CHF 5'000">CHF 5'000</option>
+            <option value="CHF 0">CHF 0</option>
           </select>
           <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
           {errors.deductible && <p className="text-red-600 text-xs mt-2 ml-6">{errors.deductible.message}</p>}
         </div>
       </QuestionField>
 
-      <QuestionField question="Wartefrist Betriebsunterbruch">
-        <div className="relative">
-          <select
-            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
-            {...register('waitingPeriod')}
-            defaultValue=""
-          >
-            <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
-            <option value="12h">12h</option>
-            <option value="24h">24h</option>
-            <option value="48h">48h</option>
-          </select>
-          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
-          {errors.waitingPeriod && <p className="text-red-600 text-xs mt-2 ml-6">{errors.waitingPeriod.message}</p>}
-        </div>
-      </QuestionField>
+      {showWaitingPeriod && (
+        <QuestionField question="Wartefrist Betriebsunterbruch">
+          <div className="relative">
+            <select
+              className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+              {...register('waitingPeriod')}
+              defaultValue={defaultWaitingPeriod}
+            >
+              <option value="" disabled className="text-[#0032A0]/60">Auswählen*</option>
+              <option value="12h">12h</option>
+              <option value="24h">24h</option>
+              <option value="48h">48h</option>
+            </select>
+            <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            {errors.waitingPeriod && <p className="text-red-600 text-xs mt-2 ml-6">{errors.waitingPeriod.message}</p>}
+          </div>
+        </QuestionField>
+      )}
     </div>
   );
 }
@@ -922,9 +964,14 @@ function Step6Summary({ formData }: { formData: any }) {
         <SummaryRow label="Deckungspaket" value={formData.package ? `${formData.package} Paket` : '-'} />
         <SummaryRow label="Versicherungssumme Eigenschäden" value={formData.sumInsuredProperty} />
         <SummaryRow label="Versicherungssumme Haftpflicht" value={formData.sumInsuredLiability} />
-        <SummaryRow label="Versicherungssumme Cyber Crime" value={formData.sumInsuredCyberCrime} />
+        <SummaryRow label="Versicherungssumme Rechtsschutz" value={formData.sumInsuredLegalProtection} />
+        {formData.sumInsuredCyberCrime && (
+          <SummaryRow label="Versicherungssumme Cyber Crime" value={formData.sumInsuredCyberCrime} />
+        )}
         <SummaryRow label="Selbstbehalt" value={formData.deductible} />
-        <SummaryRow label="Wartefrist Betriebsunterbruch" value={formData.waitingPeriod} />
+        {formData.waitingPeriod && (
+          <SummaryRow label="Wartefrist Betriebsunterbruch" value={formData.waitingPeriod} />
+        )}
       </SummarySection>
 
       {/* Prämie */}
