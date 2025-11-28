@@ -69,11 +69,9 @@ export default async function DashboardPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-[#1A1A1A] mb-1">Zurich Cyberversicherung</h3>
-                  <div className="flex gap-4 text-sm text-gray-600">
+                  <div className="flex gap-6 text-sm text-gray-600">
                     <span>Policennummer 72584938</span>
-                    <span>•</span>
                     <span>Gültig ab 01.01.2026</span>
-                    <span>•</span>
                     <span>AVB Version 01/2024</span>
                   </div>
                 </div>
@@ -100,11 +98,9 @@ export default async function DashboardPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-[#1A1A1A] mb-1">Zurich Sachversicherung</h3>
-                  <div className="flex gap-4 text-sm text-gray-600">
+                  <div className="flex gap-6 text-sm text-gray-600">
                     <span>Policennummer 72584941</span>
-                    <span>•</span>
                     <span>Gültig ab 01.01.2026</span>
-                    <span>•</span>
                     <span>AVB Version 01/2024</span>
                   </div>
                 </div>
@@ -131,11 +127,9 @@ export default async function DashboardPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-[#1A1A1A] mb-1">Zurich Betriebshaftpflichtversicherung</h3>
-                  <div className="flex gap-4 text-sm text-gray-600">
+                  <div className="flex gap-6 text-sm text-gray-600">
                     <span>Policennummer 72584945</span>
-                    <span>•</span>
                     <span>Gültig ab 01.01.2026</span>
-                    <span>•</span>
                     <span>AVB Version 01/2024</span>
                   </div>
                 </div>
@@ -174,11 +168,9 @@ export default async function DashboardPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-[#1A1A1A] mb-1">Zurich Cyberversicherung - Offerte</h3>
-                  <div className="flex gap-4 text-sm text-gray-600">
+                  <div className="flex gap-6 text-sm text-gray-600">
                     <span>Erstellt am 28.11.2024</span>
-                    <span>•</span>
                     <span>Gültig ab 01.01.2026</span>
-                    <span>•</span>
                     <span>AVB Version 01/2024</span>
                   </div>
                 </div>
