@@ -44,14 +44,11 @@ export default function Sidebar({ user }: SidebarProps) {
                 <Link
                   href={item.href}
                   className={`
-                    flex items-center gap-3 px-6 py-3 text-white hover:bg-white/10 transition-colors relative
+                    flex items-center gap-3 px-6 py-3 text-white hover:bg-white/10 transition-colors
                     ${isActive ? 'bg-[#001E5F]' : ''}
                   `}
                 >
-                  {isActive && (
-                    <span className="absolute left-4 w-2 h-2 bg-white rounded-full"></span>
-                  )}
-                  <Icon size={18} className={isActive ? 'ml-4' : ''} />
+                  <Icon size={18} />
                   <span className="text-sm font-light">{item.label}</span>
                 </Link>
               </li>
