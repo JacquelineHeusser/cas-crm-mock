@@ -172,7 +172,7 @@ function Step1CompanyData({ register, errors }: any) {
           {...register('companyName')}
         />
         {errors.companyName && (
-          <p className="text-error text-xs mt-2 ml-6">{errors.companyName.message}</p>
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.companyName.message}</p>
         )}
       </div>
 
@@ -185,7 +185,7 @@ function Step1CompanyData({ register, errors }: any) {
           {...register('address')}
         />
         {errors.address && (
-          <p className="text-error text-xs mt-2 ml-6">{errors.address.message}</p>
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.address.message}</p>
         )}
       </div>
 
@@ -199,7 +199,7 @@ function Step1CompanyData({ register, errors }: any) {
             {...register('zip')}
           />
           {errors.zip && (
-            <p className="text-error text-xs mt-2 ml-6">{errors.zip.message}</p>
+            <p className="text-red-600 text-xs mt-2 ml-6">{errors.zip.message}</p>
           )}
         </div>
         <div>
@@ -210,7 +210,7 @@ function Step1CompanyData({ register, errors }: any) {
             {...register('city')}
           />
           {errors.city && (
-            <p className="text-error text-xs mt-2 ml-6">{errors.city.message}</p>
+            <p className="text-red-600 text-xs mt-2 ml-6">{errors.city.message}</p>
           )}
         </div>
       </div>
@@ -224,7 +224,7 @@ function Step1CompanyData({ register, errors }: any) {
           {...register('employees', { valueAsNumber: true })}
         />
         {errors.employees && (
-          <p className="text-error text-xs mt-2 ml-6">{errors.employees.message}</p>
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.employees.message}</p>
         )}
       </div>
 
@@ -250,7 +250,7 @@ function Step1CompanyData({ register, errors }: any) {
           size={20} 
         />
         {errors.industry && (
-          <p className="text-error text-xs mt-2 ml-6">{errors.industry.message}</p>
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.industry.message}</p>
         )}
       </div>
 
@@ -263,7 +263,7 @@ function Step1CompanyData({ register, errors }: any) {
           {...register('revenue', { valueAsNumber: true })}
         />
         {errors.revenue && (
-          <p className="text-error text-xs mt-2 ml-6">{errors.revenue.message}</p>
+          <p className="text-red-600 text-xs mt-2 ml-6">{errors.revenue.message}</p>
         )}
       </div>
     </div>

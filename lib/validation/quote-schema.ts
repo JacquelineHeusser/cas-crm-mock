@@ -32,10 +32,10 @@ export const INDUSTRIES = [
 
 // Schritt 1: Unternehmensdaten
 export const companyDataSchema = z.object({
-  companyName: z.string().min(2, 'Firmenname muss mindestens 2 Zeichen lang sein'),
-  address: z.string().min(5, 'Adresse ist erforderlich'),
-  zip: z.string().regex(/^\d{4}$/, 'PLZ muss 4-stellig sein'),
-  city: z.string().min(2, 'Ort ist erforderlich'),
+  companyName: z.string().min(1, 'Pflichtfeld'),
+  address: z.string().min(1, 'Pflichtfeld'),
+  zip: z.string().min(1, 'Pflichtfeld').regex(/^\d{4}$/, 'PLZ muss 4-stellig sein'),
+  city: z.string().min(1, 'Pflichtfeld'),
   country: z.string().default('CH'),
   url: z.string().url('Ungültige URL').optional().or(z.literal('')),
   industry: z.enum(INDUSTRIES),
