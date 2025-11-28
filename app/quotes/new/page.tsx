@@ -140,14 +140,30 @@ export default function NewQuotePage() {
           {currentStep === 4 && <Step4Incidents register={register} errors={errors} />}
           {currentStep === 5 && <Step5Coverage register={register} errors={errors} />}
 
-          {/* Weiter Button - unten rechts, rund, teal */}
-          <div className="flex justify-end mt-12">
+          {/* Navigation Buttons */}
+          <div className="flex justify-between items-center mt-12">
+            {/* Zurück Button - nur ab Step 2 */}
+            {currentStep > 1 && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="btn btn-ghost text-[#0032A0] hover:bg-[#0032A0]/10 gap-2"
+              >
+                <ChevronLeft size={18} />
+                Zurück
+              </button>
+            )}
+
+            {/* Platzhalter wenn kein Zurück Button */}
+            {currentStep === 1 && <div></div>}
+
+            {/* Weiter Button */}
             <button
               type="submit"
               disabled={isSubmitting}
               className="btn bg-[#008C95] text-white hover:bg-[#006B73] rounded-full px-8 gap-2"
             >
-              Weiter
+              {currentStep === STEPS.length ? 'Offerte berechnen' : 'Weiter'}
               <ChevronRight size={18} />
             </button>
           </div>
