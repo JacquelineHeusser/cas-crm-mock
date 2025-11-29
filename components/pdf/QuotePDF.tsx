@@ -99,9 +99,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Helvetica-Bold',
   },
+  crossmark: {
+    width: 15,
+    color: '#CCCCCC',
+    fontSize: 12,
+  },
   coverageText: {
     flex: 1,
-    color: '#333',
+    color: '#000',
+    fontFamily: 'Helvetica-Bold',
   },
   coverageList: {
     marginBottom: 15,
@@ -124,6 +130,17 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
   const packageData = formData.package 
     ? PACKAGES[formData.package as keyof typeof PACKAGES] 
     : null;
+
+  // Alle möglichen Coverages
+  const allCoverages = [
+    'Cyber Daten- und Systemwiederherstellung',
+    'Cyber Krisenmanagement',
+    'Cyber Haftpflicht',
+    'Cyber Rechtsschutz',
+    'Cyber Betriebsunterbruch',
+    'Cyber Diebstahl',
+    'Cyber Betrug',
+  ];
 
   return (
     <Document>
@@ -230,16 +247,19 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
             Versicherte Leistungen ({formData.package || "BASIC"} Paket)
           </Text>
           
-          {packageData && packageData.coverages && (
-            <View style={styles.coverageList}>
-              {packageData.coverages.map((coverage: string, index: number) => (
+          <View style={styles.coverageList}>
+            {allCoverages.map((coverage: string, index: number) => {
+              const isIncluded = packageData?.coverages.includes(coverage) || false;
+              return (
                 <View key={index} style={styles.coverageItem}>
-                  <Text style={styles.checkmark}>✓</Text>
+                  <Text style={isIncluded ? styles.checkmark : styles.crossmark}>
+                    {isIncluded ? '✓' : '✕'}
+                  </Text>
                   <Text style={styles.coverageText}>{coverage}</Text>
                 </View>
-              ))}
-            </View>
-          )}
+              );
+            })}
+          </View>
           
           <View style={styles.row}>
             <Text style={styles.label}>VS Eigenschäden:</Text>
