@@ -8,6 +8,7 @@ import { ChevronRight, Plus } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { PACKAGES } from '@/lib/validation/premium-schema';
 
 export default async function OffertenPage() {
   const user = await getCurrentUser();
@@ -33,10 +34,22 @@ export default async function OffertenPage() {
   const firstName = user.name.split(' ')[0];
   
   // Formatiere Prämie
-  const formatPremium = (premium: bigint | null) => {
-    if (!premium) return 'Noch nicht berechnet';
-    const amount = Number(premium) / 100; // Rappen zu CHF
-    return `CHF ${amount.toLocaleString('de-CH')}`;
+  const formatPremium = (premium: bigint | null, coverage: any) => {
+    // Wenn Prämie in DB gespeichert, verwende diese
+    if (premium) {
+      const amount = Number(premium) / 100; // Rappen zu CHF
+      return `CHF ${amount.toLocaleString('de-CH')}`;
+    }
+    
+    // Sonst: Versuche Prämie aus gewähltem Paket zu ermitteln
+    if (coverage?.package) {
+      const packageData = PACKAGES[coverage.package as keyof typeof PACKAGES];
+      if (packageData) {
+        return `CHF ${packageData.price.toLocaleString('de-CH')}`;
+      }
+    }
+    
+    return 'Noch nicht berechnet';
   };
   
   // Status Badge Farben
@@ -123,7 +136,7 @@ export default async function OffertenPage() {
                         <p className="text-sm text-gray-600 mb-1">
                           {quote.premium ? 'Prämie' : 'Prämie (geschätzt)'}
                         </p>
-                        <p className="text-lg font-medium text-[#1A1A1A]">{formatPremium(quote.premium)}</p>
+                        <p className="text-lg font-medium text-[#1A1A1A]">{formatPremium(quote.premium, quote.coverage)}</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className={`px-4 py-1.5 text-sm font-medium rounded-full ${statusBadge.class}`}>
