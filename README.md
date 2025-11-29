@@ -37,3 +37,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## CAS CRM Mock - Cyberversicherungs-Plattform
 Zurich Versicherung Prototype mit PDF-Generierung und Direktabschluss-Funktion.
+
+Version: 1.0.0 - Deployed on Vercel
