@@ -34,10 +34,10 @@ export async function GET(
 
     // Merge alle Daten aus JSON-Feldern
     const formData = {
-      ...quote.companyData,
-      ...quote.cyberRiskProfile,
-      ...quote.cyberSecurity,
-      ...quote.coverage,
+      ...(quote.companyData as any || {}),
+      ...(quote.cyberRiskProfile as any || {}),
+      ...(quote.cyberSecurity as any || {}),
+      ...(quote.coverage as any || {}),
     };
 
     // Berechne Gültigkeitsdatum (3 Monate ab heute)
