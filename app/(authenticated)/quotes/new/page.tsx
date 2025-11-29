@@ -54,6 +54,7 @@ export default function NewQuotePage() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    watch,
   } = useForm({
     resolver: zodResolver(currentSchema),
     defaultValues: formData,
@@ -256,7 +257,7 @@ export default function NewQuotePage() {
           {currentStep === 4 && <Step4Premium register={register} errors={errors} formData={formData} />}
           {currentStep === 5 && <Step5Coverage register={register} errors={errors} formData={formData} />}
           {currentStep === 6 && <Step6Summary formData={formData} />}
-          {currentStep === 7 && <Step7Confirmation register={register} errors={errors} formData={formData} onGeneratePDF={handleGeneratePDF} onDirectContract={handleDirectContract} />}
+          {currentStep === 7 && <Step7Confirmation register={register} errors={errors} formData={formData} watch={watch} onGeneratePDF={handleGeneratePDF} onDirectContract={handleDirectContract} />}
 
           {/* Navigation Buttons - versteckt bei Step 7 (Bestätigung) */}
           {currentStep !== 7 && (
@@ -1057,14 +1058,17 @@ function Step6Summary({ formData }: { formData: any }) {
 }
 
 // Step 7: Bestätigung
-function Step7Confirmation({ register, errors, formData, onGeneratePDF, onDirectContract }: any) {
+function Step7Confirmation({ register, errors, formData, watch, onGeneratePDF, onDirectContract }: any) {
+  // Beobachte den aktuellen Wert der Checkbox
+  const acceptTerms = watch('acceptTerms');
+  
   // Prüfe ob alle notwendigen Felder ausgefüllt sind
   const isComplete = formData.companyName && 
     formData.package && 
     formData.sumInsuredProperty && 
     formData.sumInsuredLiability && 
     formData.deductible &&
-    formData.acceptTerms;
+    acceptTerms;
 
   return (
     <div className="space-y-6">
