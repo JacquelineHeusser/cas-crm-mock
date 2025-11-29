@@ -58,6 +58,12 @@ const styles = StyleSheet.create({
     width: '50%',
     color: '#333',
   },
+  columnHeader: {
+    width: '50%',
+    color: '#0032A0',
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 11,
+  },
   priceBox: {
     backgroundColor: '#D9E8FC',
     padding: 15,
@@ -84,34 +90,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     borderTop: '1px solid #E5E5E5',
     paddingTop: 10,
-  },
-  coverageItem: {
-    flexDirection: 'row',
-    marginBottom: 4,
-  },
-  bullet: {
-    width: 15,
-    color: '#008C95',
-  },
-  checkmark: {
-    width: 20,
-    color: '#008C95',
-    fontSize: 14,
-    marginRight: 5,
-  },
-  crossmark: {
-    width: 20,
-    color: '#CCCCCC',
-    fontSize: 14,
-    marginRight: 5,
-  },
-  coverageText: {
-    flex: 1,
-    color: '#000',
-    fontFamily: 'Helvetica-Bold',
-  },
-  coverageList: {
-    marginBottom: 15,
   },
 });
 
@@ -248,19 +226,20 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
             Versicherte Leistungen ({formData.package || "BASIC"} Paket)
           </Text>
           
-          <View style={styles.coverageList}>
-            {allCoverages.map((coverage: string, index: number) => {
-              const isIncluded = packageData?.coverages.includes(coverage) || false;
-              return (
-                <View key={index} style={styles.coverageItem}>
-                  <Text style={isIncluded ? styles.checkmark : styles.crossmark}>
-                    {isIncluded ? '●' : '○'}
-                  </Text>
-                  <Text style={styles.coverageText}>{coverage}</Text>
-                </View>
-              );
-            })}
+          <View style={styles.row}>
+            <Text style={styles.label}></Text>
+            <Text style={styles.columnHeader}>Versichert</Text>
           </View>
+          
+          {allCoverages.map((coverage: string, index: number) => {
+            const isIncluded = packageData?.coverages.includes(coverage) || false;
+            return (
+              <View key={index} style={styles.row}>
+                <Text style={styles.label}>{coverage}:</Text>
+                <Text style={styles.value}>{isIncluded ? 'Ja' : 'Nein'}</Text>
+              </View>
+            );
+          })}
           
           <View style={styles.row}>
             <Text style={styles.label}>VS Eigenschäden:</Text>
