@@ -22,11 +22,22 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
     },
     include: {
       company: true,
+      policy: true,
     },
   });
 
   // Prüfe ob Quote existiert und dem User gehört
   if (!quote || quote.userId !== user.id) {
+    redirect('/offerten');
+  }
+
+  // Policierte Offerten können nicht bearbeitet werden
+  if (quote.status === 'POLICIED') {
+    // Wenn eine Policy existiert, leite zur Policy weiter
+    if (quote.policy) {
+      redirect(`/policen/${quote.policy.id}`);
+    }
+    // Sonst zur Offerten-Übersicht
     redirect('/offerten');
   }
 
