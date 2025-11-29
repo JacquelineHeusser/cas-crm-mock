@@ -94,15 +94,16 @@ const styles = StyleSheet.create({
     color: '#008C95',
   },
   checkmark: {
-    width: 15,
+    width: 20,
     color: '#008C95',
-    fontSize: 12,
-    fontFamily: 'Helvetica-Bold',
+    fontSize: 14,
+    marginRight: 5,
   },
   crossmark: {
-    width: 15,
+    width: 20,
     color: '#CCCCCC',
-    fontSize: 12,
+    fontSize: 14,
+    marginRight: 5,
   },
   coverageText: {
     flex: 1,
@@ -253,7 +254,7 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
               return (
                 <View key={index} style={styles.coverageItem}>
                   <Text style={isIncluded ? styles.checkmark : styles.crossmark}>
-                    {isIncluded ? '✓' : '✕'}
+                    {isIncluded ? '●' : '○'}
                   </Text>
                   <Text style={styles.coverageText}>{coverage}</Text>
                 </View>
