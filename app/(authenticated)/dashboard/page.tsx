@@ -7,6 +7,8 @@ import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { ChevronRight, Info } from 'lucide-react';
 import Link from 'next/link';
+import { prisma } from '@/lib/prisma';
+import { PACKAGES } from '@/lib/validation/premium-schema';
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -15,8 +17,55 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
+  // Lade die letzten 3 Quotes des Users
+  const recentQuotes = await prisma.quote.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      updatedAt: 'desc',
+    },
+    take: 3, // Nur die letzten 3
+    include: {
+      company: true,
+    },
+  });
+
   // Extrahiere Vornamen
   const firstName = user.name.split(' ')[0];
+  
+  // Formatiere Prämie
+  const formatPremium = (premium: bigint | null, coverage: any) => {
+    if (premium) {
+      const amount = Number(premium) / 100;
+      return `CHF ${amount.toLocaleString('de-CH')}`;
+    }
+    
+    if (coverage?.package) {
+      const packageData = PACKAGES[coverage.package as keyof typeof PACKAGES];
+      if (packageData) {
+        return `CHF ${packageData.price.toLocaleString('de-CH')}`;
+      }
+    }
+    
+    return 'Noch nicht berechnet';
+  };
+  
+  // Status Badge Farben
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'DRAFT':
+        return { label: 'Entwurf', class: 'bg-orange-100 text-orange-700' };
+      case 'CALCULATED':
+        return { label: 'Berechnet', class: 'bg-blue-100 text-blue-700' };
+      case 'APPROVED':
+        return { label: 'Genehmigt', class: 'bg-green-100 text-green-700' };
+      case 'REJECTED':
+        return { label: 'Abgelehnt', class: 'bg-red-100 text-red-700' };
+      default:
+        return { label: status, class: 'bg-gray-100 text-gray-700' };
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto p-8">
@@ -152,40 +201,72 @@ export default async function DashboardPage() {
       {/* Meine Offerten Section */}
       {user.role === 'CUSTOMER' && (
         <div className="mb-8">
-          <div className="mb-4">
+          <div className="mb-4 flex justify-between items-center">
             <h2 className="text-xl font-light text-[#1A1A1A]">Meine Offerten</h2>
+            {recentQuotes.length > 0 && (
+              <Link href="/offerten" className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline">
+                Alle anzeigen
+                <ChevronRight size={16} />
+              </Link>
+            )}
           </div>
 
           {/* Offerten Cards */}
           <div className="space-y-3">
-            {/* Offerte 1 - Draft */}
-            <div className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center gap-4 flex-1">
-                <div className="w-12 h-12 bg-[#D9E8FC] rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-[#0032A0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-[#1A1A1A] mb-1">Zurich Cyberversicherung - Offerte</h3>
-                  <div className="flex gap-6 text-sm text-gray-600">
-                    <span>Erstellt am 28.11.2024</span>
-                    <span>Gültig ab 01.01.2026</span>
-                    <span>AVB Version 01/2024</span>
-                  </div>
-                </div>
-                <div className="text-right mr-4">
-                  <p className="text-sm text-gray-600 mb-1">Prämie (geschätzt)</p>
-                  <p className="font-medium text-[#1A1A1A]">CHF 2'500</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">
-                    Entwurf
-                  </span>
-                  <ChevronRight className="text-gray-400" size={20} />
-                </div>
+            {recentQuotes.length === 0 ? (
+              <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                <p className="text-gray-500 mb-2">Noch keine Offerten erstellt</p>
+                <Link href="/quotes/new" className="text-[#0032A0] text-sm hover:underline">
+                  Neue Offerte erstellen
+                </Link>
               </div>
-            </div>
+            ) : (
+              recentQuotes.map((quote) => {
+                const statusBadge = getStatusBadge(quote.status);
+                const companyData = quote.companyData as any;
+                const companyName = companyData?.companyName || quote.company?.name || 'Unbekannt';
+                const createdDate = new Date(quote.createdAt).toLocaleDateString('de-CH');
+                
+                return (
+                  <Link 
+                    key={quote.id}
+                    href={`/quotes/${quote.id}`}
+                    className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer block"
+                  >
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-12 h-12 bg-[#D9E8FC] rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-6 h-6 text-[#0032A0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-[#1A1A1A] mb-1">
+                          {companyName} - Cyberversicherung
+                        </h3>
+                        <div className="flex gap-6 text-sm text-gray-600">
+                          <span>Erstellt am {createdDate}</span>
+                          <span>Offerte #{quote.quoteNumber}</span>
+                        </div>
+                      </div>
+                      <div className="text-right mr-4">
+                        <p className="text-sm text-gray-600 mb-1">
+                          {quote.premium ? 'Prämie' : 'Prämie (geschätzt)'}
+                        </p>
+                        <p className="font-medium text-[#1A1A1A]">
+                          {formatPremium(quote.premium, quote.coverage)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-3 py-1 text-xs font-medium rounded-full ${statusBadge.class}`}>
+                          {statusBadge.label}
+                        </span>
+                        <ChevronRight className="text-gray-400" size={20} />
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
+            )}
           </div>
         </div>
       )}
