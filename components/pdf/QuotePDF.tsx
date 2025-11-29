@@ -17,24 +17,24 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 30,
-    borderBottom: '2px solid #0032A0',
     paddingBottom: 15,
   },
   logo: {
-    width: 120,
-    height: 40,
+    width: 100,
+    height: 35,
   },
-  headerRight: {
-    textAlign: 'right',
+  headerLeft: {
+    flex: 1,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#0032A0',
-    marginBottom: 5,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#666',
   },
   section: {
@@ -53,12 +53,12 @@ const styles = StyleSheet.create({
   },
   label: {
     width: '50%',
-    color: '#333',
+    color: '#000',
+    fontFamily: 'Helvetica-Bold',
   },
   value: {
     width: '50%',
-    color: '#000',
-    fontFamily: 'Helvetica-Bold',
+    color: '#333',
   },
   priceBox: {
     backgroundColor: '#D9E8FC',
@@ -87,15 +87,18 @@ const styles = StyleSheet.create({
     borderTop: '1px solid #E5E5E5',
     paddingTop: 10,
   },
-  packageBadge: {
-    backgroundColor: '#008C95',
-    color: '#FFF',
-    padding: 8,
-    borderRadius: 5,
-    fontSize: 12,
-    fontFamily: 'Helvetica-Bold',
-    marginBottom: 15,
-    textAlign: 'center',
+  coverageItem: {
+    flexDirection: 'row',
+    marginBottom: 4,
+    paddingLeft: 10,
+  },
+  bullet: {
+    width: 15,
+    color: '#008C95',
+  },
+  coverageText: {
+    flex: 1,
+    color: '#333',
   },
 });
 
@@ -114,19 +117,15 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({ formData, quoteNumber, creat
       <Page size="A4" style={styles.page}>
         {/* Header mit Logo */}
         <View style={styles.header}>
-          <Image src="/zurich-logo.png" style={styles.logo} />
-          <View style={styles.headerRight}>
-            <Text style={styles.title}>Cyberversicherung</Text>
-            <Text style={styles.subtitle}>Offerte</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.title}>Ihre Zurich Cyberversicherung</Text>
+            <Text style={styles.subtitle}>Offerte Nr. {quoteNumber}</Text>
           </View>
+          <Image src="/zurich-logo.png" style={styles.logo} />
         </View>
 
         {/* Offertinformationen */}
         <View style={styles.section}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Offertennummer:</Text>
-            <Text style={styles.value}>{quoteNumber}</Text>
-          </View>
           <View style={styles.row}>
             <Text style={styles.label}>Erstellt am:</Text>
             <Text style={styles.value}>{createdDate}</Text>
@@ -211,19 +210,23 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({ formData, quoteNumber, creat
           </View>
         </View>
 
-        {/* Gewähltes Paket */}
-        {formData.package && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Gewähltes Deckungspaket</Text>
-            <View style={styles.packageBadge}>
-              <Text>{formData.package} PAKET</Text>
-            </View>
-          </View>
-        )}
-
-        {/* Versicherte Leistungen */}
+        {/* Versicherte Leistungen und Deckungen */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Versicherte Leistungen</Text>
+          <Text style={styles.sectionTitle}>Versicherte Leistungen ({formData.package || 'BASIC'} Paket)</Text>
+          
+          {/* Deckungen */}
+          {packageData?.coverages && (
+            <View style={{ marginBottom: 15 }}>
+              {packageData.coverages.map((coverage: string, index: number) => (
+                <View key={index} style={styles.coverageItem}>
+                  <Text style={styles.bullet}>•</Text>
+                  <Text style={styles.coverageText}>{coverage}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+          
+          {/* Versicherungssummen */
           <View style={styles.row}>
             <Text style={styles.label}>VS Eigenschäden:</Text>
             <Text style={styles.value}>{formData.sumInsuredProperty || '-'}</Text>
