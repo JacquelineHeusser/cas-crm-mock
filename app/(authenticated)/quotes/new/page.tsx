@@ -589,6 +589,7 @@ function Step5Coverage({ register, errors, formData }: any) {
   const formatWaitingPeriod = (period: string) => {
     if (period === '48 Stunden') return '48h';
     if (period === '24 Stunden') return '24h';
+    if (period === '12 Stunden') return '12h';
     return '';
   };
   
@@ -664,7 +665,7 @@ function Step5Coverage({ register, errors, formData }: any) {
       </QuestionField>
 
       <QuestionField question="Versicherungssumme Rechtsschutz">
-        <div className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full text-[#0032A0] font-medium">
+        <div className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full text-[#0032A0]">
           CHF 50'000
         </div>
         <input
