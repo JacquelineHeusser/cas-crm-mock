@@ -770,24 +770,6 @@ function Step3CyberSecurity({ register, errors, watch, formData }: any) {
         </div>
       </QuestionField>
 
-      <QuestionField question="Wie lange kann Ihre Firma den Betrieb aufrechterhalten, wenn kritische IT-Systeme, die von externen IT-Dienstleistern betrieben werden, ausfallen?">
-        <div className="relative">
-          <select
-            className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
-            {...register('businessContinuityExternalIT')}
-            defaultValue=""
-          >
-            <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
-            <option value="Alle Geschäftsprozesse können eine Woche fortgesetzt werden.">Alle Geschäftsprozesse können eine Woche fortgesetzt werden.</option>
-            <option value="Die meisten Geschäftsprozesse können eine Woche fortgesetzt werden.">Die meisten Geschäftsprozesse können eine Woche fortgesetzt werden.</option>
-            <option value="Die meisten Geschäftsprozesse können mindestens einen Tag, aber weniger als eine Woche, fortgesetzt werden.">Die meisten Geschäftsprozesse können mindestens einen Tag, aber weniger als eine Woche, fortgesetzt werden.</option>
-            <option value="Die meisten Geschäftsprozesse können weniger als einen Tag fortgesetzt werden oder kommen sofort zum Erliegen.">Die meisten Geschäftsprozesse können weniger als einen Tag fortgesetzt werden oder kommen sofort zum Erliegen.</option>
-          </select>
-          <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
-          {errors.businessContinuityExternalIT && <p className="text-red-600 text-xs mt-2 ml-6">{errors.businessContinuityExternalIT.message}</p>}
-        </div>
-      </QuestionField>
-
       {/* Business Continuity Frage - nur wenn Cybervorfälle */}
       {hadCyberIncidents === 'Ja' && (
         <QuestionField question="Wie lange kann Ihre Firma den Betrieb aufrechthalten, wenn zentrale interne IT-Systeme ausfallen?">
@@ -1213,6 +1195,23 @@ function Step3CyberSecurity({ register, errors, watch, formData }: any) {
                 <option value="Ja">Ja</option>
                 <option value="Nein">Nein</option>
                 <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Wie lange kann Ihre Firma den Betrieb aufrechterhalten, wenn kritische IT-Systeme, die von externen IT-Dienstleistern betrieben werden, ausfallen?">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('businessContinuityExternalIT')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Alle Geschäftsprozesse können eine Woche fortgesetzt werden.">Alle Geschäftsprozesse können eine Woche fortgesetzt werden.</option>
+                <option value="Die meisten Geschäftsprozesse können eine Woche fortgesetzt werden.">Die meisten Geschäftsprozesse können eine Woche fortgesetzt werden.</option>
+                <option value="Die meisten Geschäftsprozesse können mindestens einen Tag, aber weniger als eine Woche, fortgesetzt werden.">Die meisten Geschäftsprozesse können mindestens einen Tag, aber weniger als eine Woche, fortgesetzt werden.</option>
+                <option value="Die meisten Geschäftsprozesse können weniger als einen Tag fortgesetzt werden oder kommen sofort zum Erliegen.">Die meisten Geschäftsprozesse können weniger als einen Tag fortgesetzt werden oder kommen sofort zum Erliegen.</option>
               </select>
               <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
             </div>
@@ -1785,9 +1784,6 @@ function Step6Summary({ formData }: { formData: any }) {
         <SummaryRow label="Anzahl Medizinal-/Gesundheitsdaten" value={formData.medicalDataCount} />
         <SummaryRow label="Anzahl Kreditkartendaten" value={formData.creditCardDataCount} />
         <SummaryRow label="End-of-Life Systeme" value={formData.hasEndOfLifeSystems} />
-        {formData.businessContinuityExternalIT && (
-          <SummaryRow label="Business Continuity (externe IT)" value={formData.businessContinuityExternalIT} />
-        )}
         
         {/* Umsatz > 5 Mio. Fragen */}
         {(formData.revenue > 5_000_000 && formData.hasMFARemoteAccess) && (
@@ -1836,6 +1832,7 @@ function Step6Summary({ formData }: { formData: any }) {
               {formData.hasCriticalPatchManagement && <SummaryRow label="Kritische Patches (3 Tage)" value={formData.hasCriticalPatchManagement} />}
               {formData.hasPhishingSimulations && <SummaryRow label="Phishing-Simulationen" value={formData.hasPhishingSimulations} />}
               {formData.hasSecurityOperationCenter && <SummaryRow label="Security Operation Center (SOC)" value={formData.hasSecurityOperationCenter} />}
+              {formData.businessContinuityExternalIT && <SummaryRow label="Business Continuity (externe IT)" value={formData.businessContinuityExternalIT} />}
               
               {/* OT-Details bei Umsatz > 10 Mio. */}
               {formData.usesIndustrialControlSystems === 'Ja' && (
