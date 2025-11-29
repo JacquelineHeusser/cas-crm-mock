@@ -13,21 +13,19 @@ export default function HomePage() {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex justify-center mb-8">
-            <div className="bg-[#0032A0] p-6 rounded-2xl shadow-xl">
-              <Image
-                src="/zurich-logo.png"
-                alt="Zurich"
-                width={200}
-                height={60}
-                priority
-              />
-            </div>
+            <Image
+              src="/zurich-logo.png"
+              alt="Zurich"
+              width={200}
+              height={60}
+              priority
+            />
           </div>
           <h1 className="text-5xl font-light text-[#0032A0] mb-4">
             Willkommen bei ZurichOne
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Ihr digitales Portal für Cyber-Versicherungen
+            Ihr digitales Portal für Versicherungen
           </p>
         </div>
 
