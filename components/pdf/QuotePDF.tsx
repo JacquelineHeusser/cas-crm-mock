@@ -7,7 +7,6 @@ import React from 'react';
 import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
 import { PACKAGES } from '@/lib/validation/premium-schema';
 
-// Styles für das PDF
 const styles = StyleSheet.create({
   page: {
     padding: 40,
@@ -49,7 +48,6 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     marginBottom: 6,
-    paddingLeft: 10,
   },
   label: {
     width: '50%',
@@ -90,7 +88,6 @@ const styles = StyleSheet.create({
   coverageItem: {
     flexDirection: 'row',
     marginBottom: 4,
-    paddingLeft: 10,
   },
   bullet: {
     width: 15,
@@ -99,6 +96,9 @@ const styles = StyleSheet.create({
   coverageText: {
     flex: 1,
     color: '#333',
+  },
+  coverageList: {
+    marginBottom: 15,
   },
 });
 
@@ -109,13 +109,19 @@ interface QuotePDFProps {
   validUntil: string;
 }
 
-export const QuotePDF: React.FC<QuotePDFProps> = ({ formData, quoteNumber, createdDate, validUntil }) => {
-  const packageData = formData.package ? PACKAGES[formData.package as keyof typeof PACKAGES] : null;
+export const QuotePDF: React.FC<QuotePDFProps> = ({ 
+  formData, 
+  quoteNumber, 
+  createdDate, 
+  validUntil 
+}) => {
+  const packageData = formData.package 
+    ? PACKAGES[formData.package as keyof typeof PACKAGES] 
+    : null;
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header mit Logo */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>Ihre Zurich Cyberversicherung</Text>
@@ -124,7 +130,6 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({ formData, quoteNumber, creat
           <Image src="/zurich-logo.png" style={styles.logo} />
         </View>
 
-        {/* Offertinformationen */}
         <View style={styles.section}>
           <View style={styles.row}>
             <Text style={styles.label}>Erstellt am:</Text>
@@ -134,89 +139,93 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({ formData, quoteNumber, creat
             <Text style={styles.label}>Gültig bis:</Text>
             <Text style={styles.value}>{validUntil}</Text>
           </View>
+          {packageData && (
+            <View style={styles.row}>
+              <Text style={styles.label}>Jahresprämie:</Text>
+              <Text style={styles.value}>CHF {packageData.price.toLocaleString("de-CH")}</Text>
+            </View>
+          )}
         </View>
 
-        {/* Unternehmensdaten */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Unternehmensdaten</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Firma:</Text>
-            <Text style={styles.value}>{formData.companyName || '-'}</Text>
+            <Text style={styles.value}>{formData.companyName || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Adresse:</Text>
-            <Text style={styles.value}>{formData.address || '-'}</Text>
+            <Text style={styles.value}>{formData.address || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>PLZ / Ort:</Text>
-            <Text style={styles.value}>{formData.zip || '-'} {formData.city || '-'}</Text>
+            <Text style={styles.value}>{formData.zip || "-"} {formData.city || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Website:</Text>
-            <Text style={styles.value}>{formData.website || '-'}</Text>
+            <Text style={styles.value}>{formData.website || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Branche:</Text>
-            <Text style={styles.value}>{formData.industry || '-'}</Text>
+            <Text style={styles.value}>{formData.industry || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Anzahl Mitarbeitende:</Text>
-            <Text style={styles.value}>{formData.employees || '-'}</Text>
+            <Text style={styles.value}>{formData.employees || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Brutto-Gesamtumsatz:</Text>
-            <Text style={styles.value}>CHF {formData.revenue?.toLocaleString('de-CH') || '-'}</Text>
+            <Text style={styles.value}>CHF {formData.revenue?.toLocaleString("de-CH") || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>E-Commerce Umsatzanteil:</Text>
-            <Text style={styles.value}>{formData.eCommercePercentage || '-'}</Text>
+            <Text style={styles.value}>{formData.eCommercePercentage || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Auslandsumsatz:</Text>
-            <Text style={styles.value}>{formData.foreignRevenuePercentage || '-'}</Text>
+            <Text style={styles.value}>{formData.foreignRevenuePercentage || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Keine Tochtergesellschaften im Ausland:</Text>
-            <Text style={styles.value}>{formData.noForeignSubsidiaries || '-'}</Text>
+            <Text style={styles.value}>{formData.noForeignSubsidiaries || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Kein abgelehnter Versicherungsantrag:</Text>
-            <Text style={styles.value}>{formData.noRejectedInsurance || '-'}</Text>
+            <Text style={styles.value}>{formData.noRejectedInsurance || "-"}</Text>
           </View>
         </View>
 
-        {/* Cyber-Sicherheit */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Cyber-Sicherheit</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Cybervorfälle in letzten 3 Jahren:</Text>
-            <Text style={styles.value}>{formData.hadCyberIncidents || '-'}</Text>
+            <Text style={styles.value}>{formData.hadCyberIncidents || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Anzahl Personen-/Kundendaten:</Text>
-            <Text style={styles.value}>{formData.personalDataCount || '-'}</Text>
+            <Text style={styles.value}>{formData.personalDataCount || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Anzahl Medizinal-/Gesundheitsdaten:</Text>
-            <Text style={styles.value}>{formData.medicalDataCount || '-'}</Text>
+            <Text style={styles.value}>{formData.medicalDataCount || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Anzahl Kreditkartendaten:</Text>
-            <Text style={styles.value}>{formData.creditCardDataCount || '-'}</Text>
+            <Text style={styles.value}>{formData.creditCardDataCount || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>End-of-Life Systeme:</Text>
-            <Text style={styles.value}>{formData.hasEndOfLifeSystems || '-'}</Text>
+            <Text style={styles.value}>{formData.hasEndOfLifeSystems || "-"}</Text>
           </View>
         </View>
 
-        {/* Versicherte Leistungen und Deckungen */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Versicherte Leistungen ({formData.package || 'BASIC'} Paket)</Text>
+          <Text style={styles.sectionTitle}>
+            Versicherte Leistungen ({formData.package || "BASIC"} Paket)
+          </Text>
           
-          {/* Deckungen */}
-          {packageData?.coverages && (
-            <View style={{ marginBottom: 15 }}>
+          {packageData && packageData.coverages && (
+            <View style={styles.coverageList}>
               {packageData.coverages.map((coverage: string, index: number) => (
                 <View key={index} style={styles.coverageItem}>
                   <Text style={styles.bullet}>•</Text>
@@ -226,46 +235,37 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({ formData, quoteNumber, creat
             </View>
           )}
           
-          {/* Versicherungssummen */
           <View style={styles.row}>
             <Text style={styles.label}>VS Eigenschäden:</Text>
-            <Text style={styles.value}>{formData.sumInsuredProperty || '-'}</Text>
+            <Text style={styles.value}>{formData.eigenSchadenSum || formData.sumInsuredProperty || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>VS Haftpflicht:</Text>
-            <Text style={styles.value}>{formData.sumInsuredLiability || '-'}</Text>
+            <Text style={styles.value}>{formData.haftpflichtSum || formData.sumInsuredLiability || "-"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>VS Rechtsschutz:</Text>
-            <Text style={styles.value}>{formData.sumInsuredLegalProtection || 'CHF 50\'000'}</Text>
+            <Text style={styles.value}>{formData.rechtsschutzSum || formData.sumInsuredLegalProtection || "CHF 50'000"}</Text>
           </View>
-          {formData.sumInsuredCyberCrime && (
+          {(formData.crimeSum || formData.sumInsuredCyberCrime) && (
             <View style={styles.row}>
               <Text style={styles.label}>VS Cyber Crime:</Text>
-              <Text style={styles.value}>{formData.sumInsuredCyberCrime}</Text>
+              <Text style={styles.value}>{formData.crimeSum || formData.sumInsuredCyberCrime}</Text>
             </View>
           )}
           <View style={styles.row}>
             <Text style={styles.label}>Selbstbehalt:</Text>
-            <Text style={styles.value}>{formData.deductible || '-'}</Text>
+            <Text style={styles.value}>{formData.selbstbehalt || formData.deductible || "-"}</Text>
           </View>
-          {formData.waitingPeriod && (
+          {(formData.wartefrist || formData.waitingPeriod) && (
             <View style={styles.row}>
               <Text style={styles.label}>Wartefrist Betriebsunterbruch:</Text>
-              <Text style={styles.value}>{formData.waitingPeriod}</Text>
+              <Text style={styles.value}>{formData.wartefrist || formData.waitingPeriod}</Text>
             </View>
           )}
         </View>
 
-        {/* Prämie */}
-        {packageData && (
-          <View style={styles.priceBox}>
-            <Text style={styles.priceLabel}>Jahresprämie</Text>
-            <Text style={styles.priceValue}>CHF {packageData.price.toLocaleString('de-CH')}</Text>
-          </View>
-        )}
 
-        {/* Footer */}
         <View style={styles.footer}>
           <Text>Zurich Versicherung • Hagenholzstrasse 60 • 8050 Zürich • Tel. +41 44 628 28 28</Text>
           <Text>Diese Offerte ist gültig bis {validUntil} und unverbindlich.</Text>
