@@ -17,8 +17,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 30,
-    paddingBottom: 15,
+    marginBottom: 20,
+    paddingBottom: 10,
   },
   logo: {
     width: 100,
@@ -38,10 +38,10 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 15,
   },
   sectionWithExtraMargin: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 14,
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    marginBottom: 6,
+    marginBottom: 5,
   },
   label: {
     width: '50%',
@@ -256,8 +256,82 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
           </View>
         </View>
 
-        {/* Umsatz > 5 Mio. Fragen */}
-        {formData.revenue > 5_000_000 && (formData.hasMFARemoteAccess || formData.hasITEmergencyPlan || formData.hasWeeklyBackups || formData.hasEncryptedBackups || formData.hasOfflineBackups || formData.usesIndustrialControlSystems || formData.hasEmailSecuritySolution || formData.hasAutomaticUpdates || formData.hasAntivirusSoftware || formData.hasStrongPasswordPolicies || formData.hasAnnualSecurityTraining) && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            Versicherte Deckungen ({formData.package || "BASIC"} Paket)
+          </Text>
+          
+          {allCoverages.map((coverage: string, index: number) => {
+            const isIncluded = packageData?.coverages.includes(coverage) || false;
+            return (
+              <View key={index} style={styles.row}>
+                <Text style={styles.label}>{coverage}:</Text>
+                <Text style={styles.value}>{isIncluded ? 'Versichert' : 'Nicht versichert'}</Text>
+              </View>
+            );
+          })}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Versicherte Leistungen</Text>
+          
+          <View style={styles.row}>
+            <Text style={styles.label}>VS Eigenschäden:</Text>
+            <Text style={styles.value}>
+              {packageData 
+                ? `CHF ${packageData.eigenSchadenSum.toLocaleString("de-CH")}` 
+                : "-"}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>VS Haftpflicht:</Text>
+            <Text style={styles.value}>
+              {packageData 
+                ? `CHF ${packageData.haftpflichtSum.toLocaleString("de-CH")}` 
+                : "-"}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>VS Rechtsschutz:</Text>
+            <Text style={styles.value}>
+              {packageData 
+                ? `CHF ${packageData.rechtsschutzSum.toLocaleString("de-CH")}` 
+                : "CHF 50'000"}
+            </Text>
+          </View>
+          {packageData && packageData.crimeSum > 0 && (
+            <View style={styles.row}>
+              <Text style={styles.label}>VS Cyber Crime:</Text>
+              <Text style={styles.value}>
+                CHF {packageData.crimeSum.toLocaleString("de-CH")}
+              </Text>
+            </View>
+          )}
+          <View style={styles.row}>
+            <Text style={styles.label}>Selbstbehalt:</Text>
+            <Text style={styles.value}>
+              {packageData 
+                ? `CHF ${packageData.deductible.toLocaleString("de-CH")}` 
+                : "-"}
+            </Text>
+          </View>
+          {packageData && packageData.waitingPeriod !== "n/a" && (
+            <View style={styles.row}>
+              <Text style={styles.label}>Wartefrist Betriebsunterbruch:</Text>
+              <Text style={styles.value}>{packageData.waitingPeriod}</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.footer}>
+          <Text>Zurich Versicherung • Hagenholzstrasse 60 • 8050 Zürich • Tel. +41 44 628 28 28</Text>
+          <Text>Diese Offerte ist gültig bis {validUntil} und unverbindlich.</Text>
+        </View>
+      </Page>
+
+      {/* Seite 2: Erweiterte Sicherheit (nur wenn Umsatz > 5 Mio.) */}
+      {formData.revenue > 5_000_000 && (formData.hasMFARemoteAccess || formData.hasITEmergencyPlan || formData.hasWeeklyBackups || formData.hasEncryptedBackups || formData.hasOfflineBackups || formData.usesIndustrialControlSystems || formData.hasEmailSecuritySolution || formData.hasAutomaticUpdates || formData.hasAntivirusSoftware || formData.hasStrongPasswordPolicies || formData.hasAnnualSecurityTraining) && (
+        <Page size="A4" style={styles.page}>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Erweiterte Sicherheit (Umsatz &gt; CHF 5 Mio.)</Text>
             {formData.hasMFARemoteAccess && (
@@ -343,28 +417,17 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
               </View>
             )}
           </View>
-        )}
 
-        <View style={styles.sectionWithExtraMargin}>
-          <Text style={styles.sectionTitle}>
-            Versicherte Deckungen ({formData.package || "BASIC"} Paket)
-          </Text>
-          
-          {allCoverages.map((coverage: string, index: number) => {
-            const isIncluded = packageData?.coverages.includes(coverage) || false;
-            return (
-              <View key={index} style={styles.row}>
-                <Text style={styles.label}>{coverage}:</Text>
-                <Text style={styles.value}>{isIncluded ? 'Versichert' : 'Nicht versichert'}</Text>
-              </View>
-            );
-          })}
-        </View>
-      </Page>
+          <View style={styles.footer}>
+            <Text>Zurich Versicherung • Hagenholzstrasse 60 • 8050 Zürich • Tel. +41 44 628 28 28</Text>
+            <Text>Diese Offerte ist gültig bis {validUntil} und unverbindlich.</Text>
+          </View>
+        </Page>
+      )}
 
-      <Page size="A4" style={styles.page}>
-        {/* Umsatz > 10 Mio. Fragen */}
-        {formData.revenue > 10_000_000 && (formData.usesCloudServices || formData.hasOutsourcedProcesses || formData.usesRemovableMedia || formData.usesSeparateAdminAccounts || formData.hasIsolatedBackupAccess || formData.hasUniquePasswordPolicy || formData.hasFirewallIDSIPS || formData.hasRegularPatchManagement || formData.hasCriticalPatchManagement || formData.hasPhishingSimulations || formData.hasSecurityOperationCenter || formData.businessContinuityExternalIT) && (
+      {/* Seite 3: Umfassende Sicherheitsanalyse (nur wenn Umsatz > 10 Mio.) */}
+      {formData.revenue > 10_000_000 && (formData.usesCloudServices || formData.hasOutsourcedProcesses || formData.usesRemovableMedia || formData.usesSeparateAdminAccounts || formData.hasIsolatedBackupAccess || formData.hasUniquePasswordPolicy || formData.hasFirewallIDSIPS || formData.hasRegularPatchManagement || formData.hasCriticalPatchManagement || formData.hasPhishingSimulations || formData.hasSecurityOperationCenter || formData.businessContinuityExternalIT) && (
+        <Page size="A4" style={styles.page}>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Umfassende Sicherheitsanalyse (Umsatz &gt; CHF 10 Mio.)</Text>
             {formData.usesCloudServices && (
@@ -504,65 +567,13 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
               </View>
             )}
           </View>
-        )}
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Versicherte Leistungen</Text>
-          
-          <View style={styles.row}>
-            <Text style={styles.label}>VS Eigenschäden:</Text>
-            <Text style={styles.value}>
-              {packageData 
-                ? `CHF ${packageData.eigenSchadenSum.toLocaleString("de-CH")}` 
-                : "-"}
-            </Text>
+          <View style={styles.footer}>
+            <Text>Zurich Versicherung • Hagenholzstrasse 60 • 8050 Zürich • Tel. +41 44 628 28 28</Text>
+            <Text>Diese Offerte ist gültig bis {validUntil} und unverbindlich.</Text>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>VS Haftpflicht:</Text>
-            <Text style={styles.value}>
-              {packageData 
-                ? `CHF ${packageData.haftpflichtSum.toLocaleString("de-CH")}` 
-                : "-"}
-            </Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>VS Rechtsschutz:</Text>
-            <Text style={styles.value}>
-              {packageData 
-                ? `CHF ${packageData.rechtsschutzSum.toLocaleString("de-CH")}` 
-                : "CHF 50'000"}
-            </Text>
-          </View>
-          {packageData && packageData.crimeSum > 0 && (
-            <View style={styles.row}>
-              <Text style={styles.label}>VS Cyber Crime:</Text>
-              <Text style={styles.value}>
-                CHF {packageData.crimeSum.toLocaleString("de-CH")}
-              </Text>
-            </View>
-          )}
-          <View style={styles.row}>
-            <Text style={styles.label}>Selbstbehalt:</Text>
-            <Text style={styles.value}>
-              {packageData 
-                ? `CHF ${packageData.deductible.toLocaleString("de-CH")}` 
-                : "-"}
-            </Text>
-          </View>
-          {packageData && packageData.waitingPeriod !== "n/a" && (
-            <View style={styles.row}>
-              <Text style={styles.label}>Wartefrist Betriebsunterbruch:</Text>
-              <Text style={styles.value}>{packageData.waitingPeriod}</Text>
-            </View>
-          )}
-        </View>
-
-
-        <View style={styles.footer}>
-          <Text>Zurich Versicherung • Hagenholzstrasse 60 • 8050 Zürich • Tel. +41 44 628 28 28</Text>
-          <Text>Diese Offerte ist gültig bis {validUntil} und unverbindlich.</Text>
-        </View>
-      </Page>
+        </Page>
+      )}
     </Document>
   );
 };
