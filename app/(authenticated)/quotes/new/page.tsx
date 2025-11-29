@@ -9,7 +9,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
-import { saveQuoteStep, getUserId } from '@/app/actions/quote';
+import { useSearchParams } from 'next/navigation';
+import { saveQuoteStep, getUserId, loadQuote } from '@/app/actions/quote';
 import { 
   companyDataSchema, 
   cyberRiskProfileSchema,
@@ -37,6 +38,9 @@ const STEPS = [
 ];
 
 export default function NewQuotePage() {
+  const searchParams = useSearchParams();
+  const editQuoteId = searchParams.get('edit');
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<any>({});
   const [quoteId, setQuoteId] = useState<string | undefined>(undefined);
@@ -55,9 +59,9 @@ export default function NewQuotePage() {
     defaultValues: formData,
   });
 
-  // Beim Mounting: Prüfe ob User eingeloggt ist
+  // Beim Mounting: Prüfe ob User eingeloggt ist und lade ggf. existierende Quote
   useEffect(() => {
-    const checkAuth = async () => {
+    const initialize = async () => {
       // Hole User ID aus Session (Server Action)
       const { success, userId } = await getUserId();
       
@@ -67,12 +71,32 @@ export default function NewQuotePage() {
         return;
       }
       
-      // User ist eingeloggt - starte mit leerer Offerte
+      // Wenn Quote-ID vorhanden, lade existierende Quote
+      if (editQuoteId) {
+        const result = await loadQuote(editQuoteId);
+        
+        if (result.success && result.quote) {
+          // Setze Quote ID
+          setQuoteId(result.quote.id);
+          
+          // Merge alle Daten aus den JSON Feldern
+          const loadedData = {
+            ...result.quote.companyData,
+            ...result.quote.cyberRiskProfile,
+            ...result.quote.cyberSecurity,
+            ...result.quote.coverage,
+          };
+          
+          setFormData(loadedData);
+          reset(loadedData);
+        }
+      }
+      
       setIsLoading(false);
     };
     
-    checkAuth();
-  }, []);
+    initialize();
+  }, [editQuoteId, reset]);
 
   // Nächster Schritt
   const onNext = async (data: any) => {
