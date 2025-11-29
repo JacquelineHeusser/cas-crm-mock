@@ -153,6 +153,20 @@ export default function NewQuotePage() {
     }
   };
 
+  // PDF-Offerte generieren
+  const handleGeneratePDF = async () => {
+    console.log('Generiere PDF-Offerte...', formData);
+    // TODO: PDF-Generierung implementieren
+    alert('PDF-Generierung wird implementiert');
+  };
+
+  // Direktabschluss
+  const handleDirectContract = async () => {
+    console.log('Direktabschluss...', formData);
+    // TODO: Direktabschluss-Logik implementieren
+    alert('Direktabschluss wird implementiert');
+  };
+
   // Loading State
   if (isLoading) {
     return (
@@ -232,12 +246,41 @@ export default function NewQuotePage() {
           {currentStep === 4 && <Step4Premium register={register} errors={errors} formData={formData} />}
           {currentStep === 5 && <Step5Coverage register={register} errors={errors} formData={formData} />}
           {currentStep === 6 && <Step6Summary formData={formData} />}
-          {currentStep === 7 && <Step7Confirmation register={register} errors={errors} />}
+          {currentStep === 7 && <Step7Confirmation register={register} errors={errors} formData={formData} onGeneratePDF={handleGeneratePDF} onDirectContract={handleDirectContract} />}
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center mt-12">
-            {/* Zurück Button - nur ab Step 2 */}
-            {currentStep > 1 && (
+          {/* Navigation Buttons - versteckt bei Step 7 (Bestätigung) */}
+          {currentStep !== 7 && (
+            <div className="flex justify-between items-center mt-12">
+              {/* Zurück Button - nur ab Step 2 */}
+              {currentStep > 1 && (
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="btn btn-ghost text-[#0032A0] hover:bg-[#0032A0]/10 gap-2"
+                >
+                  <ChevronLeft size={18} />
+                  Zurück
+                </button>
+              )}
+
+              {/* Platzhalter wenn kein Zurück Button */}
+              {currentStep === 1 && <div></div>}
+
+              {/* Weiter Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn bg-[#008C95] text-white hover:bg-[#006B73] rounded-full px-8 gap-2"
+              >
+                Weiter
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          )}
+          
+          {/* Zurück Button bei Step 7 */}
+          {currentStep === 7 && (
+            <div className="mt-12">
               <button
                 type="button"
                 onClick={onBack}
@@ -246,21 +289,8 @@ export default function NewQuotePage() {
                 <ChevronLeft size={18} />
                 Zurück
               </button>
-            )}
-
-            {/* Platzhalter wenn kein Zurück Button */}
-            {currentStep === 1 && <div></div>}
-
-            {/* Weiter Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn bg-[#008C95] text-white hover:bg-[#006B73] rounded-full px-8 gap-2"
-            >
-              {currentStep === STEPS.length ? 'Offerte absenden' : 'Weiter'}
-              <ChevronRight size={18} />
-            </button>
-          </div>
+            </div>
+          )}
         </form>
       </div>
     </div>
@@ -1017,7 +1047,15 @@ function Step6Summary({ formData }: { formData: any }) {
 }
 
 // Step 7: Bestätigung
-function Step7Confirmation({ register, errors }: any) {
+function Step7Confirmation({ register, errors, formData, onGeneratePDF, onDirectContract }: any) {
+  // Prüfe ob alle notwendigen Felder ausgefüllt sind
+  const isComplete = formData.companyName && 
+    formData.package && 
+    formData.sumInsuredProperty && 
+    formData.sumInsuredLiability && 
+    formData.deductible &&
+    formData.acceptTerms;
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Bestätigung</h2>
@@ -1042,10 +1080,70 @@ function Step7Confirmation({ register, errors }: any) {
         <p className="text-red-600 text-xs mt-2 ml-6">{errors.acceptTerms.message}</p>
       )}
 
-      <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-        <p className="text-sm text-gray-600">
-          Nach dem Absenden wird Ihre Offertanfrage geprüft und Sie erhalten innerhalb von 2 Werktagen eine Rückmeldung.
-        </p>
+      {/* Warnung wenn nicht alle Felder ausgefüllt */}
+      {!isComplete && (
+        <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <p className="text-orange-700 text-sm">
+            ⚠️ Bitte füllen Sie alle Pflichtfelder aus und akzeptieren Sie die Bestätigung, um fortzufahren.
+          </p>
+        </div>
+      )}
+
+      {/* Aktionsbuttons */}
+      <div className="mt-8 space-y-4">
+        <h3 className="text-lg font-medium text-[#1A1A1A] mb-4">Wie möchten Sie fortfahren?</h3>
+        
+        {/* PDF Offerte generieren */}
+        <button
+          type="button"
+          onClick={onGeneratePDF}
+          disabled={!isComplete}
+          className={`w-full p-6 rounded-lg border-2 text-left transition-all ${
+            isComplete
+              ? 'border-[#0032A0] bg-white hover:bg-[#D9E8FC] cursor-pointer'
+              : 'border-gray-300 bg-gray-50 cursor-not-allowed opacity-50'
+          }`}
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-[#0032A0] rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h4 className="text-[#0032A0] font-medium mb-2">PDF-Offerte erstellen</h4>
+              <p className="text-sm text-gray-600">
+                Generieren Sie eine Offerte als PDF-Dokument mit allen erfassten Daten. Sie können diese herunterladen, ausdrucken oder per E-Mail versenden.
+              </p>
+            </div>
+          </div>
+        </button>
+
+        {/* Direktabschluss */}
+        <button
+          type="button"
+          onClick={onDirectContract}
+          disabled={!isComplete}
+          className={`w-full p-6 rounded-lg border-2 text-left transition-all ${
+            isComplete
+              ? 'border-[#008C95] bg-gradient-to-r from-[#008C95]/5 to-[#006B73]/5 hover:from-[#008C95]/10 hover:to-[#006B73]/10 cursor-pointer'
+              : 'border-gray-300 bg-gray-50 cursor-not-allowed opacity-50'
+          }`}
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-[#008C95] rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h4 className="text-[#008C95] font-medium mb-2">Direktabschluss</h4>
+              <p className="text-sm text-gray-600">
+                Schliessen Sie die Versicherung direkt online ab. Nach erfolgreicher Prüfung erhalten Sie sofort Ihre Police per E-Mail.
+              </p>
+            </div>
+          </div>
+        </button>
       </div>
     </div>
   );
