@@ -1774,6 +1774,9 @@ function Step6Summary({ formData }: { formData: any }) {
             <SummaryRow label="Ausfall > 72 Stunden" value={formData.incidentDowntime72h || '-'} />
             <SummaryRow label="Finanzieller Schaden" value={formData.incidentFinancialLoss || '-'} />
             <SummaryRow label="Haftpflichtansprüche" value={formData.incidentLiabilityClaims || '-'} />
+            {formData.businessContinuityAfterITFailure && (
+              <SummaryRow label="Business Continuity (interne IT)" value={formData.businessContinuityAfterITFailure} />
+            )}
           </div>
         )}
         
@@ -1781,8 +1784,73 @@ function Step6Summary({ formData }: { formData: any }) {
         <SummaryRow label="Anzahl Medizinal-/Gesundheitsdaten" value={formData.medicalDataCount} />
         <SummaryRow label="Anzahl Kreditkartendaten" value={formData.creditCardDataCount} />
         <SummaryRow label="End-of-Life Systeme" value={formData.hasEndOfLifeSystems} />
-        {formData.businessContinuityAfterITFailure && (
-          <SummaryRow label="Business Continuity nach IT-Ausfall" value={formData.businessContinuityAfterITFailure} />
+        
+        {/* Umsatz > 5 Mio. Fragen */}
+        {(formData.revenue > 5_000_000 && formData.hasMFARemoteAccess) && (
+          <div className="mt-4 pt-4 border-t border-[#CADB2D]">
+            <h4 className="text-sm font-medium text-[#0032A0] mb-3">Erweiterte Sicherheit (Umsatz &gt; CHF 5 Mio.)</h4>
+            <div className="ml-4 pl-4 border-l-2 border-[#CADB2D] space-y-2">
+              {formData.hasMFARemoteAccess && <SummaryRow label="MFA für Fernzugriff" value={formData.hasMFARemoteAccess} />}
+              {formData.hasITEmergencyPlan && <SummaryRow label="IT-Notfallplan vorhanden" value={formData.hasITEmergencyPlan} />}
+              {formData.hasWeeklyBackups && <SummaryRow label="Wöchentliche Backups" value={formData.hasWeeklyBackups} />}
+              {formData.hasEncryptedBackups && <SummaryRow label="Verschlüsselte Backups" value={formData.hasEncryptedBackups} />}
+              {formData.hasOfflineBackups && <SummaryRow label="Offline/getrennte Backups" value={formData.hasOfflineBackups} />}
+              {formData.usesIndustrialControlSystems && <SummaryRow label="Industrielle Steuerungssysteme (OT)" value={formData.usesIndustrialControlSystems} />}
+              
+              {/* OT-Details bei Umsatz > 5 Mio. */}
+              {formData.usesIndustrialControlSystems === 'Ja' && (
+                <div className="ml-4 pl-4 border-l-2 border-[#0032A0] space-y-2 mt-2">
+                  {formData.hasOTMFARemoteAccess && <SummaryRow label="OT: MFA für Fernzugriff" value={formData.hasOTMFARemoteAccess} />}
+                  {formData.hasOTFirewallSeparation && <SummaryRow label="OT: Firewall-Trennung" value={formData.hasOTFirewallSeparation} />}
+                </div>
+              )}
+              
+              {formData.hasEmailSecuritySolution && <SummaryRow label="E-Mail-Sicherheitslösung" value={formData.hasEmailSecuritySolution} />}
+              {formData.hasAutomaticUpdates && <SummaryRow label="Automatische Updates" value={formData.hasAutomaticUpdates} />}
+              {formData.hasAntivirusSoftware && <SummaryRow label="Antiviren-Software" value={formData.hasAntivirusSoftware} />}
+              {formData.hasStrongPasswordPolicies && <SummaryRow label="Starke Passwort-Richtlinien" value={formData.hasStrongPasswordPolicies} />}
+              {formData.hasAnnualSecurityTraining && <SummaryRow label="Jährliche Security-Schulungen" value={formData.hasAnnualSecurityTraining} />}
+              {formData.businessContinuityExternalIT && <SummaryRow label="Business Continuity (externe IT)" value={formData.businessContinuityExternalIT} />}
+            </div>
+          </div>
+        )}
+        
+        {/* Umsatz > 10 Mio. Fragen */}
+        {(formData.revenue > 10_000_000 && formData.usesCloudServices) && (
+          <div className="mt-4 pt-4 border-t border-[#008C95]">
+            <h4 className="text-sm font-medium text-[#0032A0] mb-3">Umfassende Sicherheitsanalyse (Umsatz &gt; CHF 10 Mio.)</h4>
+            <div className="ml-4 pl-4 border-l-2 border-[#008C95] space-y-2">
+              {formData.usesCloudServices && <SummaryRow label="Cloud-Services" value={formData.usesCloudServices} />}
+              {formData.cloudServiceProviders && <SummaryRow label="Cloud-Anbieter" value={formData.cloudServiceProviders} />}
+              {formData.hasOutsourcedProcesses && <SummaryRow label="Ausgelagerte Prozesse" value={formData.hasOutsourcedProcesses} />}
+              {formData.outsourcedProcessTypes && <SummaryRow label="Ausgelagerte System-Typen" value={formData.outsourcedProcessTypes} />}
+              {formData.usesRemovableMedia && <SummaryRow label="Wechseldatenträger" value={formData.usesRemovableMedia} />}
+              {formData.usesSeparateAdminAccounts && <SummaryRow label="Separate Admin-Konten" value={formData.usesSeparateAdminAccounts} />}
+              {formData.hasIsolatedBackupAccess && <SummaryRow label="Isolierte Backup-Zugriffe" value={formData.hasIsolatedBackupAccess} />}
+              {formData.hasUniquePasswordPolicy && <SummaryRow label="Einzigartige Passwörter" value={formData.hasUniquePasswordPolicy} />}
+              {formData.hasFirewallIDSIPS && <SummaryRow label="Firewalls/IDS/IPS" value={formData.hasFirewallIDSIPS} />}
+              {formData.hasRegularPatchManagement && <SummaryRow label="Patch-Management (30 Tage)" value={formData.hasRegularPatchManagement} />}
+              {formData.hasCriticalPatchManagement && <SummaryRow label="Kritische Patches (3 Tage)" value={formData.hasCriticalPatchManagement} />}
+              {formData.hasPhishingSimulations && <SummaryRow label="Phishing-Simulationen" value={formData.hasPhishingSimulations} />}
+              {formData.hasSecurityOperationCenter && <SummaryRow label="Security Operation Center (SOC)" value={formData.hasSecurityOperationCenter} />}
+              
+              {/* OT-Details bei Umsatz > 10 Mio. */}
+              {formData.usesIndustrialControlSystems === 'Ja' && (
+                <div className="ml-4 pl-4 border-l-2 border-[#0032A0] space-y-2 mt-2">
+                  <h5 className="text-xs font-medium text-[#0032A0] mb-2">Erweiterte OT-Sicherheit:</h5>
+                  {formData.hasOTInventory && <SummaryRow label="OT-Inventarliste" value={formData.hasOTInventory} />}
+                  {formData.hasOTSiteSeparation && <SummaryRow label="OT-Standort-Trennung" value={formData.hasOTSiteSeparation} />}
+                  {formData.hasOTInternetSeparation && <SummaryRow label="OT-Internet-Trennung" value={formData.hasOTInternetSeparation} />}
+                  {formData.hasOTVulnerabilityScans && <SummaryRow label="OT-Schwachstellenscans" value={formData.hasOTVulnerabilityScans} />}
+                  {formData.hasOTRegularBackups && <SummaryRow label="OT-Regelmässige Backups" value={formData.hasOTRegularBackups} />}
+                </div>
+              )}
+              
+              {formData.hasPCICertification && <SummaryRow label="PCI-Zertifizierung" value={formData.hasPCICertification} />}
+              {formData.protectsMedicalDataGDPR && <SummaryRow label="Medizinischer Datenschutz (GDPR)" value={formData.protectsMedicalDataGDPR} />}
+              {formData.protectsBiometricData && <SummaryRow label="Biometrischer Datenschutz" value={formData.protectsBiometricData} />}
+            </div>
+          </div>
         )}
       </SummarySection>
 
