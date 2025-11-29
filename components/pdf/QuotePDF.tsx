@@ -233,7 +233,9 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
             );
           })}
         </View>
+      </Page>
 
+      <Page size="A4" style={styles.page}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Versicherte Leistungen</Text>
           
