@@ -58,12 +58,6 @@ const styles = StyleSheet.create({
     width: '50%',
     color: '#333',
   },
-  columnHeader: {
-    width: '50%',
-    color: '#0032A0',
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 11,
-  },
   priceBox: {
     backgroundColor: '#D9E8FC',
     padding: 15,
@@ -223,13 +217,8 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Versicherte Leistungen ({formData.package || "BASIC"} Paket)
+            Versicherte Deckungen ({formData.package || "BASIC"} Paket)
           </Text>
-          
-          <View style={styles.row}>
-            <Text style={styles.label}></Text>
-            <Text style={styles.columnHeader}>Versichert</Text>
-          </View>
           
           {allCoverages.map((coverage: string, index: number) => {
             const isIncluded = packageData?.coverages.includes(coverage) || false;
@@ -240,6 +229,10 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
               </View>
             );
           })}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Versicherte Leistungen</Text>
           
           <View style={styles.row}>
             <Text style={styles.label}>VS Eigenschäden:</Text>
