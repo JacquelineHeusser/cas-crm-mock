@@ -82,10 +82,10 @@ export default function NewQuotePage() {
           
           // Merge alle Daten aus den JSON Feldern
           const loadedData = {
-            ...result.quote.companyData,
-            ...result.quote.cyberRiskProfile,
-            ...result.quote.cyberSecurity,
-            ...result.quote.coverage,
+            ...(result.quote.companyData as any || {}),
+            ...(result.quote.cyberRiskProfile as any || {}),
+            ...(result.quote.cyberSecurity as any || {}),
+            ...(result.quote.coverage as any || {}),
           };
           
           setFormData(loadedData);

@@ -70,3 +70,5 @@ pnpm-debug.log*
 # --- Supabase CLI (lokal) ---
 /supabase/.temp
 /supabase/.branches
+.vercel
+.env*.local
