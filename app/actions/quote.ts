@@ -132,3 +132,71 @@ export async function loadUserDraftQuote(userId: string) {
     return { success: false, error: 'Fehler beim Laden' };
   }
 }
+
+// Policy aus Quote erstellen (Direktabschluss)
+export async function createPolicyFromQuote(data: {
+  quoteId: string;
+  userId: string;
+  startDate: string;
+}) {
+  try {
+    const { quoteId, userId, startDate } = data;
+
+    // Quote laden
+    const quote = await prisma.quote.findUnique({
+      where: { id: quoteId },
+      include: {
+        company: true,
+      },
+    });
+
+    if (!quote) {
+      return { success: false, error: 'Quote nicht gefunden' };
+    }
+
+    // Berechne Versicherungsende (+1 Jahr)
+    const start = new Date(startDate);
+    const end = new Date(start);
+    end.setFullYear(end.getFullYear() + 1);
+
+    // Generiere Policy-Nummer
+    const policyNumber = `POL-${Date.now()}`;
+
+    // Erstelle Policy
+    const policy = await prisma.policy.create({
+      data: {
+        policyNumber,
+        quoteId,
+        userId,
+        companyId: quote.companyId,
+        status: 'ACTIVE',
+        startDate: start,
+        endDate: end,
+        premium: quote.premium || BigInt(0),
+        coverage: quote.coverage || {},
+      },
+    });
+
+    // Update Quote Status
+    await prisma.quote.update({
+      where: { id: quoteId },
+      data: {
+        status: 'APPROVED',
+      },
+    });
+
+    revalidatePath('/policies');
+    revalidatePath('/dashboard');
+    
+    return { 
+      success: true, 
+      policy: {
+        id: policy.id,
+        policyNumber: policy.policyNumber,
+      }
+    };
+  } catch (error) {
+    console.error('Error creating policy:', error);
+    return { success: false, error: 'Fehler beim Erstellen der Police' };
+  }
+}

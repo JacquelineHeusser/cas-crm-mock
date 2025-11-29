@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { saveQuoteStep, getUserId, loadQuote } from '@/app/actions/quote';
+import { saveQuoteStep, getUserId, loadQuote, createPolicyFromQuote } from '@/app/actions/quote';
 import { 
   companyDataSchema, 
   cyberRiskProfileSchema,
@@ -209,10 +209,39 @@ export default function NewQuotePage() {
   };
 
   // Direktabschluss
-  const handleDirectContract = async () => {
-    console.log('Direktabschluss...', formData);
-    // TODO: Direktabschluss-Logik implementieren
-    alert('Direktabschluss wird implementiert');
+  const handleDirectContract = async (startDate: string) => {
+    if (!quoteId) {
+      alert('Bitte speichern Sie zuerst die Offerte');
+      return { success: false };
+    }
+
+    try {
+      // Hole User ID aus Session
+      const { success: userSuccess, userId } = await getUserId();
+      
+      if (!userSuccess || !userId) {
+        alert('Bitte melden Sie sich an');
+        return { success: false };
+      }
+
+      // Erstelle Policy aus Quote
+      const result = await createPolicyFromQuote({
+        quoteId,
+        userId,
+        startDate,
+      });
+
+      if (result.success) {
+        return { success: true, policy: result.policy };
+      } else {
+        alert(result.error || 'Fehler beim Erstellen der Police');
+        return { success: false };
+      }
+    } catch (error) {
+      console.error('Fehler beim Direktabschluss:', error);
+      alert('Fehler beim Direktabschluss');
+      return { success: false };
+    }
   };
 
   // Loading State
@@ -1107,6 +1136,10 @@ function Step6Summary({ formData }: { formData: any }) {
 
 // Step 7: Bestätigung
 function Step7Confirmation({ register, errors, formData, watch, onGeneratePDF, onDirectContract }: any) {
+  const [showDirectContract, setShowDirectContract] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [policyCreated, setPolicyCreated] = useState(false);
+  
   // Beobachte den aktuellen Wert der Checkbox
   const acceptTerms = watch('acceptTerms');
   
@@ -1117,6 +1150,32 @@ function Step7Confirmation({ register, errors, formData, watch, onGeneratePDF, o
     formData.sumInsuredLiability && 
     formData.deductible &&
     acceptTerms;
+  
+  // Standard-Versicherungsbeginn: Heute + 7 Tage
+  const [startDate, setStartDate] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+    return date.toISOString().split('T')[0];
+  });
+  
+  const handleDirectContractClick = () => {
+    setShowDirectContract(!showDirectContract);
+  };
+  
+  const handleFinalizeContract = async () => {
+    setIsSubmitting(true);
+    try {
+      const result = await onDirectContract(startDate);
+      if (result?.success) {
+        setPolicyCreated(true);
+      }
+    } catch (error) {
+      console.error('Fehler beim Vertragsabschluss:', error);
+      alert('Fehler beim Vertragsabschluss');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -1184,7 +1243,7 @@ function Step7Confirmation({ register, errors, formData, watch, onGeneratePDF, o
         {/* Direktabschluss */}
         <button
           type="button"
-          onClick={onDirectContract}
+          onClick={handleDirectContractClick}
           disabled={!isComplete}
           className={`w-full p-6 rounded-lg border-2 text-left transition-all ${
             isComplete
@@ -1204,8 +1263,84 @@ function Step7Confirmation({ register, errors, formData, watch, onGeneratePDF, o
                 Schliessen Sie die Versicherung direkt online ab. Nach erfolgreicher Prüfung erhalten Sie sofort Ihre Police per E-Mail.
               </p>
             </div>
+            <ChevronRight 
+              className={`text-[#008C95] transform transition-transform ${showDirectContract ? 'rotate-90' : ''}`} 
+              size={24} 
+            />
           </div>
         </button>
+
+        {/* Expandierbare Direktabschluss-Sektion */}
+        {showDirectContract && !policyCreated && (
+          <div className="border-2 border-[#008C95] rounded-lg p-6 space-y-6 bg-white">
+            <h3 className="text-lg font-medium text-[#0032A0] mb-4">Vertragsdetails</h3>
+            
+            {/* Versicherungsbeginn */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-[#1A1A1A]">
+                Versicherungsbeginn
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                className="w-full px-4 py-3 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+              />
+            </div>
+
+            {/* Gewähltes Paket */}
+            {formData.package && PACKAGES[formData.package as keyof typeof PACKAGES] && (
+              <div className="bg-[#D9E8FC] p-4 rounded-lg space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Gewähltes Paket:</span>
+                  <span className="text-[#0032A0] font-medium">{formData.package}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Jahresprämie:</span>
+                  <span className="text-[#0032A0] font-bold text-lg">
+                    CHF {PACKAGES[formData.package as keyof typeof PACKAGES].price.toLocaleString('de-CH')}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Abschluss Button */}
+            <button
+              type="button"
+              onClick={handleFinalizeContract}
+              disabled={isSubmitting}
+              className="w-full py-4 bg-gradient-to-r from-[#008C95] to-[#006B73] text-white font-medium rounded-full hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Wird abgeschlossen...' : 'Versicherung jetzt abschliessen'}
+            </button>
+          </div>
+        )}
+
+        {/* Bestätigung nach erfolgreicher Erstellung */}
+        {policyCreated && (
+          <div className="border-2 border-green-500 rounded-lg p-6 bg-green-50">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h4 className="text-green-700 font-medium mb-2">Police erfolgreich erstellt!</h4>
+                <p className="text-sm text-green-600 mb-4">
+                  Ihre Cyberversicherung wurde erfolgreich abgeschlossen. Sie finden Ihre Police jetzt unter "Meine Policen".
+                </p>
+                <a 
+                  href="/policies" 
+                  className="inline-block px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"
+                >
+                  Zu meinen Policen
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
