@@ -39,6 +39,9 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 20,
   },
+  sectionWithExtraMargin: {
+    marginBottom: 30,
+  },
   sectionTitle: {
     fontSize: 14,
     color: '#0032A0',
@@ -215,7 +218,7 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
           </View>
         </View>
 
-        <View style={styles.section}>
+        <View style={styles.sectionWithExtraMargin}>
           <Text style={styles.sectionTitle}>
             Versicherte Deckungen ({formData.package || "BASIC"} Paket)
           </Text>
@@ -225,7 +228,7 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
             return (
               <View key={index} style={styles.row}>
                 <Text style={styles.label}>{coverage}:</Text>
-                <Text style={styles.value}>{isIncluded ? 'Ja' : 'Nein'}</Text>
+                <Text style={styles.value}>{isIncluded ? 'Versichert' : 'Nicht versichert'}</Text>
               </View>
             );
           })}
