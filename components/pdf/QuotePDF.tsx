@@ -323,15 +323,8 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
           )}
         </View>
 
-        <View style={styles.footer}>
-          <Text>Zurich Versicherung • Hagenholzstrasse 60 • 8050 Zürich • Tel. +41 44 628 28 28</Text>
-          <Text>Diese Offerte ist gültig bis {validUntil} und unverbindlich.</Text>
-        </View>
-      </Page>
-
-      {/* Seite 2: Erweiterte Sicherheit (nur wenn Umsatz > 5 Mio.) */}
-      {formData.revenue > 5_000_000 && (formData.hasMFARemoteAccess || formData.hasITEmergencyPlan || formData.hasWeeklyBackups || formData.hasEncryptedBackups || formData.hasOfflineBackups || formData.usesIndustrialControlSystems || formData.hasEmailSecuritySolution || formData.hasAutomaticUpdates || formData.hasAntivirusSoftware || formData.hasStrongPasswordPolicies || formData.hasAnnualSecurityTraining) && (
-        <Page size="A4" style={styles.page}>
+        {/* Umsatz > 5 Mio. Fragen - direkt auf gleicher Seite */}
+        {formData.revenue > 5_000_000 && (formData.hasMFARemoteAccess || formData.hasITEmergencyPlan || formData.hasWeeklyBackups || formData.hasEncryptedBackups || formData.hasOfflineBackups || formData.usesIndustrialControlSystems || formData.hasEmailSecuritySolution || formData.hasAutomaticUpdates || formData.hasAntivirusSoftware || formData.hasStrongPasswordPolicies || formData.hasAnnualSecurityTraining) && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Erweiterte Sicherheit (Umsatz &gt; CHF 5 Mio.)</Text>
             {formData.hasMFARemoteAccess && (
@@ -417,17 +410,10 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
               </View>
             )}
           </View>
+        )}
 
-          <View style={styles.footer}>
-            <Text>Zurich Versicherung • Hagenholzstrasse 60 • 8050 Zürich • Tel. +41 44 628 28 28</Text>
-            <Text>Diese Offerte ist gültig bis {validUntil} und unverbindlich.</Text>
-          </View>
-        </Page>
-      )}
-
-      {/* Seite 3: Umfassende Sicherheitsanalyse (nur wenn Umsatz > 10 Mio.) */}
-      {formData.revenue > 10_000_000 && (formData.usesCloudServices || formData.hasOutsourcedProcesses || formData.usesRemovableMedia || formData.usesSeparateAdminAccounts || formData.hasIsolatedBackupAccess || formData.hasUniquePasswordPolicy || formData.hasFirewallIDSIPS || formData.hasRegularPatchManagement || formData.hasCriticalPatchManagement || formData.hasPhishingSimulations || formData.hasSecurityOperationCenter || formData.businessContinuityExternalIT) && (
-        <Page size="A4" style={styles.page}>
+        {/* Umsatz > 10 Mio. Fragen - direkt anschliessend */}
+        {formData.revenue > 10_000_000 && (formData.usesCloudServices || formData.hasOutsourcedProcesses || formData.usesRemovableMedia || formData.usesSeparateAdminAccounts || formData.hasIsolatedBackupAccess || formData.hasUniquePasswordPolicy || formData.hasFirewallIDSIPS || formData.hasRegularPatchManagement || formData.hasCriticalPatchManagement || formData.hasPhishingSimulations || formData.hasSecurityOperationCenter || formData.businessContinuityExternalIT) && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Umfassende Sicherheitsanalyse (Umsatz &gt; CHF 10 Mio.)</Text>
             {formData.usesCloudServices && (
@@ -567,13 +553,13 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
               </View>
             )}
           </View>
+        )}
 
-          <View style={styles.footer}>
-            <Text>Zurich Versicherung • Hagenholzstrasse 60 • 8050 Zürich • Tel. +41 44 628 28 28</Text>
-            <Text>Diese Offerte ist gültig bis {validUntil} und unverbindlich.</Text>
-          </View>
-        </Page>
-      )}
+        <View style={styles.footer}>
+          <Text>Zurich Versicherung • Hagenholzstrasse 60 • 8050 Zürich • Tel. +41 44 628 28 28</Text>
+          <Text>Diese Offerte ist gültig bis {validUntil} und unverbindlich.</Text>
+        </View>
+      </Page>
     </Document>
   );
 };
