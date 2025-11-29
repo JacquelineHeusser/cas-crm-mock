@@ -27,6 +27,7 @@ model User {
   // Beziehungen
   company     Company?           @relation(fields: [companyId], references: [id])
   quotes      Quote[]
+  policies    Policy[]
   underwritingCases UnderwritingCase[]
 
   @@map("users")
@@ -50,6 +51,7 @@ model Company {
   // Beziehungen
   users User[]
   quotes Quote[]
+  policies Policy[]
 
   @@map("companies")
 }
@@ -83,6 +85,7 @@ model Quote {
   company Company? @relation(fields: [companyId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
   underwritingCase UnderwritingCase?
+  policy  Policy?
 
   @@map("quotes")
 }
@@ -105,6 +108,33 @@ model UnderwritingCase {
   underwriter User? @relation(fields: [underwriterId], references: [id])
 
   @@map("underwriting_cases")
+}
+
+// Versicherungspolicen (abgeschlossene Verträge)
+model Policy {
+  id           String       @id @default(cuid())
+  policyNumber String       @unique
+  quoteId      String       @unique
+  userId       String       // Policeninhaber
+  companyId    String?      // Versichertes Unternehmen
+  status       PolicyStatus @default(ACTIVE)
+  
+  // Versicherungsdaten
+  startDate    DateTime     // Versicherungsbeginn
+  endDate      DateTime     // Versicherungsende (normalerweise +1 Jahr)
+  premium      BigInt       // Jahresprämie in Rappen
+  coverage     Json         // Deckungsdaten (Paket, Summen, etc.)
+  
+  // Zeitstempel
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Beziehungen
+  quote   Quote   @relation(fields: [quoteId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  company Company? @relation(fields: [companyId], references: [id])
+  
+  @@map("policies")
 }
 
 // Enums
@@ -142,4 +172,10 @@ enum UnderwritingDecision {
   APPROVE
   REJECT
   REQUEST_INFO
+}
+
+enum PolicyStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
 }
