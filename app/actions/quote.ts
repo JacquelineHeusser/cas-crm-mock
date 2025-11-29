@@ -154,6 +154,48 @@ export async function createPolicyFromQuote(data: {
       return { success: false, error: 'Quote nicht gefunden' };
     }
 
+    // Hole Daten aus Quote
+    const companyData = quote.companyData as any;
+    const coverageData = quote.coverage as any;
+    
+    // Berechne Prämie basierend auf gewähltem Paket
+    let premiumAmount = BigInt(0);
+    if (coverageData?.package) {
+      const PACKAGES: any = {
+        BASIC: { price: 2500 },
+        OPTIMUM: { price: 4200 },
+        PREMIUM: { price: 6800 },
+      };
+      const packagePrice = PACKAGES[coverageData.package]?.price || 0;
+      premiumAmount = BigInt(packagePrice * 100); // CHF zu Rappen
+    }
+    
+    // Erstelle oder finde Company
+    let companyId = quote.companyId;
+    if (!companyId && companyData?.companyName) {
+      // Erstelle Company aus companyData
+      const company = await prisma.company.create({
+        data: {
+          name: companyData.companyName,
+          address: companyData.address || '',
+          zip: companyData.zip || '',
+          city: companyData.city || '',
+          country: companyData.country || 'CH',
+          url: companyData.url || null,
+          industry: companyData.industry || 'Unbekannt',
+          revenue: BigInt((companyData.revenue || 0) * 100), // CHF zu Rappen
+          employees: companyData.employees || 0,
+        },
+      });
+      companyId = company.id;
+      
+      // Update Quote mit Company ID
+      await prisma.quote.update({
+        where: { id: quoteId },
+        data: { companyId: company.id },
+      });
+    }
+
     // Berechne Versicherungsende (+1 Jahr)
     const start = new Date(startDate);
     const end = new Date(start);
@@ -168,24 +210,29 @@ export async function createPolicyFromQuote(data: {
         policyNumber,
         quoteId,
         userId,
-        companyId: quote.companyId,
+        companyId,
         status: 'ACTIVE',
         startDate: start,
         endDate: end,
-        premium: quote.premium || BigInt(0),
-        coverage: quote.coverage || {},
+        premium: premiumAmount,
+        coverage: {
+          ...coverageData,
+          companyName: companyData?.companyName,
+        },
       },
     });
 
-    // Update Quote Status
+    // Update Quote Status und Premium
     await prisma.quote.update({
       where: { id: quoteId },
       data: {
         status: 'APPROVED',
+        premium: premiumAmount,
       },
     });
 
     revalidatePath('/policies');
+    revalidatePath('/policen');
     revalidatePath('/dashboard');
     
     return { 

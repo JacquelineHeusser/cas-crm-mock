@@ -7,58 +7,7 @@ import { ArrowLeft, Download, ChevronRight, Phone } from 'lucide-react';
 import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-
-// Dummy-Daten für Policen (später aus Datenbank)
-const policiesData: Record<string, any> = {
-  '72584938': {
-    name: 'Zurich Cyberversicherung',
-    number: '72584938',
-    status: 'Aktiv',
-    premium: '2\'500',
-    icon: 'shield',
-    color: 'bg-[#008C95]',
-    payments: {
-      annual: 'CHF 2\'500',
-      nextPayment: '29.10.2025',
-    },
-    documents: [
-      { name: 'Versicherungspolice', date: '01.07.2020' },
-      { name: 'AVB', date: '29.11.2025' },
-    ],
-  },
-  '72584941': {
-    name: 'Zurich Sachversicherung',
-    number: '72584941',
-    status: 'Aktiv',
-    premium: '3\'200',
-    icon: 'building',
-    color: 'bg-[#0032A0]',
-    payments: {
-      annual: 'CHF 3\'200',
-      nextPayment: '15.12.2025',
-    },
-    documents: [
-      { name: 'Versicherungspolice', date: '12.03.2021' },
-      { name: 'AVB', date: '12.03.2021' },
-    ],
-  },
-  '72584945': {
-    name: 'Zurich Betriebshaftpflichtversicherung',
-    number: '72584945',
-    status: 'Aktiv',
-    premium: '1\'800',
-    icon: 'users',
-    color: 'bg-[#008C95]',
-    payments: {
-      annual: 'CHF 1\'800',
-      nextPayment: '01.01.2026',
-    },
-    documents: [
-      { name: 'Versicherungspolice', date: '20.06.2022' },
-      { name: 'AVB', date: '20.06.2022' },
-    ],
-  },
-};
+import { prisma } from '@/lib/prisma';
 
 export default async function PolicyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
@@ -68,11 +17,48 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
   }
 
   const { id } = await params;
-  const policy = policiesData[id];
+  
+  // Lade Policy aus Datenbank
+  const policy = await prisma.policy.findUnique({
+    where: { id },
+    include: {
+      company: true,
+      quote: true,
+    },
+  });
 
-  if (!policy) {
-    redirect('/dashboard');
+  if (!policy || policy.userId !== user.id) {
+    redirect('/policen');
   }
+  
+  // Formatiere Daten
+  const coverageData = policy.coverage as any;
+  const companyName = policy.company?.name || coverageData?.companyName || 'Unbekannt';
+  const premiumAmount = Number(policy.premium) / 100;
+  const startDate = new Date(policy.startDate).toLocaleDateString('de-CH');
+  const endDate = new Date(policy.endDate).toLocaleDateString('de-CH');
+  const createdDate = new Date(policy.createdAt).toLocaleDateString('de-CH');
+  
+  // Berechne nächste Zahlung (1 Monat vor Ablauf)
+  const nextPaymentDate = new Date(policy.endDate);
+  nextPaymentDate.setMonth(nextPaymentDate.getMonth() - 1);
+  const nextPayment = nextPaymentDate.toLocaleDateString('de-CH');
+  
+  // Status Badge
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'ACTIVE':
+        return { label: 'Aktiv', class: 'bg-[#CADB2D] text-[#0032A0]' };
+      case 'CANCELLED':
+        return { label: 'Gekündigt', class: 'bg-red-100 text-red-700' };
+      case 'EXPIRED':
+        return { label: 'Abgelaufen', class: 'bg-gray-100 text-gray-700' };
+      default:
+        return { label: status, class: 'bg-gray-100 text-gray-700' };
+    }
+  };
+  
+  const statusBadge = getStatusBadge(policy.status);
 
   return (
     <div className="min-h-screen">
@@ -86,7 +72,7 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
             <ArrowLeft size={20} />
             Zurück
           </Link>
-          <h1 className="text-3xl font-light">{policy.name}</h1>
+          <h1 className="text-3xl font-light">{companyName} - Cyberversicherung</h1>
         </div>
       </div>
 
@@ -96,27 +82,15 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className={`w-16 h-16 ${policy.color} rounded-full flex items-center justify-center`}>
-                {policy.icon === 'shield' && (
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                )}
-                {policy.icon === 'building' && (
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                )}
-                {policy.icon === 'users' && (
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                )}
+              <div className="w-16 h-16 bg-[#008C95] rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.040A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
               </div>
               <div>
-                <h2 className="text-xl font-medium text-[#1A1A1A] mb-1">{policy.name}</h2>
+                <h2 className="text-xl font-medium text-[#1A1A1A] mb-1">{companyName} - Cyberversicherung</h2>
                 <p className="text-sm text-gray-600 flex items-center gap-2">
-                  Policennummer: {policy.number}
+                  Policennummer: {policy.policyNumber}
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
@@ -124,13 +98,9 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className="px-4 py-2 bg-[#CADB2D] text-[#0032A0] text-sm font-medium rounded-full">
-                {policy.status}
+              <span className={`px-4 py-2 text-sm font-medium rounded-full ${statusBadge.class}`}>
+                {statusBadge.label}
               </span>
-              <Link href="#" className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline">
-                Policendetails
-                <ChevronRight size={16} />
-              </Link>
             </div>
           </div>
         </div>
@@ -146,17 +116,21 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-gray-600">Jahresprämie</p>
-                    <p className="text-lg font-medium text-[#1A1A1A]">{policy.payments.annual}</p>
+                    <p className="text-lg font-medium text-[#1A1A1A]">CHF {premiumAmount.toLocaleString('de-CH')}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Letzte Zahlung</p>
-                    <p className="text-base text-[#1A1A1A]">{policy.payments.nextPayment}</p>
+                    <p className="text-sm text-gray-600">Nächste Zahlung</p>
+                    <p className="text-base text-[#1A1A1A]">{nextPayment}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Versicherungsbeginn</p>
+                    <p className="text-base text-[#1A1A1A]">{startDate}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Versicherungsende</p>
+                    <p className="text-base text-[#1A1A1A]">{endDate}</p>
                   </div>
                 </div>
-                <Link href="#" className="inline-flex items-center gap-1 text-[#0032A0] text-sm mt-4 hover:underline">
-                  Mehr Details
-                  <ChevronRight size={16} />
-                </Link>
               </div>
             </div>
 
@@ -164,27 +138,36 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
             <div>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-[#1A1A1A]">Policendokumente</h3>
-                <Link href="#" className="text-[#0032A0] text-sm hover:underline">
-                  Mehr sehen
-                </Link>
               </div>
               <div className="space-y-3">
-                {policy.documents.map((doc: any, index: number) => (
-                  <div key={index} className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3">
-                      <svg className="w-5 h-5 text-[#0032A0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div>
-                        <p className="font-medium text-[#1A1A1A]">{doc.name}</p>
-                        <p className="text-sm text-gray-600">Datum: {doc.date}</p>
-                      </div>
+                <div className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3">
+                    <svg className="w-5 h-5 text-[#0032A0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <div>
+                      <p className="font-medium text-[#1A1A1A]">Versicherungspolice</p>
+                      <p className="text-sm text-gray-600">Datum: {createdDate}</p>
                     </div>
-                    <button className="text-[#0032A0] hover:text-[#005A9C]">
-                      <Download size={20} />
-                    </button>
                   </div>
-                ))}
+                  <button className="text-[#0032A0] hover:text-[#005A9C]">
+                    <Download size={20} />
+                  </button>
+                </div>
+                <div className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3">
+                    <svg className="w-5 h-5 text-[#0032A0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <div>
+                      <p className="font-medium text-[#1A1A1A]">AVB - Allgemeine Versicherungsbedingungen</p>
+                      <p className="text-sm text-gray-600">Version 01/2024</p>
+                    </div>
+                  </div>
+                  <button className="text-[#0032A0] hover:text-[#005A9C]">
+                    <Download size={20} />
+                  </button>
+                </div>
               </div>
             </div>
 
