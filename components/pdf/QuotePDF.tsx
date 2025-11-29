@@ -201,6 +201,43 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
             <Text style={styles.label}>Cybervorfälle in letzten 3 Jahren:</Text>
             <Text style={styles.value}>{formData.hadCyberIncidents || "-"}</Text>
           </View>
+          
+          {/* Bedingte Folgefragen bei Cybervorfällen */}
+          {formData.hadCyberIncidents === 'Ja' && (
+            <>
+              {formData.multipleIncidents && (
+                <View style={styles.row}>
+                  <Text style={styles.label}>  Mehrere Vorfälle:</Text>
+                  <Text style={styles.value}>{formData.multipleIncidents}</Text>
+                </View>
+              )}
+              {formData.incidentDowntime72h && (
+                <View style={styles.row}>
+                  <Text style={styles.label}>  Ausfall &gt; 72 Stunden:</Text>
+                  <Text style={styles.value}>{formData.incidentDowntime72h}</Text>
+                </View>
+              )}
+              {formData.incidentFinancialLoss && (
+                <View style={styles.row}>
+                  <Text style={styles.label}>  Finanzieller Schaden:</Text>
+                  <Text style={styles.value}>{formData.incidentFinancialLoss}</Text>
+                </View>
+              )}
+              {formData.incidentLiabilityClaims && (
+                <View style={styles.row}>
+                  <Text style={styles.label}>  Haftpflichtansprüche:</Text>
+                  <Text style={styles.value}>{formData.incidentLiabilityClaims}</Text>
+                </View>
+              )}
+              {formData.businessContinuityAfterITFailure && (
+                <View style={styles.row}>
+                  <Text style={styles.label}>  Business Continuity (interne IT):</Text>
+                  <Text style={styles.value}>{formData.businessContinuityAfterITFailure}</Text>
+                </View>
+              )}
+            </>
+          )}
+          
           <View style={styles.row}>
             <Text style={styles.label}>Anzahl Personen-/Kundendaten:</Text>
             <Text style={styles.value}>{formData.personalDataCount || "-"}</Text>
@@ -218,6 +255,95 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
             <Text style={styles.value}>{formData.hasEndOfLifeSystems || "-"}</Text>
           </View>
         </View>
+
+        {/* Umsatz > 5 Mio. Fragen */}
+        {formData.revenue > 5_000_000 && (formData.hasMFARemoteAccess || formData.hasITEmergencyPlan || formData.hasWeeklyBackups || formData.hasEncryptedBackups || formData.hasOfflineBackups || formData.usesIndustrialControlSystems || formData.hasEmailSecuritySolution || formData.hasAutomaticUpdates || formData.hasAntivirusSoftware || formData.hasStrongPasswordPolicies || formData.hasAnnualSecurityTraining) && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Erweiterte Sicherheit (Umsatz &gt; CHF 5 Mio.)</Text>
+            {formData.hasMFARemoteAccess && (
+              <View style={styles.row}>
+                <Text style={styles.label}>MFA für Fernzugriff:</Text>
+                <Text style={styles.value}>{formData.hasMFARemoteAccess}</Text>
+              </View>
+            )}
+            {formData.hasITEmergencyPlan && (
+              <View style={styles.row}>
+                <Text style={styles.label}>IT-Notfallplan vorhanden:</Text>
+                <Text style={styles.value}>{formData.hasITEmergencyPlan}</Text>
+              </View>
+            )}
+            {formData.hasWeeklyBackups && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Wöchentliche Backups:</Text>
+                <Text style={styles.value}>{formData.hasWeeklyBackups}</Text>
+              </View>
+            )}
+            {formData.hasEncryptedBackups && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Verschlüsselte Backups:</Text>
+                <Text style={styles.value}>{formData.hasEncryptedBackups}</Text>
+              </View>
+            )}
+            {formData.hasOfflineBackups && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Offline/getrennte Backups:</Text>
+                <Text style={styles.value}>{formData.hasOfflineBackups}</Text>
+              </View>
+            )}
+            {formData.usesIndustrialControlSystems && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Industrielle Steuerungssysteme (OT):</Text>
+                <Text style={styles.value}>{formData.usesIndustrialControlSystems}</Text>
+              </View>
+            )}
+            {formData.usesIndustrialControlSystems === 'Ja' && (
+              <>
+                {formData.hasOTMFARemoteAccess && (
+                  <View style={styles.row}>
+                    <Text style={styles.label}>  OT: MFA für Fernzugriff:</Text>
+                    <Text style={styles.value}>{formData.hasOTMFARemoteAccess}</Text>
+                  </View>
+                )}
+                {formData.hasOTFirewallSeparation && (
+                  <View style={styles.row}>
+                    <Text style={styles.label}>  OT: Firewall-Trennung:</Text>
+                    <Text style={styles.value}>{formData.hasOTFirewallSeparation}</Text>
+                  </View>
+                )}
+              </>
+            )}
+            {formData.hasEmailSecuritySolution && (
+              <View style={styles.row}>
+                <Text style={styles.label}>E-Mail-Sicherheitslösung:</Text>
+                <Text style={styles.value}>{formData.hasEmailSecuritySolution}</Text>
+              </View>
+            )}
+            {formData.hasAutomaticUpdates && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Automatische Updates:</Text>
+                <Text style={styles.value}>{formData.hasAutomaticUpdates}</Text>
+              </View>
+            )}
+            {formData.hasAntivirusSoftware && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Antiviren-Software:</Text>
+                <Text style={styles.value}>{formData.hasAntivirusSoftware}</Text>
+              </View>
+            )}
+            {formData.hasStrongPasswordPolicies && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Starke Passwort-Richtlinien:</Text>
+                <Text style={styles.value}>{formData.hasStrongPasswordPolicies}</Text>
+              </View>
+            )}
+            {formData.hasAnnualSecurityTraining && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Jährliche Security-Schulungen:</Text>
+                <Text style={styles.value}>{formData.hasAnnualSecurityTraining}</Text>
+              </View>
+            )}
+          </View>
+        )}
 
         <View style={styles.sectionWithExtraMargin}>
           <Text style={styles.sectionTitle}>
@@ -237,6 +363,149 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
       </Page>
 
       <Page size="A4" style={styles.page}>
+        {/* Umsatz > 10 Mio. Fragen */}
+        {formData.revenue > 10_000_000 && (formData.usesCloudServices || formData.hasOutsourcedProcesses || formData.usesRemovableMedia || formData.usesSeparateAdminAccounts || formData.hasIsolatedBackupAccess || formData.hasUniquePasswordPolicy || formData.hasFirewallIDSIPS || formData.hasRegularPatchManagement || formData.hasCriticalPatchManagement || formData.hasPhishingSimulations || formData.hasSecurityOperationCenter || formData.businessContinuityExternalIT) && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Umfassende Sicherheitsanalyse (Umsatz &gt; CHF 10 Mio.)</Text>
+            {formData.usesCloudServices && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Cloud-Services:</Text>
+                <Text style={styles.value}>{formData.usesCloudServices}</Text>
+              </View>
+            )}
+            {formData.cloudServiceProviders && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Cloud-Anbieter:</Text>
+                <Text style={styles.value}>{formData.cloudServiceProviders}</Text>
+              </View>
+            )}
+            {formData.hasOutsourcedProcesses && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Ausgelagerte Prozesse:</Text>
+                <Text style={styles.value}>{formData.hasOutsourcedProcesses}</Text>
+              </View>
+            )}
+            {formData.outsourcedProcessTypes && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Ausgelagerte System-Typen:</Text>
+                <Text style={styles.value}>{formData.outsourcedProcessTypes}</Text>
+              </View>
+            )}
+            {formData.usesRemovableMedia && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Wechseldatenträger:</Text>
+                <Text style={styles.value}>{formData.usesRemovableMedia}</Text>
+              </View>
+            )}
+            {formData.usesSeparateAdminAccounts && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Separate Admin-Konten:</Text>
+                <Text style={styles.value}>{formData.usesSeparateAdminAccounts}</Text>
+              </View>
+            )}
+            {formData.hasIsolatedBackupAccess && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Isolierte Backup-Zugriffe:</Text>
+                <Text style={styles.value}>{formData.hasIsolatedBackupAccess}</Text>
+              </View>
+            )}
+            {formData.hasUniquePasswordPolicy && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Einzigartige Passwörter:</Text>
+                <Text style={styles.value}>{formData.hasUniquePasswordPolicy}</Text>
+              </View>
+            )}
+            {formData.hasFirewallIDSIPS && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Firewalls/IDS/IPS:</Text>
+                <Text style={styles.value}>{formData.hasFirewallIDSIPS}</Text>
+              </View>
+            )}
+            {formData.hasRegularPatchManagement && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Patch-Management (30 Tage):</Text>
+                <Text style={styles.value}>{formData.hasRegularPatchManagement}</Text>
+              </View>
+            )}
+            {formData.hasCriticalPatchManagement && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Kritische Patches (3 Tage):</Text>
+                <Text style={styles.value}>{formData.hasCriticalPatchManagement}</Text>
+              </View>
+            )}
+            {formData.hasPhishingSimulations && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Phishing-Simulationen:</Text>
+                <Text style={styles.value}>{formData.hasPhishingSimulations}</Text>
+              </View>
+            )}
+            {formData.hasSecurityOperationCenter && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Security Operation Center (SOC):</Text>
+                <Text style={styles.value}>{formData.hasSecurityOperationCenter}</Text>
+              </View>
+            )}
+            {formData.businessContinuityExternalIT && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Business Continuity (externe IT):</Text>
+                <Text style={styles.value}>{formData.businessContinuityExternalIT}</Text>
+              </View>
+            )}
+            {formData.usesIndustrialControlSystems === 'Ja' && (
+              <>
+                {formData.hasOTInventory && (
+                  <View style={styles.row}>
+                    <Text style={styles.label}>  OT-Inventarliste:</Text>
+                    <Text style={styles.value}>{formData.hasOTInventory}</Text>
+                  </View>
+                )}
+                {formData.hasOTSiteSeparation && (
+                  <View style={styles.row}>
+                    <Text style={styles.label}>  OT-Standort-Trennung:</Text>
+                    <Text style={styles.value}>{formData.hasOTSiteSeparation}</Text>
+                  </View>
+                )}
+                {formData.hasOTInternetSeparation && (
+                  <View style={styles.row}>
+                    <Text style={styles.label}>  OT-Internet-Trennung:</Text>
+                    <Text style={styles.value}>{formData.hasOTInternetSeparation}</Text>
+                  </View>
+                )}
+                {formData.hasOTVulnerabilityScans && (
+                  <View style={styles.row}>
+                    <Text style={styles.label}>  OT-Schwachstellenscans:</Text>
+                    <Text style={styles.value}>{formData.hasOTVulnerabilityScans}</Text>
+                  </View>
+                )}
+                {formData.hasOTRegularBackups && (
+                  <View style={styles.row}>
+                    <Text style={styles.label}>  OT-Regelmässige Backups:</Text>
+                    <Text style={styles.value}>{formData.hasOTRegularBackups}</Text>
+                  </View>
+                )}
+              </>
+            )}
+            {formData.hasPCICertification && (
+              <View style={styles.row}>
+                <Text style={styles.label}>PCI-Zertifizierung:</Text>
+                <Text style={styles.value}>{formData.hasPCICertification}</Text>
+              </View>
+            )}
+            {formData.protectsMedicalDataGDPR && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Medizinischer Datenschutz (GDPR):</Text>
+                <Text style={styles.value}>{formData.protectsMedicalDataGDPR}</Text>
+              </View>
+            )}
+            {formData.protectsBiometricData && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Biometrischer Datenschutz:</Text>
+                <Text style={styles.value}>{formData.protectsBiometricData}</Text>
+              </View>
+            )}
+          </View>
+        )}
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Versicherte Leistungen</Text>
           
