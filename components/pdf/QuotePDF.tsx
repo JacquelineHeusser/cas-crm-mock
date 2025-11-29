@@ -93,6 +93,12 @@ const styles = StyleSheet.create({
     width: 15,
     color: '#008C95',
   },
+  checkmark: {
+    width: 15,
+    color: '#008C95',
+    fontSize: 12,
+    fontFamily: 'Helvetica-Bold',
+  },
   coverageText: {
     flex: 1,
     color: '#333',
@@ -228,7 +234,7 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
             <View style={styles.coverageList}>
               {packageData.coverages.map((coverage: string, index: number) => (
                 <View key={index} style={styles.coverageItem}>
-                  <Text style={styles.bullet}>•</Text>
+                  <Text style={styles.checkmark}>✓</Text>
                   <Text style={styles.coverageText}>{coverage}</Text>
                 </View>
               ))}
@@ -237,30 +243,48 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
           
           <View style={styles.row}>
             <Text style={styles.label}>VS Eigenschäden:</Text>
-            <Text style={styles.value}>{formData.eigenSchadenSum || formData.sumInsuredProperty || "-"}</Text>
+            <Text style={styles.value}>
+              {packageData 
+                ? `CHF ${packageData.eigenSchadenSum.toLocaleString("de-CH")}` 
+                : "-"}
+            </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>VS Haftpflicht:</Text>
-            <Text style={styles.value}>{formData.haftpflichtSum || formData.sumInsuredLiability || "-"}</Text>
+            <Text style={styles.value}>
+              {packageData 
+                ? `CHF ${packageData.haftpflichtSum.toLocaleString("de-CH")}` 
+                : "-"}
+            </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>VS Rechtsschutz:</Text>
-            <Text style={styles.value}>{formData.rechtsschutzSum || formData.sumInsuredLegalProtection || "CHF 50'000"}</Text>
+            <Text style={styles.value}>
+              {packageData 
+                ? `CHF ${packageData.rechtsschutzSum.toLocaleString("de-CH")}` 
+                : "CHF 50'000"}
+            </Text>
           </View>
-          {(formData.crimeSum || formData.sumInsuredCyberCrime) && (
+          {packageData && packageData.crimeSum > 0 && (
             <View style={styles.row}>
               <Text style={styles.label}>VS Cyber Crime:</Text>
-              <Text style={styles.value}>{formData.crimeSum || formData.sumInsuredCyberCrime}</Text>
+              <Text style={styles.value}>
+                CHF {packageData.crimeSum.toLocaleString("de-CH")}
+              </Text>
             </View>
           )}
           <View style={styles.row}>
             <Text style={styles.label}>Selbstbehalt:</Text>
-            <Text style={styles.value}>{formData.selbstbehalt || formData.deductible || "-"}</Text>
+            <Text style={styles.value}>
+              {packageData 
+                ? `CHF ${packageData.deductible.toLocaleString("de-CH")}` 
+                : "-"}
+            </Text>
           </View>
-          {(formData.wartefrist || formData.waitingPeriod) && (
+          {packageData && packageData.waitingPeriod !== "n/a" && (
             <View style={styles.row}>
               <Text style={styles.label}>Wartefrist Betriebsunterbruch:</Text>
-              <Text style={styles.value}>{formData.wartefrist || formData.waitingPeriod}</Text>
+              <Text style={styles.value}>{packageData.waitingPeriod}</Text>
             </View>
           )}
         </View>
