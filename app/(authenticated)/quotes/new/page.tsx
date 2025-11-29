@@ -60,6 +60,37 @@ export default function NewQuotePage() {
     defaultValues: formData,
   });
 
+  // Ermittle letzten ausgefüllten Step
+  const getLastCompletedStep = (data: any): number => {
+    if (data.acceptTerms !== undefined) return 7; // Confirmation
+    if (data.package) return 5; // Coverage (nach Premium)
+    if (data.hasEndOfLifeSystems !== undefined) return 3; // Cyber Security
+    if (data.hadCyberIncidents !== undefined) return 2; // Cyber Risk Profile
+    if (data.companyName) return 1; // Company Data
+    return 0;
+  };
+
+  // Prüfe ob Step erreichbar ist
+  const canNavigateToStep = (targetStep: number): boolean => {
+    // Zurück geht immer
+    if (targetStep < currentStep) return true;
+    
+    // Zu Step 1 geht immer
+    if (targetStep === 1) return true;
+    
+    // Vorwärts nur wenn vorherige Steps ausgefüllt
+    const lastCompleted = getLastCompletedStep(formData);
+    return targetStep <= lastCompleted + 1;
+  };
+
+  // Direkt zu Step springen
+  const navigateToStep = (targetStep: number) => {
+    if (!canNavigateToStep(targetStep)) return;
+    
+    setCurrentStep(targetStep);
+    reset(formData);
+  };
+
   // Beim Mounting: Prüfe ob User eingeloggt ist und lade ggf. existierende Quote
   useEffect(() => {
     const initialize = async () => {
@@ -90,6 +121,12 @@ export default function NewQuotePage() {
           
           setFormData(loadedData);
           reset(loadedData);
+          
+          // Springe zum letzten ausgefüllten Step
+          const lastStep = getLastCompletedStep(loadedData);
+          if (lastStep > 0) {
+            setCurrentStep(lastStep);
+          }
         }
       }
       
@@ -230,20 +267,31 @@ export default function NewQuotePage() {
 
         {/* Navigation */}
         <nav className="space-y-2">
-          {STEPS.map((step) => (
-            <div
-              key={step.id}
-              className={`
-                py-2 px-3 rounded text-sm
-                ${currentStep === step.id 
-                  ? 'text-[#0032A0] font-medium bg-white/50' 
-                  : 'text-gray-600'
-                }
-              `}
-            >
-              {step.title}
-            </div>
-          ))}
+          {STEPS.map((step) => {
+            const isAccessible = canNavigateToStep(step.id);
+            const isCurrent = currentStep === step.id;
+            
+            return (
+              <button
+                key={step.id}
+                type="button"
+                onClick={() => navigateToStep(step.id)}
+                disabled={!isAccessible}
+                className={`
+                  w-full text-left py-2 px-3 rounded text-sm transition-colors
+                  ${
+                    isCurrent
+                      ? 'text-[#0032A0] font-medium bg-white/50'
+                      : isAccessible
+                        ? 'text-gray-600 hover:bg-white/30 cursor-pointer'
+                        : 'text-gray-400 cursor-not-allowed'
+                  }
+                `}
+              >
+                {step.title}
+              </button>
+            );
+          })}
         </nav>
       </div>
 
