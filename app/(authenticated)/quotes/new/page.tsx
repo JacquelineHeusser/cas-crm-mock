@@ -155,9 +155,19 @@ export default function NewQuotePage() {
 
   // PDF-Offerte generieren
   const handleGeneratePDF = async () => {
-    console.log('Generiere PDF-Offerte...', formData);
-    // TODO: PDF-Generierung implementieren
-    alert('PDF-Generierung wird implementiert');
+    if (!quoteId) {
+      alert('Bitte speichern Sie zuerst die Offerte');
+      return;
+    }
+
+    try {
+      // Öffne PDF in neuem Tab
+      const pdfUrl = `/api/quotes/${quoteId}/pdf`;
+      window.open(pdfUrl, '_blank');
+    } catch (error) {
+      console.error('Fehler bei PDF-Generierung:', error);
+      alert('Fehler bei der PDF-Generierung');
+    }
   };
 
   // Direktabschluss
