@@ -665,7 +665,7 @@ function Step5Coverage({ register, errors, formData }: any) {
       </QuestionField>
 
       <QuestionField question="Versicherungssumme Rechtsschutz">
-        <div className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full text-[#0032A0]">
+        <div className="px-6 py-4 text-[#0032A0]">
           CHF 50'000
         </div>
         <input
