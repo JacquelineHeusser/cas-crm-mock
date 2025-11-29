@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#0032A0',
     marginBottom: 8,
+    fontFamily: 'Helvetica-Bold',
   },
   subtitle: {
     fontSize: 11,
