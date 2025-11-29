@@ -53,6 +53,7 @@ export const cyberRiskProfileSchema = z.object({
 
 // Sektion: Cyber-Sicherheit
 export const cyberSecuritySchema = z.object({
+  // Basis-Fragen (Immer)
   hadCyberIncidents: z.enum(['Ja', 'Nein']),
   multipleIncidents: z.enum(['Ja', 'Nein']).optional(),
   incidentDowntime72h: z.enum(['Ja', 'Nein']).optional(),
@@ -68,6 +69,50 @@ export const cyberSecuritySchema = z.object({
   medicalDataCount: z.enum(['Keine', 'Nur von Mitarbeitenden', 'Bis 10\'000', 'Bis 100\'000', 'Bis 1\'000\'000', 'Mehr als 1\'000\'000']),
   creditCardDataCount: z.enum(['Keine oder durch einen externen Dienstleister verarbeitet', 'Nur von Mitarbeitenden', 'Bis 10\'000', 'Bis 100\'000', 'Bis 1\'000\'000', 'Mehr als 1\'000\'000']),
   hasEndOfLifeSystems: z.enum(['Ja', 'Nein']),
+  
+  // Umsatz > 5 Mio. Fragen
+  hasMFARemoteAccess: z.enum(['Ja', 'Nein']).optional(),
+  hasITEmergencyPlan: z.enum(['Ja', 'Nein']).optional(),
+  hasWeeklyBackups: z.enum(['Ja', 'Nein']).optional(),
+  hasEncryptedBackups: z.enum(['Ja', 'Nein']).optional(),
+  hasOfflineBackups: z.enum(['Ja', 'Nein']).optional(),
+  usesIndustrialControlSystems: z.enum(['Ja', 'Nein']).optional(),
+  hasOTMFARemoteAccess: z.enum(['Ja', 'Nein']).optional(),
+  hasOTFirewallSeparation: z.enum(['Ja', 'Nein']).optional(),
+  hasEmailSecuritySolution: z.enum(['Ja', 'Nein']).optional(),
+  hasAutomaticUpdates: z.enum(['Ja', 'Nein']).optional(),
+  hasAntivirusSoftware: z.enum(['Ja', 'Nein']).optional(),
+  hasStrongPasswordPolicies: z.enum(['Ja', 'Nein']).optional(),
+  hasAnnualSecurityTraining: z.enum(['Ja', 'Nein']).optional(),
+  businessContinuityExternalIT: z.enum([
+    'Alle Geschäftsprozesse können eine Woche fortgesetzt werden.',
+    'Die meisten Geschäftsprozesse können eine Woche fortgesetzt werden.',
+    'Die meisten Geschäftsprozesse können mindestens einen Tag, aber weniger als eine Woche, fortgesetzt werden.',
+    'Die meisten Geschäftsprozesse können weniger als einen Tag fortgesetzt werden oder kommen sofort zum Erliegen.'
+  ]).optional(),
+  
+  // Umsatz > 10 Mio. Fragen
+  usesCloudServices: z.enum(['Ja', 'Nein']).optional(),
+  cloudServiceProviders: z.string().optional(), // Mehrfachauswahl als String
+  hasOutsourcedProcesses: z.enum(['Ja', 'Nein']).optional(),
+  outsourcedProcessTypes: z.string().optional(), // Mehrfachauswahl als String
+  usesRemovableMedia: z.enum(['Ja', 'Nein']).optional(),
+  usesSeparateAdminAccounts: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasIsolatedBackupAccess: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasUniquePasswordPolicy: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasFirewallIDSIPS: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasRegularPatchManagement: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasCriticalPatchManagement: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasPhishingSimulations: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasSecurityOperationCenter: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasOTInventory: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasOTSiteSeparation: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasOTInternetSeparation: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasOTVulnerabilityScans: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasOTRegularBackups: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  hasPCICertification: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  protectsMedicalDataGDPR: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
+  protectsBiometricData: z.enum(['Ja', 'Nein', 'Teilweise']).optional(),
 });
 
 // Sektion: Versicherte Leistungen

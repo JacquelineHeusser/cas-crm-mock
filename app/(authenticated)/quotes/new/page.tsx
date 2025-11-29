@@ -330,7 +330,7 @@ export default function NewQuotePage() {
           {/* Dynamischer Content */}
           {currentStep === 1 && <Step1CompanyData register={register} errors={errors} />}
           {currentStep === 2 && <Step2CyberRiskProfile register={register} errors={errors} />}
-          {currentStep === 3 && <Step3CyberSecurity register={register} errors={errors} />}
+          {currentStep === 3 && <Step3CyberSecurity register={register} errors={errors} watch={watch} formData={formData} />}
           {currentStep === 4 && <Step4Premium register={register} errors={errors} formData={formData} />}
           {currentStep === 5 && <Step5Coverage register={register} errors={errors} formData={formData} />}
           {currentStep === 6 && <Step6Summary formData={formData} />}
@@ -590,8 +590,19 @@ function Step2CyberRiskProfile({ register, errors }: any) {
   );
 }
 
-// Step 3: Cyber-Sicherheit (erste Basisfelder - kann erweitert werden)
-function Step3CyberSecurity({ register, errors }: any) {
+// Step 3: Cyber-Sicherheit (mit bedingter Logik)
+function Step3CyberSecurity({ register, errors, watch, formData }: any) {
+  // Beobachte den Wert für Cybervorfälle
+  const hadCyberIncidents = watch('hadCyberIncidents');
+  const usesIndustrialControlSystems = watch('usesIndustrialControlSystems');
+  const usesCloudServices = watch('usesCloudServices');
+  const hasOutsourcedProcesses = watch('hasOutsourcedProcesses');
+  
+  // Prüfe Umsatz-Schwellenwerte (aus Step 2)
+  const revenue = formData?.revenue || 0;
+  const showRevenue5Questions = revenue > 5_000_000;
+  const showRevenue10Questions = revenue > 10_000_000;
+  
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Cyber-Sicherheit</h2>
@@ -611,6 +622,77 @@ function Step3CyberSecurity({ register, errors }: any) {
           {errors.hadCyberIncidents && <p className="text-red-600 text-xs mt-2 ml-6">{errors.hadCyberIncidents.message}</p>}
         </div>
       </QuestionField>
+
+      {/* Bedingte Folgefragen bei Cybervorfällen */}
+      {hadCyberIncidents === 'Ja' && (
+        <div className="space-y-6 pl-6 border-l-4 border-[#008C95] bg-[#F8FAFC] p-6 rounded-lg">
+          <h3 className="text-lg font-medium text-[#0032A0] mb-4">Details zu den Cybervorfällen</h3>
+          
+          <QuestionField question="Gab es mehrere Vorfälle in den letzten 3 Jahren?">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('multipleIncidents')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+              {errors.multipleIncidents && <p className="text-red-600 text-xs mt-2 ml-6">{errors.multipleIncidents.message}</p>}
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Führte ein Vorfall zu einem Ausfall von mehr als 72 Stunden?">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('incidentDowntime72h')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+              {errors.incidentDowntime72h && <p className="text-red-600 text-xs mt-2 ml-6">{errors.incidentDowntime72h.message}</p>}
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Führte ein Vorfall zu einem finanziellen Schaden?">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('incidentFinancialLoss')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+              {errors.incidentFinancialLoss && <p className="text-red-600 text-xs mt-2 ml-6">{errors.incidentFinancialLoss.message}</p>}
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Führte ein Vorfall zu Haftpflichtansprüchen Dritter?">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('incidentLiabilityClaims')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+              {errors.incidentLiabilityClaims && <p className="text-red-600 text-xs mt-2 ml-6">{errors.incidentLiabilityClaims.message}</p>}
+            </div>
+          </QuestionField>
+        </div>
+      )}
 
       <QuestionField question="Wie viele Personen- und Kundendaten bearbeitet Ihre Firma?">
         <div className="relative">
@@ -687,6 +769,590 @@ function Step3CyberSecurity({ register, errors }: any) {
           {errors.hasEndOfLifeSystems && <p className="text-red-600 text-xs mt-2 ml-6">{errors.hasEndOfLifeSystems.message}</p>}
         </div>
       </QuestionField>
+
+      {/* Business Continuity Frage - nur wenn Cybervorfälle */}
+      {hadCyberIncidents === 'Ja' && (
+        <QuestionField question="Wie lange kann Ihre Firma den Betrieb aufrechthalten, wenn zentrale interne IT-Systeme ausfallen?">
+          <div className="relative">
+            <select
+              className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+              {...register('businessContinuityAfterITFailure')}
+              defaultValue=""
+            >
+              <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+              <option value="Alle Geschäftsprozesse können eine Woche fortgesetzt werden.">Alle Geschäftsprozesse können eine Woche fortgesetzt werden.</option>
+              <option value="Die meisten Geschäftsprozesse können eine Woche fortgesetzt werden.">Die meisten Geschäftsprozesse können eine Woche fortgesetzt werden.</option>
+              <option value="Die meisten Geschäftsprozesse können mindestens einen Tag, aber weniger als eine Woche, fortgesetzt werden.">Die meisten Geschäftsprozesse können mindestens einen Tag, aber weniger als eine Woche, fortgesetzt werden.</option>
+              <option value="Die meisten Geschäftsprozesse können weniger als einen Tag fortgesetzt werden oder kommen sofort zum Erliegen.">Die meisten Geschäftsprozesse können weniger als einen Tag fortgesetzt werden oder kommen sofort zum Erliegen.</option>
+            </select>
+            <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            {errors.businessContinuityAfterITFailure && <p className="text-red-600 text-xs mt-2 ml-6">{errors.businessContinuityAfterITFailure.message}</p>}
+          </div>
+        </QuestionField>
+      )}
+
+      {/* Umsatz > 5 Mio. Fragen */}
+      {showRevenue5Questions && (
+        <div className="space-y-6 pl-6 border-l-4 border-[#CADB2D] bg-[#FEFCE8] p-6 rounded-lg mt-8">
+          <h3 className="text-lg font-medium text-[#0032A0] mb-4">Erweiterte Sicherheitsfragen (Umsatz &gt; CHF 5 Mio.)</h3>
+          
+          <QuestionField question="Jeglicher Fernzugriff auf das Firmennetzwerk erfolgt über eine verschlüsselte Verbindung und erfordert Multifaktor-Authentifizierung (MFA).">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasMFARemoteAccess')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Ein dokumentierter IT-Notfallplan mit definierten Verantwortlichkeiten und Checklisten ist vorhanden.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasITEmergencyPlan')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Mindestens wöchentlich wird ein Back-up bzw. eine Sicherheitskopie aller geschäftskritischen Daten erstellt.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasWeeklyBackups')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Alle Back-ups mit vertraulichen Personen- oder Geschäftsdaten sind verschlüsselt.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasEncryptedBackups')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Die Back-ups der geschäftskritischen Daten sind getrennt vom Firmennetzwerk gespeichert oder so gesichert, dass sie vom Firmennetzwerk aus nicht gelöscht werden können.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasOfflineBackups')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Werden industrielle Steuerungssysteme oder Operational Technology (OT) genutzt?">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('usesIndustrialControlSystems')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          {/* OT-spezifische Fragen bei Umsatz > 5 Mio. UND OT = Ja */}
+          {usesIndustrialControlSystems === 'Ja' && (
+            <div className="space-y-6 pl-6 border-l-4 border-[#0032A0] bg-white p-6 rounded-lg">
+              <h4 className="text-md font-medium text-[#0032A0] mb-4">Operational Technology (OT) Details</h4>
+              
+              <QuestionField question="Jeglicher Fernzugriff auf industrielle Steuerungssysteme / OT erfolgt über eine verschlüsselte Verbindung und erfordert Multifaktor-Authentifizierung (MFA).">
+                <div className="relative">
+                  <select
+                    className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                    {...register('hasOTMFARemoteAccess')}
+                    defaultValue=""
+                  >
+                    <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                    <option value="Ja">Ja</option>
+                    <option value="Nein">Nein</option>
+                  </select>
+                  <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+                </div>
+              </QuestionField>
+
+              <QuestionField question="Industrielle Steuerungssysteme / OT sind mit Firewalls vom (IT-) Firmennetzwerk getrennt.">
+                <div className="relative">
+                  <select
+                    className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                    {...register('hasOTFirewallSeparation')}
+                    defaultValue=""
+                  >
+                    <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                    <option value="Ja">Ja</option>
+                    <option value="Nein">Nein</option>
+                  </select>
+                  <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+                </div>
+              </QuestionField>
+            </div>
+          )}
+
+          <QuestionField question="Es wird eine E-Mail-Sicherheitslösung verwendet, um Spam, Phishing und gefährliche Anhänge oder Links herauszufiltern.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasEmailSecuritySolution')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="IT-Systeme werden automatisch aktualisiert und auf dem neuesten Softwarestand gehalten.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasAutomaticUpdates')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Alle Geräte und Server in Ihrer Firma sind mit einer Antiviren-Software ausgestattet.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasAntivirusSoftware')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Interne Richtlinien schreiben für alle Benutzerkonten starke Passwörter vor.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasStrongPasswordPolicies')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Alle Mitarbeitenden werden mindestens jährlich zu Informationssicherheit geschult.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasAnnualSecurityTraining')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Wie lange kann Ihre Firma den Betrieb aufrechthalten, wenn kritische IT-Systeme, die von externen IT-Dienstleistern betrieben werden, ausfallen?">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('businessContinuityExternalIT')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Alle Geschäftsprozesse können eine Woche fortgesetzt werden.">Alle Geschäftsprozesse können eine Woche fortgesetzt werden.</option>
+                <option value="Die meisten Geschäftsprozesse können eine Woche fortgesetzt werden.">Die meisten Geschäftsprozesse können eine Woche fortgesetzt werden.</option>
+                <option value="Die meisten Geschäftsprozesse können mindestens einen Tag, aber weniger als eine Woche, fortgesetzt werden.">Die meisten Geschäftsprozesse können mindestens einen Tag, aber weniger als eine Woche, fortgesetzt werden.</option>
+                <option value="Die meisten Geschäftsprozesse können weniger als einen Tag fortgesetzt werden oder kommen sofort zum Erliegen.">Die meisten Geschäftsprozesse können weniger als einen Tag fortgesetzt werden oder kommen sofort zum Erliegen.</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+        </div>
+      )}
+
+      {/* Umsatz > 10 Mio. Fragen */}
+      {showRevenue10Questions && (
+        <div className="space-y-6 pl-6 border-l-4 border-[#008C95] bg-[#F0FDFA] p-6 rounded-lg mt-8">
+          <h3 className="text-lg font-medium text-[#0032A0] mb-4">Umfassende Sicherheitsanalyse (Umsatz &gt; CHF 10 Mio.)</h3>
+          
+          <QuestionField question="Nutzt Ihre Firma Cloud-Services?">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('usesCloudServices')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          {usesCloudServices === 'Ja' && (
+            <QuestionField question="Von welchen Anbietern nutzt Ihre Firma Cloud-Services? (Mehrfachauswahl möglich)">
+              <input
+                type="text"
+                placeholder="z.B. Microsoft; Google; Amazon; Andere"
+                className="w-full px-6 py-4 bg-white rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+                {...register('cloudServiceProviders')}
+              />
+            </QuestionField>
+          )}
+
+          <QuestionField question="Sind Prozesse oder Systeme ausgelagert und werden von externen Dienstleistern betrieben?">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasOutsourcedProcesses')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          {hasOutsourcedProcesses === 'Ja' && (
+            <QuestionField question="Welche Prozesse oder Systeme sind betroffen? (Mehrfachauswahl möglich)">
+              <input
+                type="text"
+                placeholder="z.B. Microsoft 365, ERP, CRM, etc."
+                className="w-full px-6 py-4 bg-white rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+                {...register('outsourcedProcessTypes')}
+              />
+            </QuestionField>
+          )}
+
+          <QuestionField question="Werden Wechseldatenträger wie USB-Sticks oder externe Festplatten genutzt?">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('usesRemovableMedia')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Für Administrator-Aufgaben wird ein separates, privilegiertes Nutzerkonto verwendet.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('usesSeparateAdminAccounts')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+                <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Die Zugriffsrechte für die Back-up-Umgebung werden nicht über die zentrale Benutzerverwaltung verwaltet.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasIsolatedBackupAccess')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+                <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Interne Richtlinien verbieten, dass dasselbe Passwort für verschiedene Nutzerkonten verwendet wird, und alle Nutzer werden entsprechend geschult.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasUniquePasswordPolicy')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+                <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Firewalls oder spezielle Sicherheitssysteme zur Erkennung und Verhinderung von Angriffen (IDS/IPS) prüfen alle Verbindungen, die ins Firmennetzwerk hinein- oder herausgehen.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasFirewallIDSIPS')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+                <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Sicherheits-Updates (Patches) werden zentral verwaltet und innerhalb von 30 Tagen nach Veröffentlichung auf alle Systeme ausgerollt.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasRegularPatchManagement')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+                <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Kritische Sicherheits-Updates werden mit einem Notfall-Prozess innerhalb von 3 Tagen nach Veröffentlichung auf alle Systeme ausgerollt.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasCriticalPatchManagement')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+                <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Phishing-Simulationen werden regelmässig durchgeführt.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasPhishingSimulations')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+                <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Es besteht in Ihrer Firma oder bei einem externen Dienstleister ein Security Operation Center (SOC), dessen Experten technisch in der Lage und befugt sind, potenzielle Sicherheitsvorfälle sofort nach ihrer Entdeckung einzudämmen und zu beheben.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasSecurityOperationCenter')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+                <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          {/* OT-spezifische Fragen bei Umsatz > 10 Mio. UND OT = Ja */}
+          {usesIndustrialControlSystems === 'Ja' && (
+            <div className="space-y-6 pl-6 border-l-4 border-[#0032A0] bg-white p-6 rounded-lg">
+              <h4 className="text-md font-medium text-[#0032A0] mb-4">Erweiterte OT-Sicherheit</h4>
+              
+              <QuestionField question="Es gibt stets eine aktuelle Inventarliste mit allen industriellen Steuerungssystemen / OT.">
+                <div className="relative">
+                  <select
+                    className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                    {...register('hasOTInventory')}
+                    defaultValue=""
+                  >
+                    <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                    <option value="Ja">Ja</option>
+                    <option value="Nein">Nein</option>
+                    <option value="Teilweise">Teilweise</option>
+                  </select>
+                  <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+                </div>
+              </QuestionField>
+
+              <QuestionField question="Industrielle Steuerungssysteme / OT in verschiedenen Werken / an unterschiedlichen Standorten sind mit Firewalls voneinander getrennt.">
+                <div className="relative">
+                  <select
+                    className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                    {...register('hasOTSiteSeparation')}
+                    defaultValue=""
+                  >
+                    <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                    <option value="Ja">Ja</option>
+                    <option value="Nein">Nein</option>
+                    <option value="Teilweise">Teilweise</option>
+                  </select>
+                  <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+                </div>
+              </QuestionField>
+
+              <QuestionField question="Industrielle Steuerungssysteme / OT sind mit Firewalls vom Internet getrennt.">
+                <div className="relative">
+                  <select
+                    className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                    {...register('hasOTInternetSeparation')}
+                    defaultValue=""
+                  >
+                    <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                    <option value="Ja">Ja</option>
+                    <option value="Nein">Nein</option>
+                    <option value="Teilweise">Teilweise</option>
+                  </select>
+                  <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+                </div>
+              </QuestionField>
+
+              <QuestionField question="In den Netzwerken der industriellen Steuerungssysteme / OT werden regelmässig Schwachstellenscans durchgeführt.">
+                <div className="relative">
+                  <select
+                    className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                    {...register('hasOTVulnerabilityScans')}
+                    defaultValue=""
+                  >
+                    <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                    <option value="Ja">Ja</option>
+                    <option value="Nein">Nein</option>
+                    <option value="Teilweise">Teilweise</option>
+                  </select>
+                  <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+                </div>
+              </QuestionField>
+
+              <QuestionField question="Ein Back-up der industriellen Steuerungssysteme / OT wird mindestens einmal pro Monat und bei allen grossen Änderungen an Systemen und Prozessen erstellt.">
+                <div className="relative">
+                  <select
+                    className="w-full px-6 py-4 pr-12 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                    {...register('hasOTRegularBackups')}
+                    defaultValue=""
+                  >
+                    <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                    <option value="Ja">Ja</option>
+                    <option value="Nein">Nein</option>
+                    <option value="Teilweise">Teilweise</option>
+                  </select>
+                  <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+                </div>
+              </QuestionField>
+            </div>
+          )}
+
+          <QuestionField question="Die Firma hat eine PCI-Zertifizierung (der Payment Card Industry) mit dem entsprechenden DSS-Reporting-Level -- basierend auf den jährlich verarbeiteten Kreditkarten-Transaktionen. Bei externen Zahlungsabwicklern werden die Audit-Berichte jährlich geprüft.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('hasPCICertification')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+                <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Medizinische Daten werden gemäss den anwendbaren datenschutzrechtlichen Bestimmungen (z.B. DSG, GDPR, HIPAA) geschützt.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('protectsMedicalDataGDPR')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+                <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+
+          <QuestionField question="Biometrische Daten werden nach den geltenden Gesetzen geschützt und nur wie vorgeschrieben erfasst, gespeichert und genutzt.">
+            <div className="relative">
+              <select
+                className="w-full px-6 py-4 pr-12 bg-white rounded-full border-none text-[#0032A0] focus:outline-none focus:ring-2 focus:ring-[#0032A0] appearance-none cursor-pointer"
+                {...register('protectsBiometricData')}
+                defaultValue=""
+              >
+                <option value="" disabled className="text-[#0032A0]/60">Auswählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Nein">Nein</option>
+                <option value="Teilweise">Teilweise</option>
+              </select>
+              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#0032A0] pointer-events-none rotate-90" size={20} />
+            </div>
+          </QuestionField>
+        </div>
+      )}
     </div>
   );
 }
@@ -1100,10 +1766,24 @@ function Step6Summary({ formData }: { formData: any }) {
       {/* Cyber-Sicherheit */}
       <SummarySection title="Cyber-Sicherheit">
         <SummaryRow label="Cybervorfälle in letzten 3 Jahren" value={formData.hadCyberIncidents} />
+        
+        {/* Bedingte Details bei Cybervorfällen */}
+        {formData.hadCyberIncidents === 'Ja' && (
+          <div className="ml-4 pl-4 border-l-2 border-[#008C95] space-y-2">
+            <SummaryRow label="Mehrere Vorfälle" value={formData.multipleIncidents || '-'} />
+            <SummaryRow label="Ausfall > 72 Stunden" value={formData.incidentDowntime72h || '-'} />
+            <SummaryRow label="Finanzieller Schaden" value={formData.incidentFinancialLoss || '-'} />
+            <SummaryRow label="Haftpflichtansprüche" value={formData.incidentLiabilityClaims || '-'} />
+          </div>
+        )}
+        
         <SummaryRow label="Anzahl Personen-/Kundendaten" value={formData.personalDataCount} />
         <SummaryRow label="Anzahl Medizinal-/Gesundheitsdaten" value={formData.medicalDataCount} />
         <SummaryRow label="Anzahl Kreditkartendaten" value={formData.creditCardDataCount} />
         <SummaryRow label="End-of-Life Systeme" value={formData.hasEndOfLifeSystems} />
+        {formData.businessContinuityAfterITFailure && (
+          <SummaryRow label="Business Continuity nach IT-Ausfall" value={formData.businessContinuityAfterITFailure} />
+        )}
       </SummarySection>
 
       {/* Versicherte Leistungen */}
