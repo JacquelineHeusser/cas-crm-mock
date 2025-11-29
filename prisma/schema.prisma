@@ -150,6 +150,7 @@ enum QuoteStatus {
   APPROVED
   REJECTED
   EXPIRED
+  POLICIED
 }
 
 enum RiskScore {

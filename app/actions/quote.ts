@@ -226,7 +226,7 @@ export async function createPolicyFromQuote(data: {
     await prisma.quote.update({
       where: { id: quoteId },
       data: {
-        status: 'APPROVED',
+        status: 'POLICIED',
         premium: premiumAmount,
       },
     });
@@ -234,6 +234,8 @@ export async function createPolicyFromQuote(data: {
     revalidatePath('/policies');
     revalidatePath('/policen');
     revalidatePath('/dashboard');
+    revalidatePath('/offerten');
+    revalidatePath('/quotes');
     
     return { 
       success: true, 

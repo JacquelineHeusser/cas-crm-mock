@@ -63,6 +63,8 @@ export default async function OffertenPage() {
         return { label: 'Genehmigt', class: 'bg-green-100 text-green-700' };
       case 'REJECTED':
         return { label: 'Abgelehnt', class: 'bg-red-100 text-red-700' };
+      case 'POLICIED':
+        return { label: 'Policiert', class: 'bg-[#CADB2D] text-[#0032A0]' };
       default:
         return { label: status, class: 'bg-gray-100 text-gray-700' };
     }
@@ -105,12 +107,50 @@ export default async function OffertenPage() {
                 <p className="text-sm text-gray-400 mt-2">Klicken Sie oben auf "Neue Cyber Offerte rechnen" um zu starten</p>
               </div>
             ) : (
-              quotes.map((quote) => {
+              quotes.map((quote: any) => {
                 const statusBadge = getStatusBadge(quote.status);
                 const companyData = quote.companyData as any;
                 const companyName = companyData?.companyName || quote.company?.name || 'Unbekannt';
                 const createdDate = new Date(quote.createdAt).toLocaleDateString('de-CH');
+                const isPolicied = quote.status === 'POLICIED';
                 
+                // Policierte Offerten sind nicht klickbar
+                if (isPolicied) {
+                  return (
+                    <div 
+                      key={quote.id}
+                      className="bg-white rounded-lg shadow-sm p-6 flex items-center justify-between opacity-90"
+                    >
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="w-14 h-14 bg-[#CADB2D] rounded-full flex items-center justify-center flex-shrink-0">
+                          <svg className="w-7 h-7 text-[#0032A0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.040A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-medium text-[#0032A0] mb-2">
+                            {companyName} - Cyberversicherung
+                          </h3>
+                          <div className="flex gap-8 text-sm text-gray-600">
+                            <span>Erstellt am {createdDate}</span>
+                            <span>Offerte #{quote.quoteNumber}</span>
+                          </div>
+                        </div>
+                        <div className="text-right mr-6">
+                          <p className="text-sm text-gray-600 mb-1">Jahresprämie</p>
+                          <p className="text-lg font-medium text-[#1A1A1A]">{formatPremium(quote.premium, quote.coverage)}</p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`px-4 py-1.5 text-sm font-medium rounded-full ${statusBadge.class}`}>
+                            {statusBadge.label}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                
+                // Normale Offerten sind klickbar
                 return (
                   <Link 
                     key={quote.id} 

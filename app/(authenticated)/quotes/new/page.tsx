@@ -1139,6 +1139,7 @@ function Step7Confirmation({ register, errors, formData, watch, onGeneratePDF, o
   const [showDirectContract, setShowDirectContract] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [policyCreated, setPolicyCreated] = useState(false);
+  const [createdPolicyId, setCreatedPolicyId] = useState<string | null>(null);
   
   // Beobachte den aktuellen Wert der Checkbox
   const acceptTerms = watch('acceptTerms');
@@ -1168,6 +1169,7 @@ function Step7Confirmation({ register, errors, formData, watch, onGeneratePDF, o
       const result = await onDirectContract(startDate);
       if (result?.success) {
         setPolicyCreated(true);
+        setCreatedPolicyId(result.policy?.id || null);
       }
     } catch (error) {
       console.error('Fehler beim Vertragsabschluss:', error);
@@ -1329,13 +1331,13 @@ function Step7Confirmation({ register, errors, formData, watch, onGeneratePDF, o
               <div className="flex-1">
                 <h4 className="text-green-700 font-medium mb-2">Police erfolgreich erstellt!</h4>
                 <p className="text-sm text-green-600 mb-4">
-                  Ihre Cyberversicherung wurde erfolgreich abgeschlossen. Sie finden Ihre Police jetzt unter "Meine Policen".
+                  Ihre Cyberversicherung wurde erfolgreich abgeschlossen. Sie finden Ihre Police nun unter "Meine Policen".
                 </p>
                 <a 
-                  href="/policies" 
+                  href={createdPolicyId ? `/policen/${createdPolicyId}` : '/policen'}
                   className="inline-block px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"
                 >
-                  Zu meinen Policen
+                  Police anzeigen
                 </a>
               </div>
             </div>

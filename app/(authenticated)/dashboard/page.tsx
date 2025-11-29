@@ -76,6 +76,8 @@ export default async function DashboardPage() {
         return { label: 'Genehmigt', class: 'bg-green-100 text-green-700' };
       case 'REJECTED':
         return { label: 'Abgelehnt', class: 'bg-red-100 text-red-700' };
+      case 'POLICIED':
+        return { label: 'Policiert', class: 'bg-[#CADB2D] text-[#0032A0]' };
       default:
         return { label: status, class: 'bg-gray-100 text-gray-700' };
     }
