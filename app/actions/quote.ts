@@ -8,6 +8,7 @@
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUserId } from '@/lib/auth/get-user';
+import { calculateRiskScore, CyberSecurityData } from '@/lib/risk-score/calculate';
 
 // Hole User ID aus Session (als Server Action)
 export async function getUserId() {
@@ -32,16 +33,44 @@ export async function saveQuoteStep(data: {
 
     // Wenn Quote ID existiert: Update
     if (quoteId) {
+      // Lade bestehende Quote-Daten für Risk Score Berechnung
+      const existingQuote = await prisma.quote.findUnique({
+        where: { id: quoteId },
+        select: {
+          cyberRiskProfile: true,
+          cyberSecurity: true,
+        },
+      });
+
+      // Berechne Risk Score wenn Cyber-Sicherheit gespeichert wird
+      let riskScoreData: any = {};
+      if (step === 'cyberSecurity') {
+        const cyberRiskProfile = existingQuote?.cyberRiskProfile as any;
+        const revenue = cyberRiskProfile?.revenue || 0;
+        
+        const riskScoreResult = calculateRiskScore(stepData as CyberSecurityData, revenue);
+        
+        riskScoreData = {
+          riskScore: riskScoreResult.score,
+          riskScoreReason: riskScoreResult.reason,
+        };
+      }
+
       const updatedQuote = await prisma.quote.update({
         where: { id: quoteId },
         data: {
           [step]: stepData,
+          ...riskScoreData,
           updatedAt: new Date(),
         },
       });
 
       revalidatePath('/quotes/new');
-      return { success: true, quoteId: updatedQuote.id };
+      return { 
+        success: true, 
+        quoteId: updatedQuote.id,
+        riskScore: updatedQuote.riskScore,
+      };
     }
 
     // Sonst: Neues Quote erstellen
