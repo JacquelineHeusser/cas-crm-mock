@@ -37,8 +37,6 @@ export async function POST(request: NextRequest) {
         status: decision,
         decision: decision === 'MORE_INFO_REQUIRED' ? null : decision,
         notes: notes,
-        reviewedAt: new Date(),
-        reviewedBy: user.id,
       },
     });
 
