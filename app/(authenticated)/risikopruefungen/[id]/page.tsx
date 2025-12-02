@@ -29,7 +29,6 @@ export default async function RisikopruefungDetailPage({ params }: { params: { i
               id: true,
               name: true,
               email: true,
-              phone: true,
             },
           },
         },
@@ -119,12 +118,6 @@ export default async function RisikopruefungDetailPage({ params }: { params: { i
                 <p className="text-gray-600">E-Mail</p>
                 <p className="font-medium text-[#1A1A1A]">{customer.email}</p>
               </div>
-              {customer.phone && (
-                <div>
-                  <p className="text-gray-600">Telefon</p>
-                  <p className="font-medium text-[#1A1A1A]">{customer.phone}</p>
-                </div>
-              )}
             </div>
           </div>
 
