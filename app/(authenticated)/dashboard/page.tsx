@@ -276,6 +276,31 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {/* Vermittler Bereich - Risikoprüfungen */}
+      {user.role === 'BROKER' && (
+        <div>
+          <h2 className="text-xl font-light text-[#1A1A1A] mb-4">Risikoprüfungen</h2>
+          <Link href="/risikopruefungen">
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer border-l-4 border-yellow-500">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-[#0032A0] mb-2">Offene Risikoprüfungen</h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Prüfen und entscheiden Sie über Offerten mit Risiko-Score C, D oder E.
+                  </p>
+                  <div className="flex gap-4 text-sm">
+                    <div className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium">
+                      Ausstehend
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight className="text-yellow-600" size={24} />
+              </div>
+            </div>
+          </Link>
+        </div>
+      )}
+
       {/* Underwriter Bereich */}
       {user.role === 'UNDERWRITER' && (
         <div>
