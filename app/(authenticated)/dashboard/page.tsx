@@ -321,27 +321,6 @@ export default async function DashboardPage() {
           </div>
         </div>
       )}
-
-      {/* Broker Bereich */}
-      {user.role === 'BROKER' && (
-        <div>
-          <h2 className="text-xl font-light text-[#1A1A1A] mb-4">Vermittler-Bereich</h2>
-          <div className="grid gap-4">
-            <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer">
-              <h3 className="font-semibold text-[#0032A0] mb-2">Neue Offerte erstellen</h3>
-              <p className="text-gray-600 text-sm">
-                Erstellen Sie eine Cyberversicherungs-Offerte für Ihre Kunden.
-              </p>
-              <div className="mt-4 flex justify-end">
-                <span className="text-[#0032A0] text-sm flex items-center gap-1">
-                  Offerte starten
-                  <ChevronRight size={16} />
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
