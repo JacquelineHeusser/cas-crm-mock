@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { saveQuoteStep, getUserId, loadQuote, createPolicyFromQuote, createUnderwritingCase } from '@/app/actions/quote';
 import { 
   companyDataSchema, 
@@ -1942,6 +1942,7 @@ function Step6Summary({ formData, riskScore, riskScoreReason }: { formData: any;
 
 // Step 7: Bestätigung
 function Step7Confirmation({ register, errors, formData, watch, riskScore, quoteId, onGeneratePDF, onDirectContract, onCreateUnderwriting }: any) {
+  const router = useRouter();
   const [showDirectContract, setShowDirectContract] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [policyCreated, setPolicyCreated] = useState(false);
@@ -2113,6 +2114,10 @@ function Step7Confirmation({ register, errors, formData, watch, riskScore, quote
                           const result = await onCreateUnderwriting({ quoteId, userId });
                           if (result.success) {
                             setUnderwritingCreated(true);
+                            // Warte 1.5 Sekunden und leite dann zur Offerten-Übersicht weiter
+                            setTimeout(() => {
+                              router.push('/offerten');
+                            }, 1500);
                           }
                         }
                       } catch (error) {
@@ -2130,7 +2135,7 @@ function Step7Confirmation({ register, errors, formData, watch, riskScore, quote
                 ) : (
                   <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                     <p className="text-sm text-green-700">
-                      ✅ Risikoprüfungsauftrag erfolgreich erstellt. Wir melden uns in Kürze bei Ihnen.
+                      ✅ Risikoprüfungsauftrag erfolgreich erstellt. Sie werden zur Offerten-Übersicht weitergeleitet...
                     </p>
                   </div>
                 )}
