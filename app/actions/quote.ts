@@ -321,11 +321,11 @@ export async function createUnderwritingCase(data: {
       },
     });
 
-    // Update Quote Status
+    // Update Quote Status auf PENDING_UNDERWRITING
     await prisma.quote.update({
       where: { id: quoteId },
       data: {
-        status: 'CALCULATED',
+        status: 'PENDING_UNDERWRITING',
       },
     });
 

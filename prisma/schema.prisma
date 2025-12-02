@@ -147,6 +147,7 @@ enum UserRole {
 enum QuoteStatus {
   DRAFT
   CALCULATED
+  PENDING_UNDERWRITING  // Risikoprüfung ausstehend
   APPROVED
   REJECTED
   EXPIRED

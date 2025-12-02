@@ -59,6 +59,8 @@ export default async function OffertenPage() {
         return { label: 'Entwurf', class: 'bg-orange-100 text-orange-700' };
       case 'CALCULATED':
         return { label: 'Berechnet', class: 'bg-blue-100 text-blue-700' };
+      case 'PENDING_UNDERWRITING':
+        return { label: 'Risikoprüfung ausstehend', class: 'bg-yellow-100 text-yellow-700' };
       case 'APPROVED':
         return { label: 'Genehmigt', class: 'bg-green-100 text-green-700' };
       case 'REJECTED':
