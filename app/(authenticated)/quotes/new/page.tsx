@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { saveQuoteStep, getUserId, loadQuote, createPolicyFromQuote } from '@/app/actions/quote';
+import { saveQuoteStep, getUserId, loadQuote, createPolicyFromQuote, createUnderwritingCase } from '@/app/actions/quote';
 import { 
   companyDataSchema, 
   cyberRiskProfileSchema,
@@ -45,6 +45,8 @@ export default function NewQuotePage() {
   const [formData, setFormData] = useState<any>({});
   const [quoteId, setQuoteId] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
+  const [riskScore, setRiskScore] = useState<string | null>(null);
+  const [riskScoreReason, setRiskScoreReason] = useState<string | null>(null);
 
   // Aktuelles Schema basierend auf Step
   const currentSchema = STEPS[currentStep - 1].schema;
@@ -111,6 +113,12 @@ export default function NewQuotePage() {
           // Setze Quote ID
           setQuoteId(result.quote.id);
           
+          // Setze Risk Score wenn vorhanden
+          if (result.quote.riskScore) {
+            setRiskScore(result.quote.riskScore);
+            setRiskScoreReason(result.quote.riskScoreReason || null);
+          }
+          
           // Merge alle Daten aus den JSON Feldern
           const loadedData = {
             ...(result.quote.companyData as any || {}),
@@ -169,6 +177,11 @@ export default function NewQuotePage() {
       
       if (result.success && result.quoteId) {
         setQuoteId(result.quoteId);
+        
+        // Speichere Risk Score wenn vorhanden (wird bei Step 3 berechnet)
+        if (result.riskScore) {
+          setRiskScore(result.riskScore);
+        }
       }
     }
     
@@ -333,8 +346,8 @@ export default function NewQuotePage() {
           {currentStep === 3 && <Step3CyberSecurity register={register} errors={errors} watch={watch} formData={formData} />}
           {currentStep === 4 && <Step4Premium register={register} errors={errors} formData={formData} />}
           {currentStep === 5 && <Step5Coverage register={register} errors={errors} formData={formData} />}
-          {currentStep === 6 && <Step6Summary formData={formData} />}
-          {currentStep === 7 && <Step7Confirmation register={register} errors={errors} formData={formData} watch={watch} onGeneratePDF={handleGeneratePDF} onDirectContract={handleDirectContract} />}
+          {currentStep === 6 && <Step6Summary formData={formData} riskScore={riskScore} riskScoreReason={riskScoreReason} />}
+          {currentStep === 7 && <Step7Confirmation register={register} errors={errors} formData={formData} watch={watch} riskScore={riskScore} onGeneratePDF={handleGeneratePDF} onDirectContract={handleDirectContract} onCreateUnderwriting={createUnderwritingCase} quoteId={quoteId} />}
 
           {/* Navigation Buttons - versteckt bei Step 7 (Bestätigung) */}
           {currentStep !== 7 && (
@@ -1723,7 +1736,7 @@ function Step4Premium({ register, errors, formData }: any) {
 }
 
 // Step 6: Zusammenfassung (Read-Only)
-function Step6Summary({ formData }: { formData: any }) {
+function Step6Summary({ formData, riskScore, riskScoreReason }: { formData: any; riskScore: string | null; riskScoreReason: string | null }) {
   const SummarySection = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="mb-8">
       <h3 className="text-lg font-medium text-[#0032A0] mb-4 border-b border-gray-200 pb-2">{title}</h3>
@@ -1738,10 +1751,55 @@ function Step6Summary({ formData }: { formData: any }) {
     </div>
   );
 
+  // Risk Score Badge Farbe
+  const getRiskScoreBadge = (score: string | null) => {
+    if (!score) return null;
+    
+    const config: Record<string, { bg: string; text: string; label: string }> = {
+      A: { bg: 'bg-green-100', text: 'text-green-800', label: 'Sehr Gut (A)' },
+      B: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Gut (B)' },
+      C: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Mittel (C)' },
+      D: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Erhöht (D)' },
+      E: { bg: 'bg-red-100', text: 'text-red-800', label: 'Hoch (E)' },
+    };
+    
+    return config[score] || null;
+  };
+
+  const scoreBadge = getRiskScoreBadge(riskScore);
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Zusammenfassung</h2>
       <p className="text-gray-600 mb-6">Bitte prüfen Sie Ihre Angaben vor dem Absenden.</p>
+      
+      {/* Risk Score Anzeige */}
+      {riskScore && scoreBadge && (
+        <div className={`p-6 rounded-lg border-2 ${riskScore === 'A' || riskScore === 'B' ? 'border-green-200 bg-green-50' : 'border-yellow-200 bg-yellow-50'}`}>
+          <div className="flex items-start gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className="text-lg font-medium text-[#1A1A1A]">Risikoklassifizierung</h3>
+                <span className={`px-4 py-1 rounded-full text-sm font-medium ${scoreBadge.bg} ${scoreBadge.text}`}>
+                  {scoreBadge.label}
+                </span>
+              </div>
+              {riskScoreReason && (
+                <p className="text-sm text-gray-600">{riskScoreReason}</p>
+              )}
+              {(riskScore === 'A' || riskScore === 'B') ? (
+                <p className="text-sm text-green-700 mt-2 font-medium">
+                  ✅ Direkter Abschluss möglich
+                </p>
+              ) : (
+                <p className="text-sm text-yellow-700 mt-2 font-medium">
+                  ⚠️ Risikoprüfung durch Vermittler erforderlich
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Unternehmensdaten */}
       <SummarySection title="Unternehmensdaten">
@@ -1883,11 +1941,17 @@ function Step6Summary({ formData }: { formData: any }) {
 }
 
 // Step 7: Bestätigung
-function Step7Confirmation({ register, errors, formData, watch, onGeneratePDF, onDirectContract }: any) {
+function Step7Confirmation({ register, errors, formData, watch, riskScore, quoteId, onGeneratePDF, onDirectContract, onCreateUnderwriting }: any) {
   const [showDirectContract, setShowDirectContract] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [policyCreated, setPolicyCreated] = useState(false);
   const [createdPolicyId, setCreatedPolicyId] = useState<string | null>(null);
+  const [underwritingCreated, setUnderwritingCreated] = useState(false);
+  const [isCreatingUnderwriting, setIsCreatingUnderwriting] = useState(false);
+  
+  // Prüfe ob Direktabschluss möglich ist (nur bei Risk Score A oder B)
+  const canDirectContract = riskScore === 'A' || riskScore === 'B';
+  const needsUnderwriting = riskScore && !canDirectContract;
   
   // Beobachte den aktuellen Wert der Checkbox
   const acceptTerms = watch('acceptTerms');
@@ -1964,61 +2028,116 @@ function Step7Confirmation({ register, errors, formData, watch, onGeneratePDF, o
       <div className="mt-8 space-y-4">
         <h3 className="text-lg font-medium text-[#1A1A1A] mb-4">Wie möchten Sie fortfahren?</h3>
         
-        {/* PDF Offerte generieren */}
-        <button
-          type="button"
-          onClick={onGeneratePDF}
-          disabled={!isComplete}
-          className={`w-full p-6 rounded-lg border-2 text-left transition-all ${
-            isComplete
-              ? 'border-[#0032A0] bg-white hover:bg-[#D9E8FC] cursor-pointer'
-              : 'border-gray-300 bg-gray-50 cursor-not-allowed opacity-50'
-          }`}
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-[#0032A0] rounded-full flex items-center justify-center flex-shrink-0">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
+        {/* PDF Offerte generieren - nur bei Risk Score A oder B */}
+        {canDirectContract && (
+          <button
+            type="button"
+            onClick={onGeneratePDF}
+            disabled={!isComplete}
+            className={`w-full p-6 rounded-lg border-2 text-left transition-all ${
+              isComplete
+                ? 'border-[#0032A0] bg-white hover:bg-[#D9E8FC] cursor-pointer'
+                : 'border-gray-300 bg-gray-50 cursor-not-allowed opacity-50'
+            }`}
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-[#0032A0] rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h4 className="text-[#0032A0] font-medium mb-2">PDF-Offerte erstellen</h4>
+                <p className="text-sm text-gray-600">
+                  Generieren Sie eine Offerte als PDF-Dokument mit allen erfassten Daten. Sie können diese herunterladen, ausdrucken oder per E-Mail versenden.
+                </p>
+              </div>
             </div>
-            <div className="flex-1">
-              <h4 className="text-[#0032A0] font-medium mb-2">PDF-Offerte erstellen</h4>
-              <p className="text-sm text-gray-600">
-                Generieren Sie eine Offerte als PDF-Dokument mit allen erfassten Daten. Sie können diese herunterladen, ausdrucken oder per E-Mail versenden.
-              </p>
-            </div>
-          </div>
-        </button>
+          </button>
+        )}
 
-        {/* Direktabschluss */}
-        <button
-          type="button"
-          onClick={handleDirectContractClick}
-          disabled={!isComplete}
-          className={`w-full p-6 rounded-lg border-2 text-left transition-all ${
-            isComplete
-              ? 'border-[#008C95] bg-gradient-to-r from-[#008C95]/5 to-[#006B73]/5 hover:from-[#008C95]/10 hover:to-[#006B73]/10 cursor-pointer'
-              : 'border-gray-300 bg-gray-50 cursor-not-allowed opacity-50'
-          }`}
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-[#008C95] rounded-full flex items-center justify-center flex-shrink-0">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+        {/* Direktabschluss - nur bei Risk Score A oder B */}
+        {canDirectContract && (
+          <button
+            type="button"
+            onClick={handleDirectContractClick}
+            disabled={!isComplete}
+            className={`w-full p-6 rounded-lg border-2 text-left transition-all ${
+              isComplete
+                ? 'border-[#008C95] bg-gradient-to-r from-[#008C95]/5 to-[#006B73]/5 hover:from-[#008C95]/10 hover:to-[#006B73]/10 cursor-pointer'
+                : 'border-gray-300 bg-gray-50 cursor-not-allowed opacity-50'
+            }`}
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-[#008C95] rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h4 className="text-[#008C95] font-medium mb-2">Direktabschluss</h4>
+                <p className="text-sm text-gray-600">
+                  Schliessen Sie die Versicherung direkt online ab. Nach erfolgreicher Prüfung erhalten Sie sofort Ihre Police per E-Mail.
+                </p>
+              </div>
+              <ChevronRight 
+                className={`text-[#008C95] transform transition-transform ${showDirectContract ? 'rotate-90' : ''}`} 
+                size={24} 
+              />
             </div>
-            <div className="flex-1">
-              <h4 className="text-[#008C95] font-medium mb-2">Direktabschluss</h4>
-              <p className="text-sm text-gray-600">
-                Schliessen Sie die Versicherung direkt online ab. Nach erfolgreicher Prüfung erhalten Sie sofort Ihre Police per E-Mail.
-              </p>
+          </button>
+        )}
+        
+        {/* Underwriting erforderlich - bei Risk Score C, D oder E */}
+        {needsUnderwriting && (
+          <div className="w-full p-6 rounded-lg border-2 border-yellow-300 bg-yellow-50">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h4 className="text-yellow-800 font-medium mb-2">Risikoprüfung erforderlich</h4>
+                <p className="text-sm text-yellow-700 mb-4">
+                  Aufgrund Ihrer Risikoklassifizierung ({riskScore}) ist kein Direktabschluss möglich. Ein Versicherungsvermittler wird Ihre Offerte prüfen und sich mit Ihnen in Verbindung setzen.
+                </p>
+                {!underwritingCreated ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setIsCreatingUnderwriting(true);
+                      try {
+                        const { success, userId } = await getUserId();
+                        if (success && userId && quoteId) {
+                          const result = await onCreateUnderwriting({ quoteId, userId });
+                          if (result.success) {
+                            setUnderwritingCreated(true);
+                          }
+                        }
+                      } catch (error) {
+                        console.error('Fehler beim Erstellen des Risikoprüfungsauftrags:', error);
+                        alert('Fehler beim Erstellen des Risikoprüfungsauftrags');
+                      } finally {
+                        setIsCreatingUnderwriting(false);
+                      }
+                    }}
+                    disabled={isCreatingUnderwriting || !quoteId}
+                    className="px-6 py-3 bg-yellow-600 text-white font-medium rounded-full hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isCreatingUnderwriting ? 'Wird erstellt...' : 'Risikoprüfungsauftrag erstellen'}
+                  </button>
+                ) : (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-700">
+                      ✅ Risikoprüfungsauftrag erfolgreich erstellt. Wir melden uns in Kürze bei Ihnen.
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-            <ChevronRight 
-              className={`text-[#008C95] transform transition-transform ${showDirectContract ? 'rotate-90' : ''}`} 
-              size={24} 
-            />
           </div>
-        </button>
+        )}
 
         {/* Expandierbare Direktabschluss-Sektion */}
         {showDirectContract && !policyCreated && (

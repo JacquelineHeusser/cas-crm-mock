@@ -119,6 +119,8 @@ export async function loadQuote(quoteId: string) {
         cyberRiskProfile: true,
         cyberSecurity: true,
         coverage: true,
+        riskScore: true,
+        riskScoreReason: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -276,5 +278,69 @@ export async function createPolicyFromQuote(data: {
   } catch (error) {
     console.error('Error creating policy:', error);
     return { success: false, error: 'Fehler beim Erstellen der Police' };
+  }
+}
+
+// Underwriting Case erstellen (für Score C, D, E)
+export async function createUnderwritingCase(data: {
+  quoteId: string;
+  userId: string;
+}) {
+  try {
+    const { quoteId, userId } = data;
+
+    // Prüfe ob Quote existiert
+    const quote = await prisma.quote.findUnique({
+      where: { id: quoteId },
+      select: {
+        id: true,
+        riskScore: true,
+        underwritingCase: true,
+      },
+    });
+
+    if (!quote) {
+      return { success: false, error: 'Quote nicht gefunden' };
+    }
+
+    // Prüfe ob bereits ein Underwriting Case existiert
+    if (quote.underwritingCase) {
+      return { 
+        success: true, 
+        underwritingCase: quote.underwritingCase,
+        message: 'Risikoprüfungsauftrag bereits erstellt'
+      };
+    }
+
+    // Erstelle Underwriting Case
+    const underwritingCase = await prisma.underwritingCase.create({
+      data: {
+        quoteId,
+        status: 'PENDING',
+        notes: `Automatisch erstellt aufgrund von Risk Score ${quote.riskScore}`,
+      },
+    });
+
+    // Update Quote Status
+    await prisma.quote.update({
+      where: { id: quoteId },
+      data: {
+        status: 'CALCULATED',
+      },
+    });
+
+    revalidatePath('/quotes');
+    revalidatePath('/offerten');
+    
+    return { 
+      success: true, 
+      underwritingCase: {
+        id: underwritingCase.id,
+        status: underwritingCase.status,
+      }
+    };
+  } catch (error) {
+    console.error('Error creating underwriting case:', error);
+    return { success: false, error: 'Fehler beim Erstellen des Risikoprüfungsauftrags' };
   }
 }
