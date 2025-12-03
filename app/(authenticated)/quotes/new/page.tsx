@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { saveQuoteStep, getUserId, loadQuote, createPolicyFromQuote, createUnderwritingCase } from '@/app/actions/quote';
+import { saveQuoteStep, getUserId, loadQuote, createPolicyFromQuote, createUnderwritingCase, submitCustomerResponse } from '@/app/actions/quote';
 import { 
   companyDataSchema, 
   cyberRiskProfileSchema,
@@ -47,6 +47,7 @@ export default function NewQuotePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [riskScore, setRiskScore] = useState<string | null>(null);
   const [riskScoreReason, setRiskScoreReason] = useState<string | null>(null);
+  const [underwritingCase, setUnderwritingCase] = useState<any>(null);
 
   // Aktuelles Schema basierend auf Step
   const currentSchema = STEPS[currentStep - 1].schema;
@@ -117,6 +118,11 @@ export default function NewQuotePage() {
           if (result.quote.riskScore) {
             setRiskScore(result.quote.riskScore);
             setRiskScoreReason(result.quote.riskScoreReason || null);
+          }
+          
+          // Setze Underwriting Case wenn vorhanden
+          if (result.quote.underwritingCase) {
+            setUnderwritingCase(result.quote.underwritingCase);
           }
           
           // Merge alle Daten aus den JSON Feldern
@@ -347,7 +353,7 @@ export default function NewQuotePage() {
           {currentStep === 4 && <Step4Premium register={register} errors={errors} formData={formData} />}
           {currentStep === 5 && <Step5Coverage register={register} errors={errors} formData={formData} />}
           {currentStep === 6 && <Step6Summary formData={formData} riskScore={riskScore} riskScoreReason={riskScoreReason} />}
-          {currentStep === 7 && <Step7Confirmation register={register} errors={errors} formData={formData} watch={watch} riskScore={riskScore} onGeneratePDF={handleGeneratePDF} onDirectContract={handleDirectContract} onCreateUnderwriting={createUnderwritingCase} quoteId={quoteId} />}
+          {currentStep === 7 && <Step7Confirmation register={register} errors={errors} formData={formData} watch={watch} riskScore={riskScore} onGeneratePDF={handleGeneratePDF} onDirectContract={handleDirectContract} onCreateUnderwriting={createUnderwritingCase} quoteId={quoteId} underwritingCase={underwritingCase} />}
 
           {/* Navigation Buttons - versteckt bei Step 7 (Bestätigung) */}
           {currentStep !== 7 && (
@@ -1943,7 +1949,7 @@ function Step6Summary({ formData, riskScore, riskScoreReason }: { formData: any;
 }
 
 // Step 7: Bestätigung
-function Step7Confirmation({ register, errors, formData, watch, riskScore, quoteId, onGeneratePDF, onDirectContract, onCreateUnderwriting }: any) {
+function Step7Confirmation({ register, errors, formData, watch, riskScore, quoteId, onGeneratePDF, onDirectContract, onCreateUnderwriting, underwritingCase }: any) {
   const router = useRouter();
   const [showDirectContract, setShowDirectContract] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1951,6 +1957,9 @@ function Step7Confirmation({ register, errors, formData, watch, riskScore, quote
   const [createdPolicyId, setCreatedPolicyId] = useState<string | null>(null);
   const [underwritingCreated, setUnderwritingCreated] = useState(false);
   const [isCreatingUnderwriting, setIsCreatingUnderwriting] = useState(false);
+  const [customerResponse, setCustomerResponse] = useState('');
+  const [isSubmittingResponse, setIsSubmittingResponse] = useState(false);
+  const [responseSubmitted, setResponseSubmitted] = useState(false);
   
   // Prüfe ob Direktabschluss möglich ist (nur bei Risk Score A oder B)
   const canDirectContract = riskScore === 'A' || riskScore === 'B';
@@ -1994,9 +2003,109 @@ function Step7Confirmation({ register, errors, formData, watch, riskScore, quote
     }
   };
 
+  // Kunden-Antwort auf Vermittler-Rückfrage senden
+  const handleSubmitResponse = async () => {
+    if (!customerResponse.trim() || !quoteId) return;
+    
+    setIsSubmittingResponse(true);
+    try {
+      const { success, userId } = await getUserId();
+      if (!success || !userId) {
+        alert('Fehler: Benutzer nicht gefunden');
+        return;
+      }
+
+      const result = await submitCustomerResponse({
+        quoteId,
+        userId,
+        response: customerResponse,
+      });
+
+      if (result.success) {
+        setResponseSubmitted(true);
+        setCustomerResponse('');
+        alert('Ihre Antwort wurde erfolgreich übermittelt. Der Vermittler wird sich in Kürze bei Ihnen melden.');
+        router.refresh();
+      } else {
+        alert(result.error || 'Fehler beim Senden der Antwort');
+      }
+    } catch (error) {
+      console.error('Fehler beim Senden der Antwort:', error);
+      alert('Fehler beim Senden der Antwort');
+    } finally {
+      setIsSubmittingResponse(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Bestätigung</h2>
+      
+      {/* Vermittler-Rückfrage Benachrichtigung */}
+      {underwritingCase && underwritingCase.status === 'NEEDS_INFO' && !responseSubmitted && (
+        <div className="bg-yellow-50 border-2 border-yellow-500 rounded-lg p-6 mb-8">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-yellow-800 font-semibold mb-2">Zusätzliche Informationen benötigt</h3>
+              <p className="text-yellow-700 text-sm mb-4">
+                Der Vermittler benötigt weitere Informationen von Ihnen, um Ihre Offerte zu prüfen.
+              </p>
+              
+              {/* Vermittler-Kommentare anzeigen */}
+              <div className="bg-white p-4 rounded-lg mb-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">Nachricht vom Vermittler:</p>
+                <p className="text-sm text-gray-600 whitespace-pre-wrap">{underwritingCase.notes}</p>
+              </div>
+
+              {/* Antwort-Feld */}
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  Ihre Antwort
+                </label>
+                <textarea
+                  value={customerResponse}
+                  onChange={(e) => setCustomerResponse(e.target.value)}
+                  placeholder="Bitte beantworten Sie die Fragen des Vermittlers..."
+                  rows={6}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0032A0] resize-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleSubmitResponse}
+                  disabled={!customerResponse.trim() || isSubmittingResponse}
+                  className="w-full py-3 bg-yellow-600 text-white font-medium rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmittingResponse ? 'Wird gesendet...' : 'Antwort absenden'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Erfolgsbestätigung nach Antwort */}
+      {responseSubmitted && (
+        <div className="bg-green-50 border-2 border-green-500 rounded-lg p-6 mb-8">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-green-800 font-semibold mb-2">Antwort erfolgreich gesendet</h3>
+              <p className="text-green-700 text-sm">
+                Ihre Antwort wurde an den Vermittler übermittelt. Sie werden in Kürze über den Status Ihrer Offerte informiert.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="bg-[#D9E8FC] p-6 rounded-lg mb-8">
         <p className="text-[#0032A0] text-sm">

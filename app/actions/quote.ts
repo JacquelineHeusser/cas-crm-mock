@@ -123,6 +123,16 @@ export async function loadQuote(quoteId: string) {
         riskScoreReason: true,
         createdAt: true,
         updatedAt: true,
+        underwritingCase: {
+          select: {
+            id: true,
+            status: true,
+            notes: true,
+            decision: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
       },
     });
 
@@ -342,5 +352,54 @@ export async function createUnderwritingCase(data: {
   } catch (error) {
     console.error('Error creating underwriting case:', error);
     return { success: false, error: 'Fehler beim Erstellen des Risikoprüfungsauftrags' };
+  }
+}
+
+// Kunden-Antwort auf Vermittler-Rückfrage hinzufügen
+export async function submitCustomerResponse(data: {
+  quoteId: string;
+  userId: string;
+  response: string;
+}) {
+  try {
+    const { quoteId, userId, response } = data;
+
+    // Finde den Underwriting Case
+    const underwritingCase = await prisma.underwritingCase.findUnique({
+      where: { quoteId },
+    });
+
+    if (!underwritingCase) {
+      return { success: false, error: 'Risikoprüfung nicht gefunden' };
+    }
+
+    // Prüfe ob Status NEEDS_INFO ist
+    if (underwritingCase.status !== 'NEEDS_INFO') {
+      return { success: false, error: 'Keine ausstehende Rückfrage vorhanden' };
+    }
+
+    // Update Underwriting Case mit Kunden-Antwort
+    // Füge Antwort zu den bestehenden Notes hinzu
+    const updatedNotes = `${underwritingCase.notes || ''}\n\n--- Antwort vom Kunden ---\n${response}\n(${new Date().toLocaleString('de-CH')})`;
+    
+    await prisma.underwritingCase.update({
+      where: { id: underwritingCase.id },
+      data: {
+        notes: updatedNotes,
+        status: 'IN_REVIEW', // Setze Status zurück auf IN_REVIEW damit Vermittler benachrichtigt wird
+      },
+    });
+
+    revalidatePath('/quotes');
+    revalidatePath('/offerten');
+    revalidatePath('/risikopruefungen');
+    
+    return { 
+      success: true,
+      message: 'Ihre Antwort wurde erfolgreich übermittelt'
+    };
+  } catch (error) {
+    console.error('Error submitting customer response:', error);
+    return { success: false, error: 'Fehler beim Senden der Antwort' };
   }
 }
