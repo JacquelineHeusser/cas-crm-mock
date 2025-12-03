@@ -10,7 +10,7 @@ import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import UnderwritingDecisionForm from '@/components/underwriting/DecisionForm';
 
-export default async function RisikopruefungDetailPage({ params }: { params: { id: string } }) {
+export default async function RisikopruefungDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
 
   // Nur Vermittler haben Zugriff
@@ -18,9 +18,12 @@ export default async function RisikopruefungDetailPage({ params }: { params: { i
     redirect('/dashboard');
   }
 
+  // Await params in Next.js 15+
+  const { id } = await params;
+
   // Lade Underwriting Case mit allen Details
   const underwritingCase = await prisma.underwritingCase.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       quote: {
         include: {
