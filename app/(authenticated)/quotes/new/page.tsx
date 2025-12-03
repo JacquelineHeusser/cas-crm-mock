@@ -612,8 +612,9 @@ function Step3CyberSecurity({ register, errors, watch, formData }: any) {
   const hasOutsourcedProcesses = watch('hasOutsourcedProcesses');
   
   // Prüfe Umsatz-Schwellenwerte (aus Step 2)
-  // Wichtig: watch() verwenden statt formData, da formData erst nach onNext aktualisiert wird
-  const revenue = watch('revenue') || formData?.revenue || 0;
+  // Verwende formData.revenue da es durch setFormData bereits vor dem Render aktualisiert wurde
+  // Konvertiere explizit zu Number, falls es als String gespeichert wurde
+  const revenue = Number(formData?.revenue) || 0;
   const showRevenue5Questions = revenue > 5_000_000;
   const showRevenue10Questions = revenue > 10_000_000;
   
