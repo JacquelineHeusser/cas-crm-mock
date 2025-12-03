@@ -13,12 +13,14 @@ interface DecisionFormProps {
   underwritingCaseId: string;
   quoteId: string;
   currentStatus: string;
+  notes?: string | null;
 }
 
 export default function UnderwritingDecisionForm({ 
   underwritingCaseId, 
   quoteId,
-  currentStatus 
+  currentStatus,
+  notes: initialNotes 
 }: DecisionFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,8 +67,11 @@ export default function UnderwritingDecisionForm({
     }
   };
 
-  // Falls bereits entschieden wurde
-  if (currentStatus !== 'PENDING') {
+  // Prüfe ob Formular editierbar ist (PENDING oder IN_REVIEW nach Kunden-Antwort)
+  const isEditable = currentStatus === 'PENDING' || currentStatus === 'IN_REVIEW';
+  
+  // Falls bereits final entschieden wurde
+  if (!isEditable) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h2 className="text-lg font-medium text-[#0032A0] mb-4">
@@ -75,6 +80,12 @@ export default function UnderwritingDecisionForm({
         <p className="text-gray-600">
           Dieser Fall wurde bereits bearbeitet (Status: {currentStatus})
         </p>
+        {initialNotes && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <p className="text-sm font-medium text-gray-700 mb-2">Notizen:</p>
+            <p className="text-sm text-gray-600 whitespace-pre-wrap">{initialNotes}</p>
+          </div>
+        )}
       </div>
     );
   }
@@ -84,6 +95,26 @@ export default function UnderwritingDecisionForm({
       <h2 className="text-lg font-medium text-[#0032A0] mb-6 border-b border-gray-200 pb-2">
         Entscheidung treffen
       </h2>
+
+      {/* Kunden-Antwort anzeigen bei IN_REVIEW */}
+      {currentStatus === 'IN_REVIEW' && initialNotes && (
+        <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <AlertCircle className="text-white" size={20} />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-blue-900 font-semibold mb-2">Kunden-Antwort eingegangen</h3>
+              <div className="bg-white p-3 rounded border border-blue-200">
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">{initialNotes}</p>
+              </div>
+              <p className="text-sm text-blue-700 mt-2">
+                Bitte prüfen Sie die Antwort und treffen Sie eine finale Entscheidung.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Entscheidungs-Buttons */}

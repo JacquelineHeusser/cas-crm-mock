@@ -271,6 +271,7 @@ export default async function RisikopruefungDetailPage({ params }: { params: Pro
           underwritingCaseId={underwritingCase.id}
           quoteId={quote.id}
           currentStatus={underwritingCase.status}
+          notes={underwritingCase.notes}
         />
       </div>
     </div>
