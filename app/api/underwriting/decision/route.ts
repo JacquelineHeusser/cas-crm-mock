@@ -30,12 +30,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Mappe Frontend-Werte zu Schema-Enums
+    let underwritingStatus: 'APPROVED' | 'REJECTED' | 'NEEDS_INFO' = 'NEEDS_INFO';
+    let underwritingDecision: 'APPROVE' | 'REJECT' | 'REQUEST_INFO' | null = null;
+
+    if (decision === 'APPROVED') {
+      underwritingStatus = 'APPROVED';
+      underwritingDecision = 'APPROVE';
+    } else if (decision === 'REJECTED') {
+      underwritingStatus = 'REJECTED';
+      underwritingDecision = 'REJECT';
+    } else if (decision === 'MORE_INFO_REQUIRED') {
+      underwritingStatus = 'NEEDS_INFO';
+      underwritingDecision = 'REQUEST_INFO';
+    }
+
     // Aktualisiere Underwriting Case
     await prisma.underwritingCase.update({
       where: { id: underwritingCaseId },
       data: {
-        status: decision,
-        decision: decision === 'MORE_INFO_REQUIRED' ? null : decision,
+        status: underwritingStatus,
+        decision: underwritingDecision,
         notes: notes,
       },
     });
