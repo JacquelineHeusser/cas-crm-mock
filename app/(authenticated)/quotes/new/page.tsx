@@ -187,7 +187,7 @@ export default function NewQuotePage() {
     
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
-      reset();
+      reset(updatedFormData); // Wichtig: Formulardaten beibehalten für bedingte Logik
     } else {
       // Letzter Schritt: Offerte finalisieren
       console.log('Offerte abgeschlossen:', quoteId);
