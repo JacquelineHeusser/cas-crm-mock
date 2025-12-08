@@ -11,14 +11,17 @@ const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontSize: 10,
+    // Helvetica dient hier als Ersatz für die Zurich-Hausschrift
     fontFamily: 'Helvetica',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 20,
-    paddingBottom: 10,
+    marginBottom: 24,
+    paddingBottom: 12,
+    borderBottomColor: '#D1D5DB',
+    borderBottomWidth: 1,
   },
   logo: {
     width: 100,
@@ -26,6 +29,10 @@ const styles = StyleSheet.create({
   },
   headerLeft: {
     flex: 1,
+  },
+  headerRight: {
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
   },
   title: {
     fontSize: 18,
@@ -36,12 +43,24 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 11,
     color: '#666',
+    marginBottom: 4,
+  },
+  headerMeta: {
+    fontSize: 9,
+    color: '#4B5563',
   },
   section: {
     marginBottom: 15,
   },
   sectionWithExtraMargin: {
     marginBottom: 20,
+  },
+  sectionCard: {
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 4,
+    padding: 10,
+    backgroundColor: '#F9FAFB',
   },
   sectionTitle: {
     fontSize: 14,
@@ -124,10 +143,13 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.title}>Ihre Zurich Cyberversicherung</Text>
+            <Text style={styles.title}>Zurich Cyber-Versicherung</Text>
             <Text style={styles.subtitle}>Offerte Nr. {quoteNumber}</Text>
+            <Text style={styles.headerMeta}>Zurich Versicherung  Firmenkunden Schweiz</Text>
           </View>
-          <Image src="/zurich-logo.png" style={styles.logo} />
+          <View style={styles.headerRight}>
+            <Image src="/zurich-logo.png" style={styles.logo} />
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -147,51 +169,53 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
           )}
         </View>
 
-        <View style={styles.section}>
+        <View style={styles.sectionWithExtraMargin}>
           <Text style={styles.sectionTitle}>Unternehmensdaten</Text>
-          <View style={styles.row}>
-            <Text style={styles.label}>Firma:</Text>
-            <Text style={styles.value}>{formData.companyName || "-"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Adresse:</Text>
-            <Text style={styles.value}>{formData.address || "-"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>PLZ / Ort:</Text>
-            <Text style={styles.value}>{formData.zip || "-"} {formData.city || "-"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Website:</Text>
-            <Text style={styles.value}>{formData.website || "-"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Branche:</Text>
-            <Text style={styles.value}>{formData.industry || "-"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Anzahl Mitarbeitende:</Text>
-            <Text style={styles.value}>{formData.employees || "-"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Brutto-Gesamtumsatz:</Text>
-            <Text style={styles.value}>CHF {formData.revenue?.toLocaleString("de-CH") || "-"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>E-Commerce Umsatzanteil:</Text>
-            <Text style={styles.value}>{formData.eCommercePercentage || "-"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Auslandsumsatz:</Text>
-            <Text style={styles.value}>{formData.foreignRevenuePercentage || "-"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Keine Tochtergesellschaften im Ausland:</Text>
-            <Text style={styles.value}>{formData.noForeignSubsidiaries || "-"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Kein abgelehnter Versicherungsantrag:</Text>
-            <Text style={styles.value}>{formData.noRejectedInsurance || "-"}</Text>
+          <View style={styles.sectionCard}>
+            <View style={styles.row}>
+              <Text style={styles.label}>Firma:</Text>
+              <Text style={styles.value}>{formData.companyName || "-"}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Adresse:</Text>
+              <Text style={styles.value}>{formData.address || "-"}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>PLZ / Ort:</Text>
+              <Text style={styles.value}>{formData.zip || "-"} {formData.city || "-"}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Website:</Text>
+              <Text style={styles.value}>{formData.website || "-"}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Branche:</Text>
+              <Text style={styles.value}>{formData.industry || "-"}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Anzahl Mitarbeitende:</Text>
+              <Text style={styles.value}>{formData.employees || "-"}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Brutto-Gesamtumsatz:</Text>
+              <Text style={styles.value}>CHF {formData.revenue?.toLocaleString("de-CH") || "-"}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>E-Commerce Umsatzanteil:</Text>
+              <Text style={styles.value}>{formData.eCommercePercentage || "-"}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Auslandsumsatz:</Text>
+              <Text style={styles.value}>{formData.foreignRevenuePercentage || "-"}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Keine Tochtergesellschaften im Ausland:</Text>
+              <Text style={styles.value}>{formData.noForeignSubsidiaries || "-"}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Kein abgelehnter Versicherungsantrag:</Text>
+              <Text style={styles.value}>{formData.noRejectedInsurance || "-"}</Text>
+            </View>
           </View>
         </View>
 
@@ -272,55 +296,56 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({
           })}
         </View>
 
-        <View style={styles.section}>
+        <View style={styles.sectionWithExtraMargin}>
           <Text style={styles.sectionTitle}>Versicherte Leistungen</Text>
-          
-          <View style={styles.row}>
-            <Text style={styles.label}>VS Eigenschäden:</Text>
-            <Text style={styles.value}>
-              {packageData 
-                ? `CHF ${packageData.eigenSchadenSum.toLocaleString("de-CH")}` 
-                : "-"}
-            </Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>VS Haftpflicht:</Text>
-            <Text style={styles.value}>
-              {packageData 
-                ? `CHF ${packageData.haftpflichtSum.toLocaleString("de-CH")}` 
-                : "-"}
-            </Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>VS Rechtsschutz:</Text>
-            <Text style={styles.value}>
-              {packageData 
-                ? `CHF ${packageData.rechtsschutzSum.toLocaleString("de-CH")}` 
-                : "CHF 50'000"}
-            </Text>
-          </View>
-          {packageData && packageData.crimeSum > 0 && (
+          <View style={styles.sectionCard}>
             <View style={styles.row}>
-              <Text style={styles.label}>VS Cyber Crime:</Text>
+              <Text style={styles.label}>VS Eigenschäden:</Text>
               <Text style={styles.value}>
-                CHF {packageData.crimeSum.toLocaleString("de-CH")}
+                {packageData 
+                  ? `CHF ${packageData.eigenSchadenSum.toLocaleString("de-CH")}` 
+                  : "-"}
               </Text>
             </View>
-          )}
-          <View style={styles.row}>
-            <Text style={styles.label}>Selbstbehalt:</Text>
-            <Text style={styles.value}>
-              {packageData 
-                ? `CHF ${packageData.deductible.toLocaleString("de-CH")}` 
-                : "-"}
-            </Text>
-          </View>
-          {packageData && packageData.waitingPeriod !== "n/a" && (
             <View style={styles.row}>
-              <Text style={styles.label}>Wartefrist Betriebsunterbruch:</Text>
-              <Text style={styles.value}>{packageData.waitingPeriod}</Text>
+              <Text style={styles.label}>VS Haftpflicht:</Text>
+              <Text style={styles.value}>
+                {packageData 
+                  ? `CHF ${packageData.haftpflichtSum.toLocaleString("de-CH")}` 
+                  : "-"}
+              </Text>
             </View>
-          )}
+            <View style={styles.row}>
+              <Text style={styles.label}>VS Rechtsschutz:</Text>
+              <Text style={styles.value}>
+                {packageData 
+                  ? `CHF ${packageData.rechtsschutzSum.toLocaleString("de-CH")}` 
+                  : "CHF 50'000"}
+              </Text>
+            </View>
+            {packageData && packageData.crimeSum > 0 && (
+              <View style={styles.row}>
+                <Text style={styles.label}>VS Cyber Crime:</Text>
+                <Text style={styles.value}>
+                  CHF {packageData.crimeSum.toLocaleString("de-CH")}
+                </Text>
+              </View>
+            )}
+            <View style={styles.row}>
+              <Text style={styles.label}>Selbstbehalt:</Text>
+              <Text style={styles.value}>
+                {packageData 
+                  ? `CHF ${packageData.deductible.toLocaleString("de-CH")}` 
+                  : "-"}
+              </Text>
+            </View>
+            {packageData && packageData.waitingPeriod !== "n/a" && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Wartefrist Betriebsunterbruch:</Text>
+                <Text style={styles.value}>{packageData.waitingPeriod}</Text>
+              </View>
+            )}
+          </View>
         </View>
 
         {/* Umsatz > 5 Mio. Fragen - direkt auf gleicher Seite */}
