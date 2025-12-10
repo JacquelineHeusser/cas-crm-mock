@@ -46,6 +46,33 @@ async function main() {
         employees: 15,
       },
     }),
+    // Zusätzliche Firmenkunden speziell für den Broker-User
+    prisma.company.create({
+      data: {
+        name: 'KMU Consulting AG',
+        address: 'Beraterweg 7',
+        zip: '9000',
+        city: 'St. Gallen',
+        country: 'CH',
+        url: 'https://kmu-consulting.ch',
+        industry: 'Unternehmensberatung',
+        revenue: 7500000n, // 75'000 CHF in Rappen
+        employees: 30,
+      },
+    }),
+    prisma.company.create({
+      data: {
+        name: 'Alpen Logistik GmbH',
+        address: 'Logistikpark 3',
+        zip: '6003',
+        city: 'Luzern',
+        country: 'CH',
+        url: 'https://alpenlogistik.ch',
+        industry: 'Logistik',
+        revenue: 12500000n, // 125'000 CHF in Rappen
+        employees: 80,
+      },
+    }),
   ]);
 
   // Test-Benutzer erstellen
@@ -218,6 +245,94 @@ async function main() {
         riskScore: RiskScore.E,
         riskScoreReason: 'Veraltete Systeme, keine Sicherheitsmassnahmen, mehrere Vorfälle',
         premium: 800000n, // 8'000 CHF
+      },
+    }),
+    // Zusätzliche Offerte für Broker-User bei KMU Consulting AG
+    prisma.quote.create({
+      data: {
+        quoteNumber: 'Z1-2024-004',
+        companyId: companies[3].id,
+        userId: users[2].id, // Broker
+        status: QuoteStatus.CALCULATED,
+        companyData: {
+          companyName: companies[3].name,
+          address: companies[3].address,
+          zip: companies[3].zip,
+          city: companies[3].city,
+          country: companies[3].country,
+          url: companies[3].url,
+        },
+        cyberRiskProfile: {
+          industry: 'Beratung',
+          noForeignSubsidiaries: 'Trifft zu',
+          noRejectedInsurance: 'Trifft zu',
+          employees: companies[3].employees,
+          revenue: 7500000,
+          eCommercePercentage: '1 - 25%',
+          foreignRevenuePercentage: '0%',
+        },
+        cyberSecurity: {
+          hadCyberIncidents: 'Nein',
+          personalDataCount: 'Bis 10\'000',
+          medicalDataCount: 'Keine',
+          creditCardDataCount: 'Keine oder durch einen externen Dienstleister verarbeitet',
+          hasEndOfLifeSystems: 'Nein',
+        },
+        coverage: {
+          package: 'OPTIMUM',
+          sumInsuredProperty: 'CHF 1\'000\'000',
+          sumInsuredLiability: 'CHF 1\'000\'000',
+          sumInsuredCyberCrime: 'CHF 150\'000',
+          deductible: 'CHF 2\'000',
+          waitingPeriod: '24h',
+        },
+        riskScore: RiskScore.B,
+        riskScoreReason: 'Solide IT-Sicherheitsmassnahmen, keine Vorfälle',
+        premium: 350000n, // 3'500 CHF
+      },
+    }),
+    // Zusätzliche Offerte für Broker-User bei Alpen Logistik GmbH
+    prisma.quote.create({
+      data: {
+        quoteNumber: 'Z1-2024-005',
+        companyId: companies[4].id,
+        userId: users[2].id, // Broker
+        status: QuoteStatus.APPROVED,
+        companyData: {
+          companyName: companies[4].name,
+          address: companies[4].address,
+          zip: companies[4].zip,
+          city: companies[4].city,
+          country: companies[4].country,
+          url: companies[4].url,
+        },
+        cyberRiskProfile: {
+          industry: 'Transport und Logistik',
+          noForeignSubsidiaries: 'Trifft zu',
+          noRejectedInsurance: 'Trifft zu',
+          employees: companies[4].employees,
+          revenue: 12500000,
+          eCommercePercentage: '1 - 25%',
+          foreignRevenuePercentage: '1 - 25%',
+        },
+        cyberSecurity: {
+          hadCyberIncidents: 'Nein',
+          personalDataCount: 'Bis 50\'000',
+          medicalDataCount: 'Keine',
+          creditCardDataCount: 'Nur von Mitarbeitenden',
+          hasEndOfLifeSystems: 'Nein',
+        },
+        coverage: {
+          package: 'OPTIMUM',
+          sumInsuredProperty: 'CHF 2\'000\'000',
+          sumInsuredLiability: 'CHF 2\'000\'000',
+          sumInsuredCyberCrime: 'CHF 200\'000',
+          deductible: 'CHF 5\'000',
+          waitingPeriod: '24h',
+        },
+        riskScore: RiskScore.B,
+        riskScoreReason: 'Gute Sicherheitsmassnahmen, sensible Daten in moderatem Umfang',
+        premium: 600000n, // 6'000 CHF
       },
     }),
   ]);

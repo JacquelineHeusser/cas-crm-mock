@@ -82,6 +82,13 @@ function getNavItems(role: UserRole) {
     { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 
+  const brokerItems = [
+    { href: '/dashboard', label: 'Home', icon: Home },
+    { href: '/broker-dashboard', label: 'Vermittler-Übersicht', icon: Home },
+    { href: '/broker-offerten', label: 'Meine Offerten', icon: Calculator },
+    { href: '/contact', label: 'Kontakt', icon: Phone },
+  ];
+
   const underwriterItems = [
     { href: '/dashboard', label: 'Home', icon: Home },
     { href: '/underwriting', label: 'Underwriting', icon: FileText },
@@ -89,5 +96,13 @@ function getNavItems(role: UserRole) {
     { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 
-  return role === UserRole.UNDERWRITER ? underwriterItems : customerItems;
+  if (role === UserRole.UNDERWRITER) {
+    return underwriterItems;
+  }
+
+  if (role === UserRole.BROKER) {
+    return brokerItems;
+  }
+
+  return customerItems;
 }
