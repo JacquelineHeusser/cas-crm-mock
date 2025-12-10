@@ -140,6 +140,7 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
                 <h3 className="text-lg font-medium text-[#1A1A1A]">Policendokumente</h3>
               </div>
               <div className="space-y-3">
+                {/* Versicherungspolice als PDF */}
                 <Link 
                   href={`/api/policies/${policy.id}/pdf`}
                   target="_blank"
@@ -154,21 +155,17 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
                       <p className="text-sm text-gray-600">Datum: {createdDate}</p>
                     </div>
                   </div>
-<<<<<<< Updated upstream
-                  <Download className="text-[#0032A0] hover:text-[#005A9C]" size={20} />
-                </Link>
-                <div className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between hover:shadow-md transition-shadow">
-=======
-                  <button className="text-[#0032A0] hover:text-[#005A9C]">
+                  <span className="text-[#0032A0] hover:text-[#005A9C] flex items-center">
                     <Download size={20} />
-                  </button>
-                </div>
+                  </span>
+                </Link>
+
+                {/* AVB als statische PDF */}
                 <Link
                   href="/Cyberversicherung%20AVB.pdf"
                   target="_blank"
                   className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between hover:shadow-md transition-shadow"
                 >
->>>>>>> Stashed changes
                   <div className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-[#0032A0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
