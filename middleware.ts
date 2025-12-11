@@ -7,13 +7,19 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { type CookieOptions } from '@supabase/ssr';
 
-// Lade Umgebungsvariablen direkt für die Middleware
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+// Lade Umgebungsvariablen aus der next.config.ts
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+// Diese Überprüfung erfolgt bereits in next.config.ts, aber zur Sicherheit hier nochmal
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabase URL und/oder Anon Key fehlen in den Umgebungsvariablen');
+  console.error('Fehler: Supabase URL oder Anon Key fehlen');
+  throw new Error('Konfigurationsfehler: Supabase-Zugangsdaten fehlen');
 }
+
+// TypeScript weiß jetzt, dass diese Werte nicht mehr undefined sind
+const SUPABASE_URL = supabaseUrl as string;
+const SUPABASE_ANON_KEY = supabaseAnonKey as string;
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -21,8 +27,8 @@ export async function middleware(request: NextRequest) {
   });
 
   const supabase = createServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
