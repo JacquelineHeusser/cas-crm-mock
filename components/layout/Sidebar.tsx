@@ -85,6 +85,7 @@ function getNavItems(role: UserRole) {
   // Broker und Underwriter haben gleiche Navigation
   const brokerUnderwriterItems = [
     { href: '/dashboard', label: 'Home', icon: Home },
+    { href: '/quotes/new', label: 'Neue Offerte', icon: Calculator },
     { href: '/broker-offerten', label: 'Alle Offerten', icon: Calculator },
     { href: '/broker-policen', label: 'Alle Policen', icon: FileText },
     { href: '/risikopruefungen', label: 'Risikoprüfungen', icon: AlertCircle },

@@ -25,6 +25,7 @@ import {
   type Coverage,
 } from '@/lib/validation/quote-schema';
 import { premiumSchema, PACKAGES } from '@/lib/validation/premium-schema';
+import BrokerSelectionStep from '@/components/quotes/BrokerSelectionStep';
 
 // Formular-Schritte
 const STEPS = [
@@ -48,6 +49,9 @@ export default function NewQuotePage() {
   const [riskScore, setRiskScore] = useState<string | null>(null);
   const [riskScoreReason, setRiskScoreReason] = useState<string | null>(null);
   const [underwritingCase, setUnderwritingCase] = useState<any>(null);
+  const [selectedBrokerId, setSelectedBrokerId] = useState<string | undefined>(undefined);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [showBrokerSelection, setShowBrokerSelection] = useState(false);
 
   // Aktuelles Schema basierend auf Step
   const currentSchema = STEPS[currentStep - 1].schema;
