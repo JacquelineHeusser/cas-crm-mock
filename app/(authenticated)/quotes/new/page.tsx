@@ -377,7 +377,7 @@ export default function NewQuotePage() {
           {currentStep === 4 && <Step4Premium register={register} errors={errors} formData={formData} />}
           {currentStep === 5 && <Step5Coverage register={register} errors={errors} formData={formData} />}
           {currentStep === 6 && <Step6Summary formData={formData} riskScore={riskScore} riskScoreReason={riskScoreReason} />}
-          {currentStep === 7 && <Step7Confirmation register={register} errors={errors} formData={formData} watch={watch} riskScore={riskScore} onGeneratePDF={handleGeneratePDF} onDirectContract={handleDirectContract} onCreateUnderwriting={createUnderwritingCase} quoteId={quoteId} underwritingCase={underwritingCase} />}
+          {currentStep === 7 && <Step7Confirmation register={register} errors={errors} formData={formData} watch={watch} riskScore={riskScore} onGeneratePDF={handleGeneratePDF} onDirectContract={handleDirectContract} onCreateUnderwriting={createUnderwritingCase} quoteId={quoteId} underwritingCase={underwritingCase} userRole={userRole} />}
 
           {/* Navigation Buttons - versteckt bei Step 7 (Bestätigung) */}
           {currentStep !== 7 && (
@@ -1973,7 +1973,7 @@ function Step6Summary({ formData, riskScore, riskScoreReason }: { formData: any;
 }
 
 // Step 7: Bestätigung
-function Step7Confirmation({ register, errors, formData, watch, riskScore, quoteId, onGeneratePDF, onDirectContract, onCreateUnderwriting, underwritingCase }: any) {
+function Step7Confirmation({ register, errors, formData, watch, riskScore, quoteId, onGeneratePDF, onDirectContract, onCreateUnderwriting, underwritingCase, userRole }: any) {
   const router = useRouter();
   const [showDirectContract, setShowDirectContract] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1984,6 +1984,10 @@ function Step7Confirmation({ register, errors, formData, watch, riskScore, quote
   const [customerResponse, setCustomerResponse] = useState('');
   const [isSubmittingResponse, setIsSubmittingResponse] = useState(false);
   const [responseSubmitted, setResponseSubmitted] = useState(false);
+  const [customerConsentConfirmed, setCustomerConsentConfirmed] = useState(false);
+  
+  // Prüfe ob User ein Broker/Underwriter ist
+  const isBrokerOrUnderwriter = userRole === 'BROKER' || userRole === 'UNDERWRITER' || userRole === 'MFU_TEAMLEITER' || userRole === 'HEAD_CYBER_UNDERWRITING';
   
   // Prüfe ob Direktabschluss möglich ist (nur bei Risk Score A oder B)
   const canDirectContract = riskScore === 'A' || riskScore === 'B';
@@ -2012,6 +2016,12 @@ function Step7Confirmation({ register, errors, formData, watch, riskScore, quote
   };
   
   const handleFinalizeContract = async () => {
+    // Prüfe Kundeneinverständnis für Broker/Underwriter
+    if (isBrokerOrUnderwriter && !customerConsentConfirmed) {
+      alert('Bitte bestätigen Sie, dass Sie das Einverständnis des Kunden eingeholt haben.');
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       const result = await onDirectContract(startDate);
@@ -2311,6 +2321,28 @@ function Step7Confirmation({ register, errors, formData, watch, riskScore, quote
                     CHF {PACKAGES[formData.package as keyof typeof PACKAGES].price.toLocaleString('de-CH')}
                   </span>
                 </div>
+              </div>
+            )}
+
+            {/* Kundeneinverständnis - nur für Broker/Underwriter */}
+            {isBrokerOrUnderwriter && (
+              <div className="border-2 border-yellow-300 bg-yellow-50 rounded-lg p-4">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={customerConsentConfirmed}
+                    onChange={(e) => setCustomerConsentConfirmed(e.target.checked)}
+                    className="mt-1 w-5 h-5 text-[#0032A0] border-gray-300 rounded focus:ring-[#0032A0]"
+                  />
+                  <div className="flex-1">
+                    <span className="text-sm font-medium text-yellow-900">
+                      Ich bestätige, dass ich das Einverständnis des Kunden für diesen Direktabschluss eingeholt habe.
+                    </span>
+                    <p className="text-xs text-yellow-700 mt-1">
+                      Als Vermittler sind Sie verpflichtet, vor Vertragsabschluss die ausdrückliche Zustimmung des Kunden einzuholen.
+                    </p>
+                  </div>
+                </label>
               </div>
             )}
 
