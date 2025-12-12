@@ -165,7 +165,7 @@ export default function NewQuotePage() {
               zip: dnbResult.company.zip,
               city: dnbResult.company.city,
               country: dnbResult.company.country ?? 'CH',
-              url: dnbResult.company.url ?? '',
+              url: '',
               industry: dnbResult.company.industryCode,
               employees: dnbResult.company.employeeCount,
               revenue: Number(dnbResult.company.annualRevenue) / 100,
