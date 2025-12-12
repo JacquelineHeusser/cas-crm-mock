@@ -84,6 +84,22 @@ async function main() {
         role: UserRole.UNDERWRITER,
       },
     }),
+    // MFU Teamleiter (kann Risk Score C freigeben)
+    prisma.user.create({
+      data: {
+        email: 'mfu.teamleiter@zurich.ch',
+        name: 'Thomas Müller',
+        role: UserRole.MFU_TEAMLEITER,
+      },
+    }),
+    // Head Cyber Underwriting (kann Risk Score D freigeben)
+    prisma.user.create({
+      data: {
+        email: 'head.cyber@zurich.ch',
+        name: 'Dr. Sarah Schmidt',
+        role: UserRole.HEAD_CYBER_UNDERWRITING,
+      },
+    }),
   ]);
 
   // Test-Offerten erstellen
@@ -132,13 +148,57 @@ async function main() {
         premium: 250000n, // 2'500 CHF
       },
     }),
-    // Offerte mit Score C (braucht Underwriting)
+    // Offerte mit Score B (direkter Abschluss)
     prisma.quote.create({
       data: {
         quoteNumber: 'Z1-2024-002',
         companyId: companies[1].id,
         userId: users[1].id,
-        status: QuoteStatus.CALCULATED,
+        status: QuoteStatus.APPROVED,
+        companyData: {
+          companyName: companies[1].name,
+          address: companies[1].address,
+          zip: companies[1].zip,
+          city: companies[1].city,
+          country: companies[1].country,
+          url: companies[1].url,
+        },
+        cyberRiskProfile: {
+          industry: 'Bauwesen',
+          noForeignSubsidiaries: 'Trifft zu',
+          noRejectedInsurance: 'Trifft zu',
+          employees: companies[1].employees,
+          revenue: 10000000,
+          eCommercePercentage: '0%',
+          foreignRevenuePercentage: '0%',
+        },
+        cyberSecurity: {
+          hadCyberIncidents: 'Nein',
+          personalDataCount: 'Bis 10\'000',
+          medicalDataCount: 'Keine',
+          creditCardDataCount: 'Keine oder durch einen externen Dienstleister verarbeitet',
+          hasEndOfLifeSystems: 'Nein',
+        },
+        coverage: {
+          package: 'OPTIMUM',
+          sumInsuredProperty: 'CHF 1\'000\'000',
+          sumInsuredLiability: 'CHF 1\'000\'000',
+          sumInsuredCyberCrime: 'CHF 100\'000',
+          deductible: 'CHF 1\'000',
+          waitingPeriod: '24h',
+        },
+        riskScore: RiskScore.B,
+        riskScoreReason: 'Gute IT-Sicherheit, solide Prozesse',
+        premium: 300000n, // 3'000 CHF
+      },
+    }),
+    // Offerte mit Score C (braucht MFU Teamleiter)
+    prisma.quote.create({
+      data: {
+        quoteNumber: 'Z1-2024-003',
+        companyId: companies[0].id,
+        userId: users[0].id,
+        status: QuoteStatus.PENDING_UNDERWRITING,
         companyData: {
           companyName: companies[1].name,
           address: companies[1].address,
@@ -172,14 +232,58 @@ async function main() {
           waitingPeriod: '48h',
         },
         riskScore: RiskScore.C,
-        riskScoreReason: 'Veraltete Systeme, früherer Vorfall',
+        riskScoreReason: 'Einige Schwachstellen, aber behebbar',
         premium: 400000n, // 4'000 CHF
       },
     }),
-    // Offerte mit Score E (sehr schlecht)
+    // Offerte mit Score D (braucht Head Cyber Underwriting)
     prisma.quote.create({
       data: {
-        quoteNumber: 'Z1-2024-003',
+        quoteNumber: 'Z1-2024-004',
+        companyId: companies[2].id,
+        userId: users[0].id,
+        status: QuoteStatus.PENDING_UNDERWRITING,
+        companyData: {
+          companyName: companies[2].name,
+          address: companies[2].address,
+          zip: companies[2].zip,
+          city: companies[2].city,
+          country: companies[2].country,
+          url: companies[2].url,
+        },
+        cyberRiskProfile: {
+          industry: 'Beratungs-, Wissenschafts- und technische Dienstleistungen',
+          noForeignSubsidiaries: 'Trifft zu',
+          noRejectedInsurance: 'Trifft zu',
+          employees: companies[2].employees,
+          revenue: 3000000,
+          eCommercePercentage: '0%',
+          foreignRevenuePercentage: '1 - 25%',
+        },
+        cyberSecurity: {
+          hadCyberIncidents: 'Ja',
+          personalDataCount: 'Bis 100\'000',
+          medicalDataCount: 'Keine',
+          creditCardDataCount: 'Nur von Mitarbeitenden',
+          hasEndOfLifeSystems: 'Ja',
+        },
+        coverage: {
+          package: 'BASIC',
+          sumInsuredProperty: 'CHF 250\'000',
+          sumInsuredLiability: 'CHF 500\'000',
+          sumInsuredCyberCrime: 'CHF 50\'000',
+          deductible: 'CHF 5\'000',
+          waitingPeriod: '48h',
+        },
+        riskScore: RiskScore.D,
+        riskScoreReason: 'Erhebliche Sicherheitsmängel, mehrere Risikofaktoren',
+        premium: 600000n, // 6'000 CHF
+      },
+    }),
+    // Offerte mit Score E (nicht versicherbar)
+    prisma.quote.create({
+      data: {
+        quoteNumber: 'Z1-2024-005',
         companyId: companies[2].id,
         userId: users[2].id,
         status: QuoteStatus.REJECTED,
@@ -222,25 +326,37 @@ async function main() {
     }),
   ]);
 
-  // Underwriting-Fälle für Score C und E
+  // Underwriting-Fälle für Score C, D und E
   await Promise.all([
+    // Score C - ausstehend, braucht MFU Teamleiter
     prisma.underwritingCase.create({
       data: {
-        quoteId: quotes[1].id,
-        underwriterId: users[3].id,
-        status: UnderwritingStatus.IN_REVIEW,
-        notes: 'Kunde muss MFA einführen und Backup-System installieren',
-        internalNotes: 'Risiko kann durch Massnahmen reduziert werden',
+        quoteId: quotes[2].id, // Score C
+        underwriterId: users[3].id, // Normaler Underwriter
+        status: UnderwritingStatus.PENDING,
+        notes: '',
+        internalNotes: 'Score C - benötigt Freigabe von MFU Teamleiter',
       },
     }),
+    // Score D - ausstehend, braucht Head Cyber Underwriting
     prisma.underwritingCase.create({
       data: {
-        quoteId: quotes[2].id,
+        quoteId: quotes[3].id, // Score D
+        underwriterId: users[3].id, // Normaler Underwriter
+        status: UnderwritingStatus.PENDING,
+        notes: '',
+        internalNotes: 'Score D - benötigt Freigabe von Head Cyber Underwriting',
+      },
+    }),
+    // Score E - nicht versicherbar
+    prisma.underwritingCase.create({
+      data: {
+        quoteId: quotes[4].id, // Score E
         underwriterId: users[3].id,
         status: UnderwritingStatus.REJECTED,
         decision: UnderwritingDecision.REJECT,
-        notes: 'Aktuell nicht versicherbar - grundlegende Sicherheitsmassnahmen fehlen',
-        internalNotes: 'Erst nach kompletter IT-Modernisierung prüfen',
+        notes: 'Aktuell nicht versicherbar - grundlegende Sicherheitsmassnahmen fehlen. Bitte kontaktieren Sie uns nach Verbesserung Ihrer IT-Sicherheit erneut.',
+        internalNotes: 'Score E - nicht versicherbar, erst nach kompletter IT-Modernisierung prüfen',
       },
     }),
   ]);

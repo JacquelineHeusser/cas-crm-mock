@@ -91,8 +91,11 @@ function getNavItems(role: UserRole) {
     { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 
-  // BROKER und UNDERWRITER bekommen die gleiche Navigation
-  if (role === UserRole.BROKER || role === UserRole.UNDERWRITER) {
+  // BROKER, UNDERWRITER, MFU_TEAMLEITER und HEAD_CYBER_UNDERWRITING bekommen die gleiche Navigation
+  if (role === UserRole.BROKER || 
+      role === UserRole.UNDERWRITER || 
+      role === UserRole.MFU_TEAMLEITER || 
+      role === UserRole.HEAD_CYBER_UNDERWRITING) {
     return brokerUnderwriterItems;
   }
 

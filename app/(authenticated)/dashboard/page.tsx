@@ -17,8 +17,8 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  // Broker und Underwriter sehen ALLE Offerten, Kunden nur ihre eigenen
-  const isBrokerOrUnderwriter = user.role === 'BROKER' || user.role === 'UNDERWRITER';
+  // Broker, Underwriter und Führungskräfte sehen ALLE Offerten, Kunden nur ihre eigenen
+  const isBrokerOrUnderwriter = user.role === 'BROKER' || user.role === 'UNDERWRITER' || user.role === 'MFU_TEAMLEITER' || user.role === 'HEAD_CYBER_UNDERWRITING';
   
   // Lade die letzten 3 Quotes (alle für Broker/Underwriter, nur eigene für Kunden)
   const recentQuotes = await prisma.quote.findMany({

@@ -7,20 +7,26 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, X, AlertCircle } from 'lucide-react';
+import { Check, X, AlertCircle, ShieldAlert } from 'lucide-react';
+import { canApproveRiskScore, getApprovalRequirementMessage } from '@/lib/underwriting-permissions';
+import { UserRole } from '@prisma/client';
 
 interface DecisionFormProps {
   underwritingCaseId: string;
   quoteId: string;
   currentStatus: string;
   notes?: string | null;
+  riskScore: string | null;
+  userRole: UserRole;
 }
 
 export default function UnderwritingDecisionForm({ 
   underwritingCaseId, 
   quoteId,
   currentStatus,
-  notes: initialNotes 
+  notes: initialNotes,
+  riskScore,
+  userRole
 }: DecisionFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -70,6 +76,11 @@ export default function UnderwritingDecisionForm({
   // Prüfe ob Formular editierbar ist (PENDING oder IN_REVIEW nach Kunden-Antwort)
   const isEditable = currentStatus === 'PENDING' || currentStatus === 'IN_REVIEW';
   
+  // Prüfe ob User berechtigt ist, diesen Risk Score zu genehmigen
+  const canApprove = canApproveRiskScore(userRole, riskScore);
+  const approvalMessage = getApprovalRequirementMessage(riskScore);
+  const isRiskScoreE = riskScore === 'E';
+  
   // Falls bereits final entschieden wurde
   if (!isEditable) {
     return (
@@ -95,6 +106,40 @@ export default function UnderwritingDecisionForm({
       <h2 className="text-lg font-medium text-[#0032A0] mb-6 border-b border-gray-200 pb-2">
         Entscheidung treffen
       </h2>
+
+      {/* Berechtigungswarnung für höhere Freigabestufen */}
+      {approvalMessage && (
+        <div className={`mb-6 p-4 rounded-lg border-2 ${
+          isRiskScoreE 
+            ? 'bg-red-50 border-red-200' 
+            : 'bg-yellow-50 border-yellow-200'
+        }`}>
+          <div className="flex items-start gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+              isRiskScoreE ? 'bg-red-500' : 'bg-yellow-500'
+            }`}>
+              <ShieldAlert className="text-white" size={20} />
+            </div>
+            <div className="flex-1">
+              <h3 className={`font-semibold mb-1 ${
+                isRiskScoreE ? 'text-red-900' : 'text-yellow-900'
+              }`}>
+                {isRiskScoreE ? 'Nicht versicherbar' : 'Höhere Freigabestufe erforderlich'}
+              </h3>
+              <p className={`text-sm ${
+                isRiskScoreE ? 'text-red-700' : 'text-yellow-700'
+              }`}>
+                {approvalMessage}
+              </p>
+              {isRiskScoreE && (
+                <p className="text-sm text-red-700 mt-2 font-medium">
+                  Sie können diese Offerte nur ablehnen und den Kunden informieren.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Kunden-Antwort anzeigen bei IN_REVIEW */}
       {currentStatus === 'IN_REVIEW' && initialNotes && (
@@ -126,12 +171,16 @@ export default function UnderwritingDecisionForm({
             {/* Genehmigen */}
             <button
               type="button"
-              onClick={() => setDecision('APPROVED')}
+              onClick={() => canApprove && setDecision('APPROVED')}
+              disabled={!canApprove}
               className={`p-4 rounded-lg border-2 transition-all ${
-                decision === 'APPROVED'
+                !canApprove
+                  ? 'border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed'
+                  : decision === 'APPROVED'
                   ? 'border-green-500 bg-green-50'
                   : 'border-gray-200 hover:border-green-300'
               }`}
+              title={!canApprove ? approvalMessage : ''}
             >
               <div className="flex flex-col items-center gap-2">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
@@ -144,6 +193,9 @@ export default function UnderwritingDecisionForm({
                 }`}>
                   Genehmigen
                 </span>
+                {!canApprove && (
+                  <span className="text-xs text-gray-500">Keine Berechtigung</span>
+                )}
               </div>
             </button>
 

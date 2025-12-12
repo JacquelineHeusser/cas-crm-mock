@@ -13,8 +13,8 @@ import UnderwritingDecisionForm from '@/components/underwriting/DecisionForm';
 export default async function RisikopruefungDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
 
-  // Nur Vermittler und Underwriter haben Zugriff
-  if (!user || (user.role !== 'BROKER' && user.role !== 'UNDERWRITER')) {
+  // Nur BROKER, UNDERWRITER und Führungskräfte haben Zugriff
+  if (!user || (user.role !== 'BROKER' && user.role !== 'UNDERWRITER' && user.role !== 'MFU_TEAMLEITER' && user.role !== 'HEAD_CYBER_UNDERWRITING')) {
     redirect('/dashboard');
   }
 
@@ -272,6 +272,8 @@ export default async function RisikopruefungDetailPage({ params }: { params: Pro
           quoteId={quote.id}
           currentStatus={underwritingCase.status}
           notes={underwritingCase.notes}
+          riskScore={quote.riskScore}
+          userRole={user.role}
         />
       </div>
     </div>

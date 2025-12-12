@@ -11,8 +11,8 @@ import BrokerPolicenClient from '@/components/broker/BrokerPolicenClient';
 export default async function BrokerPolicenPage() {
   const user = await getCurrentUser();
 
-  // Nur Vermittler und Underwriter haben Zugriff
-  if (!user || (user.role !== 'BROKER' && user.role !== 'UNDERWRITER')) {
+  // Nur Vermittler, Underwriter und Führungskräfte haben Zugriff
+  if (!user || (user.role !== 'BROKER' && user.role !== 'UNDERWRITER' && user.role !== 'MFU_TEAMLEITER' && user.role !== 'HEAD_CYBER_UNDERWRITING')) {
     redirect('/dashboard');
   }
 
