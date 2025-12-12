@@ -5,7 +5,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronRight, AlertCircle, Clock, Search, CheckCircle, XCircle } from 'lucide-react';
+import { ChevronRight, AlertCircle, Clock, Search, CheckCircle, XCircle, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 interface UnderwritingCase {
@@ -101,13 +101,22 @@ export default function RisikopruefungenClient({ userName, underwritingCases }: 
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-light text-[#1A1A1A] mb-2">
-            Guten Tag {firstName}
-          </h1>
-          <p className="text-gray-600 text-sm">
-            Risikoprüfungen für Cyber-Versicherungen
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-light text-[#1A1A1A] mb-2">
+              Guten Tag {firstName}
+            </h1>
+            <p className="text-gray-600 text-sm">
+              Risikoprüfungen für Cyber-Versicherungen
+            </p>
+          </div>
+          <Link 
+            href="/quotes/new"
+            className="flex items-center gap-2 px-6 py-3 bg-[#0032A0] text-white rounded-lg hover:bg-[#002080] transition-colors"
+          >
+            <FileText size={20} />
+            Neue Offerte
+          </Link>
         </div>
 
         {/* Statistiken */}

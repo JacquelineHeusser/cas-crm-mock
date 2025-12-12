@@ -191,9 +191,18 @@ export default function BrokerOffertenClient({ userName, quotes }: BrokerOfferte
 
         {/* Liste */}
         <div>
-          <h2 className="text-2xl font-light text-[#0032A0] mb-6">
-            Offerten ({filteredQuotes.length})
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-light text-[#0032A0]">
+              Offerten ({filteredQuotes.length})
+            </h2>
+            <Link 
+              href="/quotes/new"
+              className="flex items-center gap-2 px-6 py-3 bg-[#0032A0] text-white rounded-lg hover:bg-[#002080] transition-colors"
+            >
+              <FileText size={20} />
+              Neue Offerte
+            </Link>
+          </div>
 
           {filteredQuotes.length === 0 ? (
             <div className="bg-white rounded-lg shadow-sm p-12 text-center">
