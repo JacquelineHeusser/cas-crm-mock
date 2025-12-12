@@ -10,7 +10,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { saveQuoteStep, getUserId, getUserData, loadQuote, createPolicyFromQuote, createUnderwritingCase, submitCustomerResponse } from '@/app/actions/quote';
+import { getDnbCompany } from '@/app/actions/dnb';
 import { 
   companyDataSchema, 
   cyberRiskProfileSchema,
@@ -41,6 +43,7 @@ const STEPS = [
 export default function NewQuotePage() {
   const searchParams = useSearchParams();
   const editQuoteId = searchParams.get('edit');
+  const dnbId = searchParams.get('dnbId');
   
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<any>({});
@@ -151,13 +154,36 @@ export default function NewQuotePage() {
             setCurrentStep(lastStep);
           }
         }
+      } else if (dnbId) {
+        // Neue Offerte mit vorausgewählter DnB-Firma
+        try {
+          const dnbResult = await getDnbCompany(dnbId);
+          if (dnbResult?.success && dnbResult.company) {
+            const prefillData = {
+              companyName: dnbResult.company.name,
+              address: dnbResult.company.address,
+              zip: dnbResult.company.zip,
+              city: dnbResult.company.city,
+              country: dnbResult.company.country ?? 'CH',
+              url: dnbResult.company.url ?? '',
+              industry: dnbResult.company.industryCode,
+              employees: dnbResult.company.employeeCount,
+              revenue: Number(dnbResult.company.annualRevenue) / 100,
+            };
+
+            setFormData(prefillData);
+            reset(prefillData);
+          }
+        } catch (error) {
+          console.error('Fehler beim Laden der DnB-Firma:', error);
+        }
       }
       
       setIsLoading(false);
     };
     
     initialize();
-  }, [editQuoteId, reset]);
+  }, [editQuoteId, dnbId, reset]);
 
   // Nächster Schritt
   const onNext = async (data: any) => {
@@ -371,7 +397,13 @@ export default function NewQuotePage() {
       <div className="flex-1 p-12">
         <form onSubmit={handleSubmit(onNext)}>
           {/* Dynamischer Content */}
-          {currentStep === 1 && <Step1CompanyData register={register} errors={errors} />}
+          {currentStep === 1 && (
+            <Step1CompanyData
+              register={register}
+              errors={errors}
+              currentCompanyName={watch('companyName')}
+            />
+          )}
           {currentStep === 2 && <Step2CyberRiskProfile register={register} errors={errors} />}
           {currentStep === 3 && <Step3CyberSecurity register={register} errors={errors} watch={watch} formData={formData} />}
           {currentStep === 4 && <Step4Premium register={register} errors={errors} formData={formData} />}
@@ -441,18 +473,26 @@ function QuestionField({ question, children }: { question: string; children: Rea
 }
 
 // Step 1: Unternehmensdaten
-function Step1CompanyData({ register, errors }: any) {
+function Step1CompanyData({ register, errors, currentCompanyName }: any) {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Unternehmensdaten</h2>
       
       <QuestionField question="Versicherungsnehmer">
-        <input
-          type="text"
-          placeholder="Versicherungsnehmer*"
-          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
-          {...register('companyName')}
-        />
+        <div className="flex gap-3 items-center">
+          <input
+            type="text"
+            placeholder="Versicherungsnehmer*"
+            className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+            {...register('companyName')}
+          />
+          <Link
+            href={`/firmensuche${currentCompanyName ? `?q=${encodeURIComponent(currentCompanyName)}` : ''}`}
+            className="btn btn-outline btn-sm rounded-full whitespace-nowrap"
+          >
+            Firmensuche
+          </Link>
+        </div>
         {errors.companyName && (
           <p className="text-red-600 text-xs mt-2 ml-6">{errors.companyName.message}</p>
         )}

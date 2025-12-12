@@ -22,12 +22,18 @@ export async function getCurrentUser() {
   }
 
   // User-Daten aus Datenbank holen (inkl. Rolle)
-  const dbUser = await prisma.user.findUnique({
-    where: { email: authUser.email! },
-    include: {
-      company: true,
-    },
-  });
+  let dbUser = null;
+  try {
+    dbUser = await prisma.user.findUnique({
+      where: { email: authUser.email! },
+      include: {
+        company: true,
+      },
+    });
+  } catch (err) {
+    console.error('Fehler beim Laden des DB-Users in getCurrentUser:', err);
+    dbUser = null;
+  }
 
   if (!dbUser) {
     return null;

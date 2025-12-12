@@ -156,10 +156,17 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
                       <p className="text-sm text-gray-600">Datum: {createdDate}</p>
                     </div>
                   </div>
+<<<<<<< Updated upstream
                   <Download className="text-[#0032A0] hover:text-[#005A9C]" size={20} />
                 </a>
 
                 {/* AVB als statische PDF */}
+=======
+                  <button className="text-[#0032A0] hover:text-[#005A9C]">
+                    <Download size={20} />
+                  </button>
+                </div>
+>>>>>>> Stashed changes
                 <Link
                   href="/Cyberversicherung%20AVB.pdf"
                   target="_blank"

@@ -48,6 +48,36 @@ async function main() {
     }),
   ]);
 
+  // D&B-ähnliche Mockup-Firmen (für Firmensuche)
+  const dnbCompaniesData = Array.from({ length: 100 }).map((_, index) => {
+    const i = index + 1;
+    const dunsNumber = `76-00${(100000 + i).toString()}`; // einfache DUNS-ähnliche Nummer
+
+    // Ein paar Beispiel-Branchen und Städte rotieren
+    const industries = ['IT-Dienstleistungen', 'Baugewerbe', 'Rechtsberatung', 'Finanzdienstleistungen', 'Industrie', 'Gesundheitswesen'];
+    const cities = ['Zürich', 'Basel', 'Bern', 'Genf', 'Lausanne', 'St. Gallen'];
+    const zips = ['8000', '4000', '3000', '1200', '1000', '9000'];
+    const industryCode = ['6201', '4120', '6910', '6419', '2511', '8621'][index % 6];
+
+    const cityIndex = index % cities.length;
+
+    return {
+      dunsNumber,
+      name: `Demo Firma ${i} AG`,
+      address: `Musterstrasse ${((i - 1) % 50) + 1}`,
+      zip: zips[cityIndex],
+      city: cities[cityIndex],
+      country: 'CH',
+      industryCode,
+      employeeCount: 5 + (i % 250),
+      annualRevenue: BigInt(100_000_00 + i * 50_000_00), // ab ca. 1 Mio. CHF in Rappen
+      riskRating: (i % 5) + 1,
+    };
+  });
+
+  await prisma.dnbCompany.createMany({ data: dnbCompaniesData });
+  console.log(`Created ${dnbCompaniesData.length} DnB mock companies`);
+
   // Test-Vermittler erstellen
   const brokers = await Promise.all([
     prisma.broker.create({

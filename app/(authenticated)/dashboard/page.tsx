@@ -160,7 +160,7 @@ export default async function DashboardPage() {
   return (
     <div className="max-w-5xl mx-auto p-8">
       {/* Header mit Begrüssung und Button */}
-      <div className="flex justify-between items-start mb-6">
+      <div className="flex justify-between items-start mb-4">
         <div>
           <h1 className="text-3xl font-light text-[#1A1A1A]">
             Guten Tag {firstName}
@@ -176,6 +176,19 @@ export default async function DashboardPage() {
             </button>
           </Link>
         )}
+      </div>
+
+      {/* User-Info Box zum schnellen Testen der Rollen */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4 flex flex-wrap items-center justify-between gap-3 text-sm">
+        <div className="flex items-center gap-2 text-gray-700">
+          <Info className="text-[#0032A0]" size={18} />
+          <div className="space-y-0.5">
+            <p>
+              Eingeloggt als <span className="font-medium">{user.name}</span> ({user.email})
+            </p>
+            <p className="text-xs text-gray-500">Rolle: <span className="font-medium">{user.role}</span></p>
+          </div>
+        </div>
       </div>
 
       {/* Info Box */}

@@ -159,13 +159,32 @@ model Policy {
   @@map("policies")
 }
 
+// Dun & Bradstreet Mock-Unternehmen
+model DnbCompany {
+  id             String   @id @default(cuid())
+  dunsNumber     String   @unique // D&B-ähnliche Identifikationsnummer
+  name           String
+  address        String
+  zip            String
+  city           String
+  country        String   @default("CH")
+  industryCode   String   // z. B. NOGA/NAICS Code
+  employeeCount  Int
+  annualRevenue  BigInt   // Jahresumsatz in Rappen
+  riskRating     Int      // 1 (sehr gut) bis 5 (sehr schlecht)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("dnb_companies")
+}
+
 // Enums
 enum UserRole {
   CUSTOMER
   BROKER
   UNDERWRITER
-  MFU_TEAMLEITER           // Kann Risk Score C freigeben
-  HEAD_CYBER_UNDERWRITING  // Kann Risk Score D freigeben
+  MFU_TEAMLEITER
+  HEAD_CYBER_UNDERWRITING
 }
 
 enum QuoteStatus {
