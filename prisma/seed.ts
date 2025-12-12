@@ -48,6 +48,57 @@ async function main() {
     }),
   ]);
 
+  // Test-Vermittler erstellen
+  const brokers = await Promise.all([
+    prisma.broker.create({
+      data: {
+        name: 'Maria Schneider',
+        company: 'SwissQuality Versicherungsmakler AG',
+        location: 'Zürich',
+        email: 'maria.schneider@swissquality.ch',
+        phone: '+41 44 123 45 67',
+      },
+    }),
+    prisma.broker.create({
+      data: {
+        name: 'Thomas Weber',
+        company: 'Alpen Versicherungen GmbH',
+        location: 'Bern',
+        email: 'thomas.weber@alpen-vers.ch',
+        phone: '+41 31 987 65 43',
+      },
+    }),
+    prisma.broker.create({
+      data: {
+        name: 'Sandra Keller',
+        company: 'Basel Insurance Brokers',
+        location: 'Basel',
+        email: 'sandra.keller@basel-insurance.ch',
+        phone: '+41 61 555 12 34',
+      },
+    }),
+    prisma.broker.create({
+      data: {
+        name: 'Marc Lindemann',
+        company: 'Romandie Assurances SA',
+        location: 'Genf',
+        email: 'marc.lindemann@romandie-assur.ch',
+        phone: '+41 22 789 01 23',
+      },
+    }),
+    prisma.broker.create({
+      data: {
+        name: 'Julia Meier',
+        company: 'Zürich Versicherungsberatung',
+        location: 'Winterthur',
+        email: 'julia.meier@zh-versicherung.ch',
+        phone: '+41 52 345 67 89',
+      },
+    }),
+  ]);
+
+  console.log(`Created ${brokers.length} test brokers`);
+
   // Test-Benutzer erstellen
   const users = await Promise.all([
     // Firmenkunden

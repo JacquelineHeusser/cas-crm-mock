@@ -56,12 +56,30 @@ model Company {
   @@map("companies")
 }
 
+// Versicherungsvermittler
+model Broker {
+  id        String   @id @default(cuid())
+  name      String   // Name des Vermittlers
+  company   String   // Vermittlerfirma
+  location  String   // Standort
+  email     String?  // Optionale E-Mail
+  phone     String?  // Optionale Telefonnummer
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Beziehungen
+  quotes Quote[]
+
+  @@map("brokers")
+}
+
 // Versicherungs-Offerten
 model Quote {
   id          String      @id @default(cuid())
   quoteNumber String      @unique
   companyId   String?     // Optional während Erfassung
   userId      String      // Erstellt von
+  brokerId    String?     // Vermittler (falls durch Broker/Underwriter erstellt)
   status      QuoteStatus @default(DRAFT)
   
   // Formulardaten (JSON für Flexibilität)
@@ -84,6 +102,7 @@ model Quote {
   // Beziehungen
   company Company? @relation(fields: [companyId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
+  broker  Broker?  @relation(fields: [brokerId], references: [id])
   underwritingCase UnderwritingCase?
   policy  Policy?
 
