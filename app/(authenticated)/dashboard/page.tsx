@@ -23,7 +23,10 @@ export default async function DashboardPage() {
   // Lade die letzten 3 Quotes (alle für Broker/Underwriter, nur eigene für Kunden)
   const recentQuotes = await prisma.quote.findMany({
     where: isBrokerOrUnderwriter ? {} : {
-      userId: user.id,
+      OR: [
+        { userId: user.id },        // Selbst erstellt
+        { customerId: user.id },    // Für den User erstellt (von Broker)
+      ],
     },
     orderBy: {
       updatedAt: 'desc',
@@ -31,6 +34,7 @@ export default async function DashboardPage() {
     take: 3, // Nur die letzten 3
     include: {
       company: true,
+      broker: true,  // Inkludiere Broker-Info
       user: {
         select: {
           name: true,

@@ -18,15 +18,20 @@ export default async function OffertenPage() {
   }
 
   // Lade alle Quotes des Users aus der Datenbank
+  // Inkl. Offerten die für den User erstellt wurden (customerId)
   const quotes = await prisma.quote.findMany({
     where: {
-      userId: user.id,
+      OR: [
+        { userId: user.id },        // Selbst erstellt
+        { customerId: user.id },    // Für den User erstellt (von Broker)
+      ],
     },
     orderBy: {
       updatedAt: 'desc',
     },
     include: {
       company: true,
+      broker: true,  // Inkludiere Broker-Info
     },
   });
 

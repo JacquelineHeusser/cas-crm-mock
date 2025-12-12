@@ -375,6 +375,52 @@ async function main() {
         premium: 800000n, // 8'000 CHF
       },
     }),
+    // Broker-Offerte für Swiss Tech (Score B - vom Broker erstellt)
+    prisma.quote.create({
+      data: {
+        quoteNumber: 'Z1-2024-006',
+        companyId: companies[0].id,
+        userId: users[2].id,        // Broker hat erstellt
+        customerId: users[0].id,    // Für SwissTech-Kunde (Hans Meier)
+        brokerId: brokers[0].id,    // Maria Schneider
+        status: QuoteStatus.APPROVED,
+        companyData: {
+          companyName: companies[0].name,
+          address: companies[0].address,
+          zip: companies[0].zip,
+          city: companies[0].city,
+          country: companies[0].country,
+          url: companies[0].url,
+        },
+        cyberRiskProfile: {
+          industry: 'Information',
+          noForeignSubsidiaries: 'Trifft zu',
+          noRejectedInsurance: 'Trifft zu',
+          employees: companies[0].employees,
+          revenue: 5000000,
+          eCommercePercentage: '1 - 25%',
+          foreignRevenuePercentage: '0%',
+        },
+        cyberSecurity: {
+          hadCyberIncidents: 'Nein',
+          personalDataCount: 'Bis 10\'000',
+          medicalDataCount: 'Keine',
+          creditCardDataCount: 'Keine oder durch einen externen Dienstleister verarbeitet',
+          hasEndOfLifeSystems: 'Nein',
+        },
+        coverage: {
+          package: 'PREMIUM',
+          sumInsuredProperty: 'CHF 2\'000\'000',
+          sumInsuredLiability: 'CHF 2\'000\'000',
+          sumInsuredCyberCrime: 'CHF 250\'000',
+          deductible: 'CHF 500',
+          waitingPeriod: '12h',
+        },
+        riskScore: RiskScore.B,
+        riskScoreReason: 'Gute IT-Sicherheit, professionelle Beratung durch Vermittler',
+        premium: 350000n, // 3'500 CHF
+      },
+    }),
   ]);
 
   // Underwriting-Fälle für Score C, D und E
