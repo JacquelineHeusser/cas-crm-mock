@@ -17,9 +17,12 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  // Lade die letzten 3 Quotes des Users
+  // Broker und Underwriter sehen ALLE Offerten, Kunden nur ihre eigenen
+  const isBrokerOrUnderwriter = user.role === 'BROKER' || user.role === 'UNDERWRITER';
+  
+  // Lade die letzten 3 Quotes (alle für Broker/Underwriter, nur eigene für Kunden)
   const recentQuotes = await prisma.quote.findMany({
-    where: {
+    where: isBrokerOrUnderwriter ? {} : {
       userId: user.id,
     },
     orderBy: {
@@ -28,12 +31,18 @@ export default async function DashboardPage() {
     take: 3, // Nur die letzten 3
     include: {
       company: true,
+      user: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
     },
   });
 
-  // Lade die letzten 3 Policen des Users
+  // Lade die letzten 3 Policen (alle für Broker/Underwriter, nur eigene für Kunden)
   const recentPolicies = await prisma.policy.findMany({
-    where: {
+    where: isBrokerOrUnderwriter ? {} : {
       userId: user.id,
     },
     orderBy: {
@@ -42,6 +51,12 @@ export default async function DashboardPage() {
     take: 3, // Nur die letzten 3
     include: {
       company: true,
+      user: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
     },
   });
 
@@ -131,13 +146,18 @@ export default async function DashboardPage() {
         <ChevronRight className="text-[#0032A0]" size={20} />
       </div>
 
-      {/* Meine Policen Section */}
-      {user.role === 'CUSTOMER' && (
+      {/* Policen Section */}
+      {(user.role === 'CUSTOMER' || isBrokerOrUnderwriter) && (
         <div className="mb-8">
           <div className="mb-4 flex justify-between items-center">
-            <h2 className="text-xl font-light text-[#1A1A1A]">Meine Policen</h2>
+            <h2 className="text-xl font-light text-[#1A1A1A]">
+              {isBrokerOrUnderwriter ? 'Aktuelle Policen' : 'Meine Policen'}
+            </h2>
             {recentPolicies.length > 0 && (
-              <Link href="/policen" className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline">
+              <Link 
+                href={isBrokerOrUnderwriter ? "/broker-policen" : "/policen"} 
+                className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline"
+              >
                 Alle anzeigen
                 <ChevronRight size={16} />
               </Link>
@@ -178,6 +198,9 @@ export default async function DashboardPage() {
                           {companyName} - Cyberversicherung
                         </h3>
                         <div className="flex gap-6 text-sm text-gray-600">
+                          {isBrokerOrUnderwriter && policy.user && (
+                            <span>Kunde: {policy.user.name}</span>
+                          )}
                           <span>Policennummer {policy.policyNumber}</span>
                           <span>Gültig ab {startDate}</span>
                         </div>
@@ -203,13 +226,18 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Meine Offerten Section */}
-      {user.role === 'CUSTOMER' && (
+      {/* Offerten Section */}
+      {(user.role === 'CUSTOMER' || isBrokerOrUnderwriter) && (
         <div className="mb-8">
           <div className="mb-4 flex justify-between items-center">
-            <h2 className="text-xl font-light text-[#1A1A1A]">Meine Offerten</h2>
+            <h2 className="text-xl font-light text-[#1A1A1A]">
+              {isBrokerOrUnderwriter ? 'Aktuelle Offerten' : 'Meine Offerten'}
+            </h2>
             {recentQuotes.length > 0 && (
-              <Link href="/offerten" className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline">
+              <Link 
+                href={isBrokerOrUnderwriter ? "/broker-offerten" : "/offerten"} 
+                className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline"
+              >
                 Alle anzeigen
                 <ChevronRight size={16} />
               </Link>
@@ -249,6 +277,9 @@ export default async function DashboardPage() {
                           {companyName} - Cyberversicherung
                         </h3>
                         <div className="flex gap-6 text-sm text-gray-600">
+                          {isBrokerOrUnderwriter && quote.user && (
+                            <span>Kunde: {quote.user.name}</span>
+                          )}
                           <span>Erstellt am {createdDate}</span>
                           <span>Offerte #{quote.quoteNumber}</span>
                         </div>
