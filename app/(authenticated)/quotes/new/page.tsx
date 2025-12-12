@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { saveQuoteStep, getUserId, loadQuote, createPolicyFromQuote, createUnderwritingCase, submitCustomerResponse } from '@/app/actions/quote';
+import { saveQuoteStep, getUserId, getUserData, loadQuote, createPolicyFromQuote, createUnderwritingCase, submitCustomerResponse } from '@/app/actions/quote';
 import { 
   companyDataSchema, 
   cyberRiskProfileSchema,
@@ -101,14 +101,19 @@ export default function NewQuotePage() {
   // Beim Mounting: Prüfe ob User eingeloggt ist und lade ggf. existierende Quote
   useEffect(() => {
     const initialize = async () => {
-      // Hole User ID aus Session (Server Action)
-      const { success, userId } = await getUserId();
+      // Hole User-Daten aus Session (Server Action)
+      const { success, userId, role } = await getUserData();
       
       if (!success || !userId) {
         // Nicht eingeloggt - redirect zu Login
         window.location.href = '/login';
         return;
       }
+      
+      // Setze Rolle und prüfe ob Broker-Auswahl nötig ist
+      setUserRole(role);
+      const needsBrokerSelection = role === 'BROKER' || role === 'UNDERWRITER' || role === 'MFU_TEAMLEITER' || role === 'HEAD_CYBER_UNDERWRITING';
+      setShowBrokerSelection(needsBrokerSelection && !editQuoteId); // Nur bei neuen Offerten
       
       // Wenn Quote-ID vorhanden, lade existierende Quote
       if (editQuoteId) {
@@ -181,6 +186,7 @@ export default function NewQuotePage() {
       const result = await saveQuoteStep({
         quoteId,
         userId,
+        ...(selectedBrokerId ? { brokerId: selectedBrokerId } : {}),
         step: stepName,
         stepData: data,
       });
@@ -272,6 +278,20 @@ export default function NewQuotePage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-[#0032A0]">Lade Offertdaten...</div>
+      </div>
+    );
+  }
+
+  // Broker-Auswahl (nur für Broker/Underwriter, vor dem eigentlichen Flow)
+  if (showBrokerSelection && !selectedBrokerId) {
+    return (
+      <div className="flex-1 p-8">
+        <BrokerSelectionStep
+          onSelect={(brokerId) => setSelectedBrokerId(brokerId)}
+          selectedBrokerId={selectedBrokerId}
+          onNext={() => setShowBrokerSelection(false)}
+          onPrevious={() => window.location.href = '/dashboard'}
+        />
       </div>
     );
   }

@@ -21,15 +21,40 @@ export async function getUserId() {
   }
 }
 
+// Hole User-Daten (ID und Rolle) aus Session
+export async function getUserData() {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) {
+      return { success: false, userId: null, role: null };
+    }
+    
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, role: true },
+    });
+    
+    if (!user) {
+      return { success: false, userId: null, role: null };
+    }
+    
+    return { success: true, userId: user.id, role: user.role };
+  } catch (error) {
+    console.error('Error getting user data:', error);
+    return { success: false, userId: null, role: null };
+  }
+}
+
 // Quote erstellen oder updaten
 export async function saveQuoteStep(data: {
   quoteId?: string;
   userId: string;
+  brokerId?: string;
   step: 'companyData' | 'cyberRiskProfile' | 'cyberSecurity' | 'coverage';
   stepData: any;
 }) {
   try {
-    const { quoteId, userId, step, stepData } = data;
+    const { quoteId, userId, brokerId, step, stepData } = data;
 
     // Wenn Quote ID existiert: Update
     if (quoteId) {
@@ -61,6 +86,7 @@ export async function saveQuoteStep(data: {
         data: {
           [step]: stepData,
           ...riskScoreData,
+          ...(brokerId ? { brokerId } : {}),
           updatedAt: new Date(),
         },
       });
@@ -93,6 +119,7 @@ export async function saveQuoteStep(data: {
       data: {
         quoteNumber,
         userId,
+        ...(brokerId ? { brokerId } : {}),
         status: 'DRAFT',
         [step]: stepData,
       },
