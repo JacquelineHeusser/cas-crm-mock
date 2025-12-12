@@ -82,12 +82,19 @@ function getNavItems(role: UserRole) {
     { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 
-  const underwriterItems = [
+  // Broker und Underwriter haben gleiche Navigation
+  const brokerUnderwriterItems = [
     { href: '/dashboard', label: 'Home', icon: Home },
-    { href: '/underwriting', label: 'Underwriting', icon: FileText },
-    { href: '/quotes', label: 'Alle Offerten', icon: FileText },
+    { href: '/broker-offerten', label: 'Alle Offerten', icon: Calculator },
+    { href: '/broker-policen', label: 'Alle Policen', icon: FileText },
+    { href: '/risikopruefungen', label: 'Risikoprüfungen', icon: AlertCircle },
     { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 
-  return role === UserRole.UNDERWRITER ? underwriterItems : customerItems;
+  // BROKER und UNDERWRITER bekommen die gleiche Navigation
+  if (role === UserRole.BROKER || role === UserRole.UNDERWRITER) {
+    return brokerUnderwriterItems;
+  }
+
+  return customerItems;
 }
