@@ -141,10 +141,11 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
               </div>
               <div className="space-y-3">
                 {/* Versicherungspolice als PDF */}
-                <Link 
+                <a 
                   href={`/api/policies/${policy.id}/pdf`}
                   target="_blank"
-                  className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between hover:shadow-md transition-shadow"
+                  rel="noopener noreferrer"
+                  className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-[#0032A0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,10 +156,8 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
                       <p className="text-sm text-gray-600">Datum: {createdDate}</p>
                     </div>
                   </div>
-                  <span className="text-[#0032A0] hover:text-[#005A9C] flex items-center">
-                    <Download size={20} />
-                  </span>
-                </Link>
+                  <Download className="text-[#0032A0] hover:text-[#005A9C]" size={20} />
+                </a>
 
                 {/* AVB als statische PDF */}
                 <Link

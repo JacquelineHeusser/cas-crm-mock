@@ -1,6 +1,6 @@
 /**
- * Risikoprüfung Detail - Einzelne Underwriting Case
- * Vermittler können hier die Offerte prüfen und entscheiden
+ * Risikopruefung Detail - Einzelne Underwriting Case
+ * Vermittler und Underwriter können hier die Offerte prüfen und entscheiden
  */
 
 import { getCurrentUser } from '@/lib/auth';
@@ -13,8 +13,8 @@ import UnderwritingDecisionForm from '@/components/underwriting/DecisionForm';
 export default async function RisikopruefungDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
 
-  // Nur Vermittler haben Zugriff
-  if (!user || user.role !== 'BROKER') {
+  // Nur Vermittler und Underwriter haben Zugriff
+  if (!user || (user.role !== 'BROKER' && user.role !== 'UNDERWRITER')) {
     redirect('/dashboard');
   }
 

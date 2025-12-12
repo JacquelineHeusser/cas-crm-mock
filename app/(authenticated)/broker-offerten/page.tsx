@@ -1,5 +1,5 @@
 /**
- * Alle Offerten - Nur für Vermittler (BROKER)
+ * Alle Offerten - Für Vermittler (BROKER) und Underwriter (UNDERWRITER)
  * Übersicht aller Offerten mit Suchfunktion
  */
 
@@ -11,8 +11,8 @@ import BrokerOffertenClient from '@/components/broker/BrokerOffertenClient';
 export default async function BrokerOffertenPage() {
   const user = await getCurrentUser();
 
-  // Nur Vermittler haben Zugriff
-  if (!user || user.role !== 'BROKER') {
+  // Nur Vermittler und Underwriter haben Zugriff
+  if (!user || (user.role !== 'BROKER' && user.role !== 'UNDERWRITER')) {
     redirect('/dashboard');
   }
 

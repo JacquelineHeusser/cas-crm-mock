@@ -1,5 +1,5 @@
 /**
- * Risikoprüfungen - Nur für Vermittler (BROKER)
+ * Risikopruefungen - Für Vermittler (BROKER) und Underwriter (UNDERWRITER)
  * Übersicht aller offenen und abgeschlossenen Underwriting Cases mit Suchfunktion
  */
 
@@ -11,8 +11,8 @@ import RisikopruefungenClient from '@/components/broker/RisikopruefungenClient';
 export default async function RisikopruefungenPage() {
   const user = await getCurrentUser();
 
-  // Nur Vermittler haben Zugriff
-  if (!user || user.role !== 'BROKER') {
+  // Nur Vermittler und Underwriter haben Zugriff
+  if (!user || (user.role !== 'BROKER' && user.role !== 'UNDERWRITER')) {
     redirect('/dashboard');
   }
 
