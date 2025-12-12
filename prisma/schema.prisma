@@ -26,7 +26,8 @@ model User {
 
   // Beziehungen
   company     Company?           @relation(fields: [companyId], references: [id])
-  quotes      Quote[]
+  quotes      Quote[]            @relation("QuoteCreator")
+  customerQuotes Quote[]         @relation("QuoteCustomer")
   policies    Policy[]
   underwritingCases UnderwritingCase[]
 
@@ -78,7 +79,8 @@ model Quote {
   id          String      @id @default(cuid())
   quoteNumber String      @unique
   companyId   String?     // Optional während Erfassung
-  userId      String      // Erstellt von
+  userId      String      // Erstellt von (Kunde oder Broker)
+  customerId  String?     // Versicherungsnehmer (bei Broker-Offerten)
   brokerId    String?     // Vermittler (falls durch Broker/Underwriter erstellt)
   status      QuoteStatus @default(DRAFT)
   
@@ -101,7 +103,8 @@ model Quote {
 
   // Beziehungen
   company Company? @relation(fields: [companyId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
+  user    User    @relation("QuoteCreator", fields: [userId], references: [id])
+  customer User?  @relation("QuoteCustomer", fields: [customerId], references: [id])
   broker  Broker?  @relation(fields: [brokerId], references: [id])
   underwritingCase UnderwritingCase?
   policy  Policy?
