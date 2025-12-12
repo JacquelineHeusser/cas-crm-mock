@@ -256,7 +256,7 @@ export default function BrokerOffertenClient({ userName, quotes }: BrokerOfferte
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className={`px-4 py-1.5 text-sm font-medium rounded-full ${statusBadge.class}`}>
+                        <span className={`px-4 py-1.5 text-sm font-medium rounded-full text-center min-w-[200px] ${statusBadge.class}`}>
                           {statusBadge.label}
                         </span>
                         <ChevronRight className="text-gray-400" size={32} />

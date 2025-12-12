@@ -244,7 +244,7 @@ export default async function DashboardPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 text-xs font-medium rounded-full ${statusBadge.class}`}>
+                        <span className={`px-3 py-1 text-xs font-medium rounded-full text-center min-w-[140px] ${statusBadge.class}`}>
                           {statusBadge.label}
                         </span>
                         <ChevronRight className="text-gray-400" size={20} />
@@ -324,7 +324,7 @@ export default async function DashboardPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 text-xs font-medium rounded-full ${statusBadge.class}`}>
+                        <span className={`px-3 py-1 text-xs font-medium rounded-full text-center min-w-[140px] ${statusBadge.class}`}>
                           {statusBadge.label}
                         </span>
                         <ChevronRight className="text-gray-400" size={20} />
@@ -405,7 +405,7 @@ export default async function DashboardPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 text-xs font-medium rounded-full ${statusBadge.class}`}>
+                        <span className={`px-3 py-1 text-xs font-medium rounded-full text-center min-w-[140px] ${statusBadge.class}`}>
                           {statusBadge.label}
                         </span>
                         <ChevronRight className="text-gray-400" size={20} />
