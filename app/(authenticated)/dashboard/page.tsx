@@ -60,6 +60,27 @@ export default async function DashboardPage() {
     },
   });
 
+  // Lade die letzten 3 Underwriting Cases für Broker/Underwriter
+  const recentUnderwritingCases = isBrokerOrUnderwriter ? await prisma.underwritingCase.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: 3,
+    include: {
+      quote: {
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+          company: true,
+        },
+      },
+    },
+  }) : [];
+
   // Extrahiere Vornamen
   const firstName = user.name.split(' ')[0];
   
@@ -114,6 +135,24 @@ export default async function DashboardPage() {
     }
   };
 
+  // Status Badge Farben für Underwriting Cases
+  const getUnderwritingStatusBadge = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return { label: 'Ausstehend', class: 'bg-yellow-100 text-yellow-700' };
+      case 'IN_REVIEW':
+        return { label: 'In Prüfung', class: 'bg-blue-100 text-blue-700' };
+      case 'APPROVED':
+        return { label: 'Genehmigt', class: 'bg-green-100 text-green-700' };
+      case 'REJECTED':
+        return { label: 'Abgelehnt', class: 'bg-red-100 text-red-700' };
+      case 'INFO_REQUESTED':
+        return { label: 'Info benötigt', class: 'bg-orange-100 text-orange-700' };
+      default:
+        return { label: status, class: 'bg-gray-100 text-gray-700' };
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-8">
       {/* Header mit Begrüssung und Button */}
@@ -145,6 +184,79 @@ export default async function DashboardPage() {
         </div>
         <ChevronRight className="text-[#0032A0]" size={20} />
       </div>
+
+      {/* Risikoprüfungen Section - Höchste Priorität für Broker/Underwriter */}
+      {isBrokerOrUnderwriter && (
+        <div className="mb-8">
+          <div className="mb-4 flex justify-between items-center">
+            <h2 className="text-xl font-light text-[#1A1A1A]">
+              Risikoprüfungen
+            </h2>
+            {recentUnderwritingCases.length > 0 && (
+              <Link 
+                href="/risikopruefungen" 
+                className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline"
+              >
+                Alle anzeigen
+                <ChevronRight size={16} />
+              </Link>
+            )}
+          </div>
+
+          {/* Underwriting Cases Cards */}
+          <div className="space-y-3">
+            {recentUnderwritingCases.length === 0 ? (
+              <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                <p className="text-gray-500 mb-2">Keine offenen Risikoprüfungen</p>
+                <p className="text-[#0032A0] text-sm">
+                  Alle Fälle sind bearbeitet
+                </p>
+              </div>
+            ) : (
+              recentUnderwritingCases.map((uwCase: any) => {
+                const statusBadge = getUnderwritingStatusBadge(uwCase.status);
+                const companyData = uwCase.quote?.companyData as any;
+                const companyName = companyData?.companyName || uwCase.quote?.company?.name || 'Unbekannt';
+                const customerName = uwCase.quote?.user?.name || 'Unbekannt';
+                const createdDate = new Date(uwCase.createdAt).toLocaleDateString('de-CH');
+                const riskScore = uwCase.quote?.riskScore || 'N/A';
+                
+                return (
+                  <Link 
+                    key={uwCase.id}
+                    href={`/risikopruefungen/${uwCase.id}`}
+                    className="bg-white rounded-lg shadow-sm p-5 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer block"
+                  >
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-[#1A1A1A] mb-1">
+                          {companyName} - Cyberversicherung
+                        </h3>
+                        <div className="flex gap-6 text-sm text-gray-600">
+                          <span>Kunde: {customerName}</span>
+                          <span>Risk Score: {riskScore}</span>
+                          <span>Erstellt am {createdDate}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-3 py-1 text-xs font-medium rounded-full ${statusBadge.class}`}>
+                          {statusBadge.label}
+                        </span>
+                        <ChevronRight className="text-gray-400" size={20} />
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Policen Section */}
       {(user.role === 'CUSTOMER' || isBrokerOrUnderwriter) && (
@@ -356,26 +468,6 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Underwriter Bereich */}
-      {user.role === 'UNDERWRITER' && (
-        <div>
-          <h2 className="text-xl font-light text-[#1A1A1A] mb-4">Underwriting</h2>
-          <div className="grid gap-4">
-            <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer">
-              <h3 className="font-semibold text-[#0032A0] mb-2">Offene Fälle</h3>
-              <p className="text-gray-600 text-sm">
-                Prüfen und entscheiden Sie über Anträge mit Risiko-Score C-E.
-              </p>
-              <div className="mt-4 flex justify-end">
-                <span className="text-[#0032A0] text-sm flex items-center gap-1">
-                  Fälle ansehen
-                  <ChevronRight size={16} />
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
