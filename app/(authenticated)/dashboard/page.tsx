@@ -12,7 +12,11 @@ import { PACKAGES } from '@/lib/validation/premium-schema';
 import { ServiceRecommendations } from '@/components/customer/ServiceRecommendations';
 import type { ServiceRecommendationSegment } from '@/components/customer/ServiceRecommendations';
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams?: { risk?: string };
+}) {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -20,16 +24,36 @@ export default async function DashboardPage() {
   }
 
   // Broker, Underwriter und Führungskräfte sehen ALLE Offerten, Kunden nur ihre eigenen
-  const isBrokerOrUnderwriter = user.role === 'BROKER' || user.role === 'UNDERWRITER' || user.role === 'MFU_TEAMLEITER' || user.role === 'HEAD_CYBER_UNDERWRITING';
+  const isBrokerOrUnderwriter =
+    user.role === 'BROKER' ||
+    user.role === 'UNDERWRITER' ||
+    user.role === 'MFU_TEAMLEITER' ||
+    user.role === 'HEAD_CYBER_UNDERWRITING';
+
+  // Optionaler RiskScore-Filter (A-E) über Query-Parameter
+  const riskParam = searchParams?.risk;
+  const validRiskScores = ['A', 'B', 'C', 'D', 'E'];
+  const riskScoreFilter =
+    riskParam && validRiskScores.includes(riskParam.toUpperCase())
+      ? (riskParam.toUpperCase() as string)
+      : undefined;
   
+  // Basis-Filter für Quotes (inkl. optionalem RiskScore-Filter)
+  const quoteWhere = isBrokerOrUnderwriter
+    ? {
+        ...(riskScoreFilter ? { riskScore: riskScoreFilter as any } : {}),
+      }
+    : {
+        OR: [
+          { userId: user.id }, // Selbst erstellt
+          { customerId: user.id }, // Für den User erstellt (von Broker)
+        ],
+        ...(riskScoreFilter ? { riskScore: riskScoreFilter as any } : {}),
+      };
+
   // Lade die letzten 3 Quotes (alle für Broker/Underwriter, nur eigene für Kunden)
   const recentQuotes = await prisma.quote.findMany({
-    where: isBrokerOrUnderwriter ? {} : {
-      OR: [
-        { userId: user.id },        // Selbst erstellt
-        { customerId: user.id },    // Für den User erstellt (von Broker)
-      ],
-    },
+    where: quoteWhere,
     orderBy: {
       updatedAt: 'desc',
     },
@@ -226,6 +250,43 @@ export default async function DashboardPage() {
         <ChevronRight className="text-[#0032A0]" size={20} />
       </div>
 
+      {/* Risiko-KPIs für Underwriter / Führungskräfte */}
+      {isBrokerOrUnderwriter && (
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-3 mb-8">
+          <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
+            <p className="text-xs text-gray-500 mb-1">Offerten nach Risk Score</p>
+            <div className="flex flex-wrap gap-2 text-xs">
+              {validRiskScores.map((score) => {
+                const bucket = quoteRiskBuckets.find((b) => b.riskScore === score) ?? {
+                  riskScore: score,
+                  _count: { riskScore: 0 },
+                };
+                return (
+                  <span
+                    key={score}
+                    className="px-2 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-700"
+                  >
+                    {score}: {bucket._count.riskScore}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
+            <p className="text-xs text-gray-500 mb-1">Policen mit hohem Risiko (D/E)</p>
+            <p className="text-2xl font-semibold text-[#1A1A1A]">{highRiskPolicyCount}</p>
+            <p className="text-xs text-gray-500 mt-1">Bestand mit erhöhter Cyberexponierung</p>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
+            <p className="text-xs text-gray-500 mb-1">Offene Risikoprüfungen</p>
+            <p className="text-2xl font-semibold text-[#1A1A1A]">{recentUnderwritingCases.length}</p>
+            <p className="text-xs text-gray-500 mt-1">Fälle in Ihrem Verantwortungsbereich</p>
+          </div>
+        </div>
+      )}
+
       {/* Risikoprüfungen Section - Höchste Priorität für Broker/Underwriter */}
       {isBrokerOrUnderwriter && (
         <div className="mb-8">
@@ -389,13 +450,13 @@ export default async function DashboardPage() {
       {/* Offerten Section */}
       {(user.role === 'CUSTOMER' || isBrokerOrUnderwriter) && (
         <div className="mb-8">
-          <div className="mb-4 flex justify-between items-center">
+          <div className="mb-2 flex justify-between items-center">
             <h2 className="text-xl font-light text-[#1A1A1A]">
               {isBrokerOrUnderwriter ? 'Aktuelle Offerten' : 'Meine Offerten'}
             </h2>
             {recentQuotes.length > 0 && (
-              <Link 
-                href={isBrokerOrUnderwriter ? "/broker-offerten" : "/offerten"} 
+              <Link
+                href={isBrokerOrUnderwriter ? '/broker-offerten' : '/offerten'}
                 className="text-[#0032A0] text-sm flex items-center gap-1 hover:underline"
               >
                 Alle anzeigen
@@ -403,6 +464,36 @@ export default async function DashboardPage() {
               </Link>
             )}
           </div>
+
+          {/* RiskScore-Filter für Underwriter/Führungskräfte */}
+          {isBrokerOrUnderwriter && (
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+              <span className="text-gray-500 mr-1">Risk Score Filter:</span>
+              <Link
+                href="/dashboard"
+                className={`px-2 py-1 rounded-full border text-xs ${
+                  !riskScoreFilter
+                    ? 'bg-[#0032A0] text-white border-[#0032A0]'
+                    : 'bg-white text-gray-700 border-gray-300'
+                }`}
+              >
+                Alle
+              </Link>
+              {validRiskScores.map((score) => (
+                <Link
+                  key={score}
+                  href={`/dashboard?risk=${score}`}
+                  className={`px-2 py-1 rounded-full border text-xs ${
+                    riskScoreFilter === score
+                      ? 'bg-[#0032A0] text-white border-[#0032A0]'
+                      : 'bg-white text-gray-700 border-gray-300'
+                  }`}
+                >
+                  {score}
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Offerten Cards */}
           <div className="space-y-3">
