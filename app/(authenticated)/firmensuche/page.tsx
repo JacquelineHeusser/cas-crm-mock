@@ -1,5 +1,5 @@
 /**
- * Firmensuche (Dun & Bradstreet Stil)
+ * Firmensuche
  * Seite zur Suche in den Company-Daten (companies-Tabelle) anhand von Firmenname, Ort oder PLZ.
  */
 
@@ -17,23 +17,23 @@ interface FirmensuchePageProps {
 export default async function FirmensuchePage({ searchParams }: FirmensuchePageProps) {
   const query = (searchParams.q ?? '').trim();
 
-  const results = await prisma.company.findMany({
-    where:
-      query.length > 1
-        ? {
+  const results =
+    query.length > 1
+      ? await prisma.company.findMany({
+          where: {
             OR: [
               { name: { contains: query, mode: 'insensitive' } },
               { city: { contains: query, mode: 'insensitive' } },
               { zip: { contains: query, mode: 'insensitive' } },
               { industry: { contains: query, mode: 'insensitive' } },
             ],
-          }
-        : undefined,
-    orderBy: {
-      name: 'asc',
-    },
-    take: 50,
-  });
+          },
+          orderBy: {
+            name: 'asc',
+          },
+          take: 50,
+        })
+      : [];
 
   return (
     <div className="min-h-[calc(100vh-6rem)] bg-base-200/60 p-6">
@@ -47,9 +47,6 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
               Suche in deinen Firmenkunden (companies) nach Namen, Orten, PLZ oder Branchen,
               um passende Unternehmen für Offerten zu finden.
             </p>
-          </div>
-          <div className="badge badge-outline badge-primary text-xs uppercase tracking-wide">
-            Dun &amp; Bradstreet Mockdaten
           </div>
         </div>
 
@@ -88,7 +85,7 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
 
           {!query && (
             <p className="text-sm text-base-content/70">
-              Gib einen Firmennamen, eine DUNS-ähnliche Nummer oder einen Ort ein, um die Suche zu starten.
+              Gib einen Firmennamen, eine PLZ, einen Ort oder eine Branche ein, um die Suche zu starten.
             </p>
           )}
 
@@ -143,12 +140,7 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
           )}
         </div>
 
-        <div className="mt-6 text-xs text-base-content/60 max-w-3xl">
-          <p>
-            Hinweis: Alle angezeigten Firmen sind Mockdaten und dienen ausschließlich zur Demonstration einer
-            Dun-&amp;-Bradstreet-ähnlichen Firmensuche in diesem CRM-Prototyp.
-          </p>
-        </div>
+        {/* Kein zusätzlicher Mock-Hinweis mehr – es werden nur echte Firmenkunden aus der companies-Tabelle verwendet. */}
       </div>
     </div>
   );
