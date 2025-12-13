@@ -7,7 +7,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, FileText, AlertCircle, Phone, Calculator } from 'lucide-react';
+import { Home, FileText, AlertCircle, Phone, Calculator, BarChart3 } from 'lucide-react';
 import { UserRole } from '@prisma/client';
 
 interface SidebarProps {
@@ -92,11 +92,23 @@ function getNavItems(role: UserRole) {
     { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 
-  // BROKER, UNDERWRITER, MFU_TEAMLEITER und HEAD_CYBER_UNDERWRITING bekommen die gleiche Navigation
-  if (role === UserRole.BROKER || 
-      role === UserRole.UNDERWRITER || 
-      role === UserRole.MFU_TEAMLEITER || 
-      role === UserRole.HEAD_CYBER_UNDERWRITING) {
+  // BI-Navigation für MFU-Teamleiter und Head Cyber Underwriting (inkl. BI-Cockpit)
+  const headMfuItems = [
+    { href: '/dashboard', label: 'Home', icon: Home },
+    { href: '/bi', label: 'BI', icon: BarChart3 },
+    { href: '/broker-offerten', label: 'Alle Offerten', icon: Calculator },
+    { href: '/broker-policen', label: 'Alle Policen', icon: FileText },
+    { href: '/risikopruefungen', label: 'Risikoprüfungen', icon: AlertCircle },
+    { href: '/contact', label: 'Kontakt', icon: Phone },
+  ];
+
+  // Head & MFU bekommen spezielle BI-Navigation
+  if (role === UserRole.MFU_TEAMLEITER || role === UserRole.HEAD_CYBER_UNDERWRITING) {
+    return headMfuItems;
+  }
+
+  // Broker & Underwriter behalten die bekannte Navigation
+  if (role === UserRole.BROKER || role === UserRole.UNDERWRITER) {
     return brokerUnderwriterItems;
   }
 
