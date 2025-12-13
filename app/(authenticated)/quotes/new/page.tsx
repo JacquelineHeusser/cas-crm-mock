@@ -11,8 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { saveQuoteStep, getUserId, getUserData, loadQuote, createPolicyFromQuote, createUnderwritingCase, submitCustomerResponse } from '@/app/actions/quote';
-import { getDnbCompany } from '@/app/actions/dnb';
+import { saveQuoteStep, getUserId, getUserData, loadQuote, createPolicyFromQuote, createUnderwritingCase, submitCustomerResponse, getCompanyById } from '@/app/actions/quote';
 import ValidatedInput from '@/components/forms/ValidatedInput';
 import CityAutocomplete from '@/components/forms/CityAutocomplete';
 import ZipWithCitySuggestions from '@/components/forms/ZipWithCitySuggestions';
@@ -47,7 +46,7 @@ const STEPS = [
 export default function NewQuotePage() {
   const searchParams = useSearchParams();
   const editQuoteId = searchParams.get('edit');
-  const dnbId = searchParams.get('dnbId');
+  const companyId = searchParams.get('companyId');
   
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<any>({});
@@ -159,28 +158,29 @@ export default function NewQuotePage() {
             setCurrentStep(lastStep);
           }
         }
-      } else if (dnbId) {
-        // Neue Offerte mit vorausgewählter DnB-Firma
+      } else if (companyId) {
+        // Neue Offerte mit vorausgewählter Company aus companies-Tabelle
         try {
-          const dnbResult = await getDnbCompany(dnbId);
-          if (dnbResult?.success && dnbResult.company) {
+          const companyResult = await getCompanyById(companyId);
+          if (companyResult?.success && companyResult.company) {
+            const company = companyResult.company as any;
             const prefillData = {
-              companyName: dnbResult.company.name,
-              address: dnbResult.company.address,
-              zip: dnbResult.company.zip,
-              city: dnbResult.company.city,
-              country: dnbResult.company.country ?? 'CH',
-              url: '',
-              industry: dnbResult.company.industryCode,
-              employees: dnbResult.company.employeeCount,
-              revenue: Number(dnbResult.company.annualRevenue) / 100,
+              companyName: company.name,
+              address: company.address,
+              zip: company.zip,
+              city: company.city,
+              country: company.country ?? 'CH',
+              url: company.url ?? '',
+              industry: company.industry,
+              employees: company.employees,
+              revenue: Number(company.revenue) / 100,
             };
 
             setFormData(prefillData);
             reset(prefillData);
           }
         } catch (error) {
-          console.error('Fehler beim Laden der DnB-Firma:', error);
+          console.error('Fehler beim Laden der Firma:', error);
         }
       }
       
@@ -188,7 +188,7 @@ export default function NewQuotePage() {
     };
     
     initialize();
-  }, [editQuoteId, dnbId, reset]);
+  }, [editQuoteId, companyId, reset]);
 
   // Nächster Schritt
   const onNext = async (data: any) => {

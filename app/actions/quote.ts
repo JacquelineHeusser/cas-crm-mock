@@ -430,3 +430,33 @@ export async function submitCustomerResponse(data: {
     return { success: false, error: 'Fehler beim Senden der Antwort' };
   }
 }
+
+// Company nach ID laden (für Vorbefüllung der Offerte aus Firmensuche)
+export async function getCompanyById(companyId: string) {
+  try {
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: {
+        id: true,
+        name: true,
+        address: true,
+        zip: true,
+        city: true,
+        country: true,
+        url: true,
+        industry: true,
+        revenue: true,
+        employees: true,
+      },
+    });
+
+    if (!company) {
+      return { success: false, error: 'Company nicht gefunden', company: null };
+    }
+
+    return { success: true, company };
+  } catch (error) {
+    console.error('Error loading company:', error);
+    return { success: false, error: 'Fehler beim Laden der Firma', company: null };
+  }
+}
