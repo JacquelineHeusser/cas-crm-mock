@@ -34,9 +34,12 @@ const config: NextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
-      allowedOrigins: ['localhost:3000', '127.0.0.1:51566', '*'],
+      allowedOrigins: ['localhost:3000', '127.0.0.1:3000', '127.0.0.1:51566', '127.0.0.1:54705', '127.0.0.1:61055'],
     },
   },
+  
+  // Erlaubte Ursprünge für Entwicklungsumgebung (Browser Preview)
+  allowedDevOrigins: ['localhost:3000', '127.0.0.1:3000', '127.0.0.1:54705', '127.0.0.1:61055'],
   
   // Konfiguration für Turbopack
   turbopack: {

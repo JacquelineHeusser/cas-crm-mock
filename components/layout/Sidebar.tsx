@@ -7,7 +7,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, FileText, AlertCircle, Phone, Calculator, BarChart3 } from 'lucide-react';
+import { Home, FileText, AlertCircle, Phone, Calculator, BarChart3, MessageSquare } from 'lucide-react';
 import { UserRole } from '@prisma/client';
 
 interface SidebarProps {
@@ -79,6 +79,7 @@ function getNavItems(role: UserRole) {
     { href: '/policen', label: 'Meine Policen', icon: FileText },
     { href: '/offerten', label: 'Meine Offerten', icon: Calculator },
     { href: '/claims/new', label: 'Meine Schäden', icon: AlertCircle },
+    { href: '/chatbot', label: 'Assistent', icon: MessageSquare },
     { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 
@@ -89,6 +90,7 @@ function getNavItems(role: UserRole) {
     { href: '/broker-offerten', label: 'Alle Offerten', icon: Calculator },
     { href: '/broker-policen', label: 'Alle Policen', icon: FileText },
     { href: '/risikopruefungen', label: 'Risikoprüfungen', icon: AlertCircle },
+    { href: '/chatbot', label: 'Assistent', icon: MessageSquare },
     { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 

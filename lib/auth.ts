@@ -4,9 +4,8 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { PrismaClient, UserRole } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { UserRole } from '@prisma/client';
+import { prisma } from '@/app/lib/prisma';
 
 /**
  * Gibt den aktuellen authentifizierten User zurück
