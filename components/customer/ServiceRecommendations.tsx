@@ -29,6 +29,7 @@ interface RecommendationTile {
   title: string;
   description: string;
   segments: ServiceRecommendationSegment[] | 'all';
+  href: string;
 }
 
 // Zentrale Definition aller Kacheln
@@ -39,6 +40,7 @@ const ALL_TILES: RecommendationTile[] = [
     description:
       'Ihr Risikoprofil zeigt Schwachstellen in der Cybersicherheit. Mit unseren Cyber Services bauen Sie gezielt Schutz auf – bevor ein Angriff passiert.',
     segments: 'all',
+    href: '/services/cyber/high-risk',
   },
   {
     id: 'high-risk-resilience',
@@ -46,6 +48,7 @@ const ALL_TILES: RecommendationTile[] = [
     description:
       'Cyberangriffe treffen Unternehmen jeder Grösse. Unsere Cyber Services helfen Ihnen, Schwachstellen früh zu erkennen und Ihr Sicherheitsniveau gezielt zu erhöhen.',
     segments: ['highRisk', 'critical', 'generic'],
+    href: '/services/cyber/high-risk',
   },
   {
     id: 'low-maturity-simple',
@@ -53,6 +56,7 @@ const ALL_TILES: RecommendationTile[] = [
     description:
       'Sie wissen, dass Sie mehr tun sollten, aber nicht, wo Sie starten? Zurich Resilience Solutions begleitet Sie Schritt für Schritt von der Risikoanalyse bis zu wirksamen Massnahmen.',
     segments: ['lowMaturity', 'generic'],
+    href: '/services/cyber/low-maturity',
   },
   {
     id: 'post-policy-services',
@@ -60,6 +64,7 @@ const ALL_TILES: RecommendationTile[] = [
     description:
       'Finanziell sind Sie abgesichert. Mit unseren Cyber Services erhöhen Sie zusätzlich Ihre Widerstandsfähigkeit und verhindern Vorfälle, bevor sie entstehen.',
     segments: ['postPolicy', 'generic'],
+    href: '/services/cyber/post-policy',
   },
   {
     id: 'interested-next-step',
@@ -67,6 +72,7 @@ const ALL_TILES: RecommendationTile[] = [
     description:
       'Sie haben sich bereits mit Cyberrisiken beschäftigt. Nutzen Sie jetzt unsere Cyber Services für fundierte Risiko-Einschätzungen und passgenaue Schutzmassnahmen.',
     segments: ['interested', 'generic'],
+    href: '/services/cyber/interested',
   },
   {
     id: 'critical-act-now',
@@ -74,6 +80,7 @@ const ALL_TILES: RecommendationTile[] = [
     description:
       'Ihr Risikoprofil ist erhöht. Unsere Cyber Services helfen Ihnen, Schwachstellen zu reduzieren und Angriffe wirksam abzuwehren – bevor sie Schaden anrichten.',
     segments: ['highRisk', 'critical'],
+    href: '/services/cyber/critical',
   },
   {
     id: 'generic-resilience',
@@ -81,6 +88,7 @@ const ALL_TILES: RecommendationTile[] = [
     description:
       'Mit unseren Cyber Services erkennen Sie Risiken frühzeitig, verbessern Ihren Schutz und wehren Angriffe proaktiv ab – mit massgeschneiderten Lösungen aus einer Hand.',
     segments: ['generic'],
+    href: '/services/cyber/overview',
   },
   {
     id: 'story-preparedness',
@@ -88,57 +96,45 @@ const ALL_TILES: RecommendationTile[] = [
     description:
       'Cybervorfälle passieren täglich. Unsere Cyber Services zeigen Ihnen klar, welche Schritte Ihr Unternehmen widerstandsfähiger machen – mit messbarem Effekt.',
     segments: ['story', 'generic'],
+    href: '/services/cyber/story',
   },
 ];
 
 /**
- * Wählt passende Empfehlungskacheln basierend auf dem Segment aus.
- * Zeigt immer die Trigger-Kachel + bis zu 2 weitere priorisierte Karten.
+ * Wählt genau EINE Empfehlungskachel basierend auf dem Segment aus.
  */
-function selectTiles(segment?: ServiceRecommendationSegment): RecommendationTile[] {
-  const triggerTile = ALL_TILES.find((t) => t.id === 'trigger-protection');
-  if (!triggerTile) return [];
-
+function selectTile(segment?: ServiceRecommendationSegment): RecommendationTile | null {
   if (!segment) {
-    const genericTiles = ALL_TILES.filter((t) => t.id !== 'trigger-protection' && t.segments === 'all');
-    const fallbackTiles = ALL_TILES.filter((t) => t.id !== 'trigger-protection' && t.segments !== 'all');
-    return [
-      triggerTile,
-      ...(genericTiles.length > 0 ? genericTiles : fallbackTiles).slice(0, 2),
-    ];
+    return ALL_TILES.find((t) => t.id === 'generic-resilience') ?? null;
   }
 
-  const matching = ALL_TILES.filter((tile) => {
-    if (tile.id === 'trigger-protection') return false;
+  const preferredIdBySegment: Record<ServiceRecommendationSegment, string> = {
+    highRisk: 'high-risk-resilience',
+    lowMaturity: 'low-maturity-simple',
+    postPolicy: 'post-policy-services',
+    interested: 'interested-next-step',
+    critical: 'critical-act-now',
+    generic: 'generic-resilience',
+    story: 'story-preparedness',
+  };
+
+  const preferredId = preferredIdBySegment[segment];
+  const preferred = ALL_TILES.find((t) => t.id === preferredId);
+  if (preferred) return preferred;
+
+  // Fallback: erste Kachel, die zum Segment passt
+  const fallback = ALL_TILES.find((tile) => {
     if (tile.segments === 'all') return true;
     return tile.segments.includes(segment);
   });
 
-  const fallbackGeneric = ALL_TILES.filter(
-    (tile) =>
-      tile.id !== 'trigger-protection' &&
-      tile.segments !== 'all' &&
-      tile.segments.includes('generic'),
-  );
-
-  const combined = [...matching, ...fallbackGeneric];
-
-  const unique: RecommendationTile[] = [];
-  for (const tile of combined) {
-    if (!unique.find((t) => t.id === tile.id)) {
-      unique.push(tile);
-    }
-  }
-
-  return [triggerTile, ...unique.slice(0, 2)];
+  return fallback ?? null;
 }
 
 export function ServiceRecommendations({ segment }: ServiceRecommendationsProps) {
-  const tiles = selectTiles(segment);
+  const tile = selectTile(segment);
 
-  if (tiles.length === 0) {
-    return null;
-  }
+  if (!tile) return null;
 
   return (
     <section className="mt-8">
@@ -154,26 +150,21 @@ export function ServiceRecommendations({ segment }: ServiceRecommendationsProps)
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {tiles.map((tile) => (
-          <article
-            key={tile.id}
-            className="card bg-base-100 shadow-sm border border-base-200/80 hover:border-primary/60 transition-colors h-full"
-          >
-            <div className="card-body p-4 flex flex-col gap-3">
-              <h3 className="card-title text-sm leading-snug">
-                {tile.title}
-              </h3>
-              <p className="text-xs text-base-content/70 leading-relaxed">
-                {tile.description}
-              </p>
-              <div className="mt-2">
-                <button className="btn btn-xs btn-outline rounded-full">
-                  Mehr zu Cyber Services
-                </button>
-              </div>
+        <article className="card bg-base-100 shadow-sm border border-base-200/80 hover:border-primary/60 transition-colors h-full">
+          <div className="card-body p-4 flex flex-col gap-3">
+            <h3 className="card-title text-sm leading-snug">
+              {tile.title}
+            </h3>
+            <p className="text-xs text-base-content/70 leading-relaxed">
+              {tile.description}
+            </p>
+            <div className="mt-2">
+              <a href={tile.href} className="btn btn-xs btn-outline rounded-full">
+                Mehr zu Cyber Services
+              </a>
             </div>
-          </article>
-        ))}
+          </div>
+        </article>
       </div>
     </section>
   );
