@@ -95,6 +95,11 @@ export default function LocationSelectionStep({
         <div className="text-center py-12 bg-red-50 rounded-lg">
           <p className="text-red-600">{error}</p>
         </div>
+      ) : locations.length === 0 ? (
+        <div className="text-center py-12 bg-gray-50 rounded-lg">
+          <MapPin className="mx-auto mb-4 text-gray-400" size={48} />
+          <p className="text-gray-600">Momentan sind keine Standorte für diesen Vermittler vorhanden.</p>
+        </div>
       ) : (
         <div className="space-y-3 mb-8">
           {locations.map((location) => (
@@ -147,8 +152,8 @@ export default function LocationSelectionStep({
         </div>
       )}
 
-      {/* Navigation */}
-      {!loading && !error && locations.length > 1 && (
+      {/* Navigation - immer sichtbar */}
+      {!loading && !error && (
         <div className="flex justify-between pt-6 border-t border-gray-200">
           <button
             type="button"
@@ -157,18 +162,20 @@ export default function LocationSelectionStep({
           >
             Zurück
           </button>
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={!selectedLocationId}
-            className={`px-6 py-3 rounded-lg transition-colors ${
-              selectedLocationId
-                ? 'bg-[#0032A0] text-white hover:bg-[#002080]'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Weiter
-          </button>
+          {locations.length > 0 && (
+            <button
+              type="button"
+              onClick={handleContinue}
+              disabled={!selectedLocationId}
+              className={`px-6 py-3 rounded-lg transition-colors ${
+                selectedLocationId
+                  ? 'bg-[#0032A0] text-white hover:bg-[#002080]'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Weiter
+            </button>
+          )}
         </div>
       )}
     </div>

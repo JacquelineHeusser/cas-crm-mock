@@ -3,7 +3,7 @@
  * Zeigt Details einer spezifischen Police an
  */
 
-import { ArrowLeft, Download, ChevronRight, Phone } from 'lucide-react';
+import { ArrowLeft, Download, ChevronRight, Phone, Building2, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
@@ -18,12 +18,17 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
 
   const { id } = await params;
   
-  // Lade Policy aus Datenbank
+  // Lade Policy aus Datenbank inkl. Broker und Standort
   const policy = await prisma.policy.findUnique({
     where: { id },
     include: {
       company: true,
-      quote: true,
+      quote: {
+        include: {
+          broker: true,
+          brokerLocation: true,
+        },
+      },
     },
   });
 
@@ -133,6 +138,44 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ i
                 </div>
               </div>
             </div>
+
+            {/* Vermittler Info (nur wenn vorhanden) */}
+            {policy.quote?.broker && (
+              <div>
+                <h3 className="text-lg font-medium text-[#1A1A1A] mb-4">Ihr Vermittler</h3>
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#D9E8FC] rounded-full flex items-center justify-center flex-shrink-0">
+                      <Building2 className="w-6 h-6 text-[#0032A0]" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-[#1A1A1A] mb-1">{policy.quote.broker.name}</h4>
+                      <p className="text-sm text-gray-600 mb-2">{policy.quote.broker.company}</p>
+                      {policy.quote.brokerLocation && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                          <MapPin size={16} className="text-[#0032A0]" />
+                          <span>
+                            {policy.quote.brokerLocation.name} - {policy.quote.brokerLocation.address}, {policy.quote.brokerLocation.zip} {policy.quote.brokerLocation.city}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex flex-wrap gap-4 text-sm text-gray-600 mt-3">
+                        {policy.quote.broker.email && (
+                          <a href={`mailto:${policy.quote.broker.email}`} className="hover:text-[#0032A0]">
+                            {policy.quote.broker.email}
+                          </a>
+                        )}
+                        {policy.quote.broker.phone && (
+                          <a href={`tel:${policy.quote.broker.phone}`} className="hover:text-[#0032A0]">
+                            {policy.quote.broker.phone}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Policendokumente */}
             <div>
