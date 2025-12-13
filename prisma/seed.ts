@@ -602,6 +602,75 @@ async function main() {
     }),
   ]);
 
+  // Policen für genehmigte Offerten erstellen
+  const policies = await Promise.all([
+    // Police für Score A Offerte (Hans Meier / Swiss Tech)
+    prisma.policy.create({
+      data: {
+        policyNumber: `POL-${Date.now()}001`,
+        quoteId: quotes[0].id,
+        userId: users[0].id, // Hans Meier
+        companyId: companies[0].id,
+        status: 'ACTIVE',
+        premium: 250000n, // 2'500 CHF
+        coverage: {
+          package: 'OPTIMUM',
+          sumInsuredProperty: 'CHF 1\'000\'000',
+          sumInsuredLiability: 'CHF 1\'000\'000',
+          sumInsuredCyberCrime: 'CHF 100\'000',
+          deductible: 'CHF 1\'000',
+          waitingPeriod: '24h',
+        },
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // +1 Jahr
+      },
+    }),
+    // Police für Score B Offerte (Anna Bauer / Bau AG)
+    prisma.policy.create({
+      data: {
+        policyNumber: `POL-${Date.now()}002`,
+        quoteId: quotes[1].id,
+        userId: users[1].id, // Anna Bauer
+        companyId: companies[1].id,
+        status: 'ACTIVE',
+        premium: 300000n, // 3'000 CHF
+        coverage: {
+          package: 'OPTIMUM',
+          sumInsuredProperty: 'CHF 1\'000\'000',
+          sumInsuredLiability: 'CHF 1\'000\'000',
+          sumInsuredCyberCrime: 'CHF 100\'000',
+          deductible: 'CHF 1\'000',
+          waitingPeriod: '24h',
+        },
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // +1 Jahr
+      },
+    }),
+    // Police für Broker-Offerte (Peter Broker für Swiss Tech - Testfirma Vermittler)
+    prisma.policy.create({
+      data: {
+        policyNumber: `POL-${Date.now()}003`,
+        quoteId: quotes[5].id, // Broker-Offerte
+        userId: users[2].id, // Peter Broker
+        companyId: companies[0].id,
+        status: 'ACTIVE',
+        premium: 350000n, // 3'500 CHF
+        coverage: {
+          package: 'PREMIUM',
+          sumInsuredProperty: 'CHF 2\'000\'000',
+          sumInsuredLiability: 'CHF 2\'000\'000',
+          sumInsuredCyberCrime: 'CHF 250\'000',
+          deductible: 'CHF 500',
+          waitingPeriod: '12h',
+        },
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // +1 Jahr
+      },
+    }),
+  ]);
+
+  console.log(`Created ${policies.length} policies`);
+
   // Underwriting-Fälle für Score C, D und E
   await Promise.all([
     // Score C - ausstehend, braucht MFU Teamleiter
