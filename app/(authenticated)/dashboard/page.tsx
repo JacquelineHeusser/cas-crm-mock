@@ -233,6 +233,11 @@ export default async function DashboardPage({
   const latestQuoteRiskScore = recentQuotes[0]?.riskScore as string | null | undefined;
   const customerServiceSegment: ServiceRecommendationSegment = getServiceSegmentFromRiskScore(latestQuoteRiskScore);
   
+  // Gefilterte Offertenliste für die Anzeige (zusätzliche Absicherung des RiskScore-Filters)
+  const filteredQuotes = riskScoreFilter
+    ? recentQuotes.filter((q) => (q.riskScore as string | null | undefined)?.toUpperCase() === riskScoreFilter)
+    : recentQuotes;
+  
   // Status Badge Farben für Policies
   const getPolicyStatusBadge = (status: string) => {
     switch (status) {
@@ -565,7 +570,7 @@ export default async function DashboardPage({
 
           {/* Offerten Cards */}
           <div className="space-y-3">
-            {recentQuotes.length === 0 ? (
+            {filteredQuotes.length === 0 ? (
               <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                 <p className="text-gray-500 mb-2">Noch keine Offerten erstellt</p>
                 <Link href="/quotes/new" className="text-[#0032A0] text-sm hover:underline">
@@ -573,7 +578,7 @@ export default async function DashboardPage({
                 </Link>
               </div>
             ) : (
-              recentQuotes.map((quote) => {
+              filteredQuotes.map((quote) => {
                 const statusBadge = getStatusBadge(quote.status);
                 const companyData = quote.companyData as any;
                 const companyName = companyData?.companyName || quote.company?.name || 'Unbekannt';
