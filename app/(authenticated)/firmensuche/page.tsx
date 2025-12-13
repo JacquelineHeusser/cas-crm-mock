@@ -17,24 +17,23 @@ interface FirmensuchePageProps {
 export default async function FirmensuchePage({ searchParams }: FirmensuchePageProps) {
   const query = (searchParams.q ?? '').trim();
 
-  let results = [] as Awaited<ReturnType<typeof prisma.company.findMany>>;
-
-  if (query.length > 1) {
-    results = await prisma.company.findMany({
-      where: {
-        OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { city: { contains: query, mode: 'insensitive' } },
-          { zip: { contains: query, mode: 'insensitive' } },
-          { industry: { contains: query, mode: 'insensitive' } },
-        ],
-      },
-      orderBy: {
-        name: 'asc',
-      },
-      take: 50,
-    });
-  }
+  const results = await prisma.company.findMany({
+    where:
+      query.length > 1
+        ? {
+            OR: [
+              { name: { contains: query, mode: 'insensitive' } },
+              { city: { contains: query, mode: 'insensitive' } },
+              { zip: { contains: query, mode: 'insensitive' } },
+              { industry: { contains: query, mode: 'insensitive' } },
+            ],
+          }
+        : undefined,
+    orderBy: {
+      name: 'asc',
+    },
+    take: 50,
+  });
 
   return (
     <div className="min-h-[calc(100vh-6rem)] bg-base-200/60 p-6">
