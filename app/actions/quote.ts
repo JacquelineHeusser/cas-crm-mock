@@ -50,11 +50,12 @@ export async function saveQuoteStep(data: {
   quoteId?: string;
   userId: string;
   brokerId?: string;
+  brokerLocationId?: string;
   step: 'companyData' | 'cyberRiskProfile' | 'cyberSecurity' | 'coverage';
   stepData: any;
 }) {
   try {
-    const { quoteId, userId, brokerId, step, stepData } = data;
+    const { quoteId, userId, brokerId, brokerLocationId, step, stepData } = data;
 
     // Wenn Quote ID existiert: Update
     if (quoteId) {
@@ -87,6 +88,7 @@ export async function saveQuoteStep(data: {
           [step]: stepData,
           ...riskScoreData,
           ...(brokerId ? { brokerId } : {}),
+          ...(brokerLocationId ? { brokerLocationId } : {}),
           updatedAt: new Date(),
         },
       });
@@ -120,6 +122,7 @@ export async function saveQuoteStep(data: {
         quoteNumber,
         userId,
         ...(brokerId ? { brokerId } : {}),
+        ...(brokerLocationId ? { brokerLocationId } : {}),
         status: 'DRAFT',
         [step]: stepData,
       },
@@ -143,6 +146,7 @@ export async function loadQuote(quoteId: string) {
         quoteNumber: true,
         status: true,
         brokerId: true,
+        brokerLocationId: true,
         companyData: true,
         cyberRiskProfile: true,
         cyberSecurity: true,
@@ -151,16 +155,6 @@ export async function loadQuote(quoteId: string) {
         riskScoreReason: true,
         createdAt: true,
         updatedAt: true,
-        underwritingCase: {
-          select: {
-            id: true,
-            status: true,
-            notes: true,
-            decision: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
       },
     });
 

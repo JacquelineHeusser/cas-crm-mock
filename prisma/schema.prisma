@@ -62,16 +62,35 @@ model Broker {
   id        String   @id @default(cuid())
   name      String   // Name des Vermittlers
   company   String   // Vermittlerfirma
-  location  String   // Standort
+  location  String   // Standort (Legacy, für Abwärtskompatibilität)
   email     String?  // Optionale E-Mail
   phone     String?  // Optionale Telefonnummer
+  defaultLocationId String? // Standardstandort des Users
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Beziehungen
   quotes Quote[]
+  locations BrokerLocation[]
 
   @@map("brokers")
+}
+
+// Standorte für Vermittler (mehrere pro Broker möglich)
+model BrokerLocation {
+  id        String   @id @default(cuid())
+  brokerId  String
+  name      String   // z.B. "Zürich HB", "Genève Centre"
+  address   String
+  zip       String
+  city      String
+  isDefault Boolean  @default(false) // Standardstandort des Brokers
+  createdAt DateTime @default(now())
+  
+  broker    Broker   @relation(fields: [brokerId], references: [id], onDelete: Cascade)
+  quotes    Quote[]
+  
+  @@map("broker_locations")
 }
 
 // Versicherungs-Offerten
@@ -82,6 +101,7 @@ model Quote {
   userId      String      // Erstellt von (Kunde oder Broker)
   customerId  String?     // Versicherungsnehmer (bei Broker-Offerten)
   brokerId    String?     // Vermittler (falls durch Broker/Underwriter erstellt)
+  brokerLocationId String? // Standort des Vermittlers
   status      QuoteStatus @default(DRAFT)
   
   // Formulardaten (JSON für Flexibilität)
@@ -106,6 +126,7 @@ model Quote {
   user    User    @relation("QuoteCreator", fields: [userId], references: [id])
   customer User?  @relation("QuoteCustomer", fields: [customerId], references: [id])
   broker  Broker?  @relation(fields: [brokerId], references: [id])
+  brokerLocation BrokerLocation? @relation(fields: [brokerLocationId], references: [id])
   underwritingCase UnderwritingCase?
   policy  Policy?
 

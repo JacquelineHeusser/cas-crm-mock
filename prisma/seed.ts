@@ -75,59 +75,209 @@ async function main() {
     };
   });
 
-  await prisma.dnbCompany.createMany({ data: dnbCompaniesData });
+  await prisma.dnb_companies.createMany({ data: dnbCompaniesData });
   console.log(`Created ${dnbCompaniesData.length} DnB mock companies`);
 
   // Test-Vermittler erstellen
-  const brokers = await Promise.all([
-    prisma.broker.create({
+  const brokerMaria = await prisma.broker.create({
+    data: {
+      name: 'Maria Schneider',
+      company: 'SwissQuality Versicherungsmakler AG',
+      location: 'Zürich',
+      email: 'maria.schneider@swissquality.ch',
+      phone: '+41 44 123 45 67',
+    },
+  });
+  
+  const brokerThomas = await prisma.broker.create({
+    data: {
+      name: 'Thomas Weber',
+      company: 'Alpen Versicherungen GmbH',
+      location: 'Bern',
+      email: 'thomas.weber@alpen-vers.ch',
+      phone: '+41 31 987 65 43',
+    },
+  });
+  
+  const brokerLaura = await prisma.broker.create({
+    data: {
+      name: 'Laura Müller',
+      company: 'Vermittler Schweiz AG',
+      location: 'Zürich',
+      email: 'laura.mueller@vermittler.ch',
+      phone: '+41 44 555 66 77',
+    },
+  });
+  
+  const brokerSandra = await prisma.broker.create({
+    data: {
+      name: 'Sandra Keller',
+      company: 'Basel Insurance Brokers',
+      location: 'Basel',
+      email: 'sandra.keller@basel-insurance.ch',
+      phone: '+41 61 555 12 34',
+    },
+  });
+  
+  const brokerMarc = await prisma.broker.create({
+    data: {
+      name: 'Marc Lindemann',
+      company: 'Romandie Assurances SA',
+      location: 'Genf',
+      email: 'marc.lindemann@romandie-assur.ch',
+      phone: '+41 22 789 01 23',
+    },
+  });
+  
+  const brokerJulia = await prisma.broker.create({
+    data: {
+      name: 'Julia Meier',
+      company: 'Zürich Versicherungsberatung',
+      location: 'Winterthur',
+      email: 'julia.meier@zh-versicherung.ch',
+      phone: '+41 52 345 67 89',
+    },
+  });
+
+  const brokers = [brokerMaria, brokerThomas, brokerLaura, brokerSandra, brokerMarc, brokerJulia];
+  console.log(`Created ${brokers.length} test brokers`);
+
+  // Standorte für Broker erstellen (mehrere pro Broker)
+  const brokerLocations = await Promise.all([
+    // Maria Schneider - SwissQuality (Zürich, Winterthur)
+    prisma.brokerLocation.create({
       data: {
-        name: 'Maria Schneider',
-        company: 'SwissQuality Versicherungsmakler AG',
-        location: 'Zürich',
-        email: 'maria.schneider@swissquality.ch',
-        phone: '+41 44 123 45 67',
+        brokerId: brokerMaria.id,
+        name: 'Zürich Hauptbahnhof',
+        address: 'Bahnhofstrasse 100',
+        zip: '8001',
+        city: 'Zürich',
+        isDefault: true,
       },
     }),
-    prisma.broker.create({
+    prisma.brokerLocation.create({
       data: {
-        name: 'Thomas Weber',
-        company: 'Alpen Versicherungen GmbH',
-        location: 'Bern',
-        email: 'thomas.weber@alpen-vers.ch',
-        phone: '+41 31 987 65 43',
+        brokerId: brokerMaria.id,
+        name: 'Winterthur',
+        address: 'Marktgasse 15',
+        zip: '8400',
+        city: 'Winterthur',
+        isDefault: false,
       },
     }),
-    prisma.broker.create({
+    
+    // Thomas Weber - Alpen Versicherungen (Bern, Thun)
+    prisma.brokerLocation.create({
       data: {
-        name: 'Sandra Keller',
-        company: 'Basel Insurance Brokers',
-        location: 'Basel',
-        email: 'sandra.keller@basel-insurance.ch',
-        phone: '+41 61 555 12 34',
+        brokerId: brokerThomas.id,
+        name: 'Bern Bundesplatz',
+        address: 'Bundesplatz 10',
+        zip: '3003',
+        city: 'Bern',
+        isDefault: true,
       },
     }),
-    prisma.broker.create({
+    prisma.brokerLocation.create({
       data: {
-        name: 'Marc Lindemann',
-        company: 'Romandie Assurances SA',
-        location: 'Genf',
-        email: 'marc.lindemann@romandie-assur.ch',
-        phone: '+41 22 789 01 23',
+        brokerId: brokerThomas.id,
+        name: 'Thun',
+        address: 'Bälliz 25',
+        zip: '3600',
+        city: 'Thun',
+        isDefault: false,
       },
     }),
-    prisma.broker.create({
+    
+    // Laura Müller - Vermittler Schweiz (Zürich, Luzern, St. Gallen)
+    prisma.brokerLocation.create({
       data: {
-        name: 'Julia Meier',
-        company: 'Zürich Versicherungsberatung',
-        location: 'Winterthur',
-        email: 'julia.meier@zh-versicherung.ch',
-        phone: '+41 52 345 67 89',
+        brokerId: brokerLaura.id,
+        name: 'Zürich Seefeld',
+        address: 'Seefeldstrasse 200',
+        zip: '8008',
+        city: 'Zürich',
+        isDefault: true,
+      },
+    }),
+    prisma.brokerLocation.create({
+      data: {
+        brokerId: brokerLaura.id,
+        name: 'Luzern',
+        address: 'Haldenstrasse 10',
+        zip: '6006',
+        city: 'Luzern',
+        isDefault: false,
+      },
+    }),
+    prisma.brokerLocation.create({
+      data: {
+        brokerId: brokerLaura.id,
+        name: 'St. Gallen',
+        address: 'Vadianstrasse 35',
+        zip: '9001',
+        city: 'St. Gallen',
+        isDefault: false,
+      },
+    }),
+    
+    // Sandra Keller - Basel Insurance (nur ein Standort)
+    prisma.brokerLocation.create({
+      data: {
+        brokerId: brokerSandra.id,
+        name: 'Basel City',
+        address: 'Centralbahnplatz 12',
+        zip: '4051',
+        city: 'Basel',
+        isDefault: true,
+      },
+    }),
+    
+    // Marc Lindemann - Romandie Assurances (Genf, Lausanne)
+    prisma.brokerLocation.create({
+      data: {
+        brokerId: brokerMarc.id,
+        name: 'Genf Centre',
+        address: 'Rue du Mont-Blanc 20',
+        zip: '1201',
+        city: 'Genf',
+        isDefault: true,
+      },
+    }),
+    prisma.brokerLocation.create({
+      data: {
+        brokerId: brokerMarc.id,
+        name: 'Lausanne',
+        address: 'Rue Centrale 5',
+        zip: '1003',
+        city: 'Lausanne',
+        isDefault: false,
+      },
+    }),
+    
+    // Julia Meier - Zürich Versicherungsberatung (Winterthur, Frauenfeld)
+    prisma.brokerLocation.create({
+      data: {
+        brokerId: brokerJulia.id,
+        name: 'Winterthur Oberwinterthur',
+        address: 'Technikumstrasse 8',
+        zip: '8400',
+        city: 'Winterthur',
+        isDefault: true,
+      },
+    }),
+    prisma.brokerLocation.create({
+      data: {
+        brokerId: brokerJulia.id,
+        name: 'Frauenfeld',
+        address: 'Zürcherstrasse 120',
+        zip: '8500',
+        city: 'Frauenfeld',
+        isDefault: false,
       },
     }),
   ]);
 
-  console.log(`Created ${brokers.length} test brokers`);
+  console.log(`Created ${brokerLocations.length} broker locations`);
 
   // Test-Benutzer erstellen
   const users = await Promise.all([
@@ -136,7 +286,7 @@ async function main() {
       data: {
         email: 'kontakt@swisstech.ch',
         name: 'Hans Meier',
-        role: UserRole.CUSTOMER,
+        role: 'CUSTOMER',
         companyId: companies[0].id,
       },
     }),
@@ -144,7 +294,7 @@ async function main() {
       data: {
         email: 'info@bauag.ch',
         name: 'Anna Bauer',
-        role: UserRole.CUSTOMER,
+        role: 'CUSTOMER',
         companyId: companies[1].id,
       },
     }),
@@ -153,7 +303,7 @@ async function main() {
       data: {
         email: 'broker@swissquality.ch',
         name: 'Peter Broker',
-        role: UserRole.BROKER,
+        role: 'BROKER',
         companyId: companies[2].id,
       },
     }),
@@ -162,7 +312,7 @@ async function main() {
       data: {
         email: 'underwriter@zurich.ch',
         name: 'Sabine Underwriter',
-        role: UserRole.UNDERWRITER,
+        role: 'UNDERWRITER',
       },
     }),
     // MFU Teamleiter (kann Risk Score C freigeben)
@@ -170,7 +320,7 @@ async function main() {
       data: {
         email: 'mfu.teamleiter@zurich.ch',
         name: 'Thomas Müller',
-        role: UserRole.MFU_TEAMLEITER,
+        role: 'MFU_TEAMLEITER',
       },
     }),
     // Head Cyber Underwriting (kann Risk Score D freigeben)
@@ -178,7 +328,7 @@ async function main() {
       data: {
         email: 'head.cyber@zurich.ch',
         name: 'Dr. Sarah Schmidt',
-        role: UserRole.HEAD_CYBER_UNDERWRITING,
+        role: 'HEAD_CYBER_UNDERWRITING',
       },
     }),
   ]);
@@ -411,7 +561,6 @@ async function main() {
         quoteNumber: 'Z1-2024-006',
         companyId: companies[0].id,
         userId: users[2].id,        // Broker hat erstellt
-        customerId: users[0].id,    // Für SwissTech-Kunde (Hans Meier)
         brokerId: brokers[0].id,    // Maria Schneider
         status: QuoteStatus.APPROVED,
         companyData: {

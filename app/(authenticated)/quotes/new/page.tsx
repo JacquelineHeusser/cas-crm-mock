@@ -31,6 +31,7 @@ import {
 } from '@/lib/validation/quote-schema';
 import { premiumSchema, PACKAGES } from '@/lib/validation/premium-schema';
 import BrokerSelectionStep from '@/components/quotes/BrokerSelectionStep';
+import LocationSelectionStep from '@/components/quotes/LocationSelectionStep';
 
 // Formular-Schritte
 const STEPS = [
@@ -57,8 +58,10 @@ export default function NewQuotePage() {
   const [riskScoreReason, setRiskScoreReason] = useState<string | null>(null);
   const [underwritingCase, setUnderwritingCase] = useState<any>(null);
   const [selectedBrokerId, setSelectedBrokerId] = useState<string | undefined>(initialBrokerId);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | undefined>(undefined);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [showBrokerSelection, setShowBrokerSelection] = useState(false);
+  const [showLocationSelection, setShowLocationSelection] = useState(false);
 
   const router = useRouter();
 
@@ -123,8 +126,11 @@ export default function NewQuotePage() {
       // Setze Rolle und prüfe ob Broker-Auswahl nötig ist
       setUserRole(role);
       const needsBrokerSelection = role === 'BROKER' || role === 'UNDERWRITER' || role === 'MFU_TEAMLEITER' || role === 'HEAD_CYBER_UNDERWRITING';
-      // Wenn bereits ein brokerId-Parameter vorhanden ist, Broker-Auswahl 1berspringen
-      setShowBrokerSelection(needsBrokerSelection && !editQuoteId && !initialBrokerId); // Nur bei neuen Offerten ohne vorgew4hlten Broker
+      // Wenn bereits ein brokerId-Parameter vorhanden ist, Broker-Auswahl überspringen
+      setShowBrokerSelection(needsBrokerSelection && !editQuoteId && !initialBrokerId); // Nur bei neuen Offerten ohne vorgewählten Broker
+      
+      // Standort-Auswahl: Nur zeigen wenn Broker ausgewählt ist und es eine neue Offerte ist
+      setShowLocationSelection(false); // Wird später gesetzt, nachdem der Broker ausgewählt wurde
       
       // Wenn Quote-ID vorhanden, lade existierende Quote
       if (editQuoteId) {
@@ -138,6 +144,11 @@ export default function NewQuotePage() {
             setSelectedBrokerId(result.quote.brokerId);
           }
           
+          // Setze ausgewählten Standort, falls vorhanden
+          if (result.quote.brokerLocationId) {
+            setSelectedLocationId(result.quote.brokerLocationId);
+          }
+          
           // Setze Risk Score wenn vorhanden
           if (result.quote.riskScore) {
             setRiskScore(result.quote.riskScore);
@@ -145,9 +156,7 @@ export default function NewQuotePage() {
           }
           
           // Setze Underwriting Case wenn vorhanden
-          if (result.quote.underwritingCase) {
-            setUnderwritingCase(result.quote.underwritingCase);
-          }
+          // Underwriting Case wird separat geladen
           
           // Merge alle Daten aus den JSON Feldern
           const loadedData = {
@@ -226,6 +235,7 @@ export default function NewQuotePage() {
         quoteId,
         userId,
         ...(selectedBrokerId ? { brokerId: selectedBrokerId } : {}),
+        ...(selectedLocationId ? { brokerLocationId: selectedLocationId } : {}),
         step: stepName,
         stepData: data,
       });
@@ -328,6 +338,10 @@ export default function NewQuotePage() {
         <BrokerSelectionStep
           onSelect={(brokerId) => {
             setSelectedBrokerId(brokerId);
+            // Nach Broker-Auswahl die Standort-Auswahl zeigen (nur bei neuen Offerten)
+            if (!editQuoteId) {
+              setShowLocationSelection(true);
+            }
 
             // brokerId in die URL schreiben, damit sie beim Wechsel zur Firmensuche erhalten bleibt
             const params = new URLSearchParams(window.location.search);
@@ -337,6 +351,26 @@ export default function NewQuotePage() {
           selectedBrokerId={selectedBrokerId}
           onNext={() => setShowBrokerSelection(false)}
           onPrevious={() => window.location.href = '/dashboard'}
+        />
+      </div>
+    );
+  }
+
+  // Standort-Auswahl (nach Broker-Auswahl, vor dem eigentlichen Flow)
+  if (showLocationSelection && selectedBrokerId) {
+    return (
+      <div className="flex-1 p-8">
+        <LocationSelectionStep
+          brokerId={selectedBrokerId}
+          onSelect={(locationId) => {
+            setSelectedLocationId(locationId);
+          }}
+          selectedLocationId={selectedLocationId}
+          onNext={() => setShowLocationSelection(false)}
+          onPrevious={() => {
+            setShowLocationSelection(false);
+            setShowBrokerSelection(true);
+          }}
         />
       </div>
     );
