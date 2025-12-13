@@ -14,6 +14,7 @@ export const dynamic = 'force-dynamic';
 interface FirmensuchePageProps {
   searchParams: {
     q?: string;
+    page?: string;
   };
 }
 
@@ -33,24 +34,33 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
   }
 
   const query = (searchParams.q ?? '').trim();
+  const pageSize = 10;
+  const currentPage = Math.max(1, Number(searchParams.page ?? '1') || 1);
 
-  const results =
-    query.length > 1
-      ? await prisma.company.findMany({
-          where: {
-            OR: [
-              { name: { contains: query, mode: 'insensitive' } },
-              { city: { contains: query, mode: 'insensitive' } },
-              { zip: { contains: query, mode: 'insensitive' } },
-              { industry: { contains: query, mode: 'insensitive' } },
-            ],
-          },
-          orderBy: {
-            name: 'asc',
-          },
-          take: 50,
-        })
-      : [];
+  // Gemeinsame WHERE-Bedingung für Suche (optional)
+  const whereClause = query.length > 1
+    ? {
+        OR: [
+          { name: { contains: query, mode: 'insensitive' } },
+          { city: { contains: query, mode: 'insensitive' } },
+          { zip: { contains: query, mode: 'insensitive' } },
+          { industry: { contains: query, mode: 'insensitive' } },
+        ],
+      }
+    : {};
+
+  const totalCount = await prisma.company.count({ where: whereClause });
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+
+  const results = await prisma.company.findMany({
+    where: whereClause,
+    orderBy: {
+      name: 'asc',
+    },
+    take: pageSize,
+    skip: (safePage - 1) * pageSize,
+  });
 
   return (
     <div className="min-h-[calc(100vh-6rem)] bg-base-200/60 p-6">
@@ -94,19 +104,34 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
         </form>
 
         <div className="space-y-2">
-          {query && (
+          {(query || totalCount > 0) && (
             <p className="text-sm text-base-content/70">
-              Suchbegriff: <span className="font-semibold">{query}</span> – {results.length} Treffer (max. 50 angezeigt)
+              {query ? (
+                <>
+                  Suchbegriff: <span className="font-semibold">{query}</span>
+                  {' '}
+                  – {totalCount} Treffer
+                </>
+              ) : (
+                <>
+                  {totalCount} Firmen im Bestand
+                </>
+              )}
+              {totalCount > 0 && (
+                <>
+                  {' '}– Seite {safePage} von {totalPages}
+                </>
+              )}
             </p>
           )}
 
-          {!query && (
+          {!query && totalCount === 0 && (
             <p className="text-sm text-base-content/70">
               Gib einen Firmennamen, eine PLZ, einen Ort oder eine Branche ein, um die Suche zu starten.
             </p>
           )}
 
-          {query && results.length === 0 && (
+          {totalCount === 0 && query && (
             <div className="alert alert-info">
               <span>
                 Keine Firmen gefunden. Versuche es mit einem allgemeineren Suchbegriff oder nur einem Teil des Namens.
@@ -153,6 +178,36 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-4 flex items-center justify-between text-sm">
+              <div>
+                Zeige {(safePage - 1) * pageSize + 1}–
+                {Math.min(safePage * pageSize, totalCount)} von {totalCount} Firmen
+              </div>
+              <div className="join">
+                <Link
+                  href={`/firmensuche?${new URLSearchParams({
+                    ...(query ? { q: query } : {}),
+                    page: String(Math.max(1, safePage - 1)),
+                  }).toString()}`}
+                  className={`btn btn-sm join-item ${safePage === 1 ? 'btn-disabled' : ''}`}
+                >
+                  « Zurück
+                </Link>
+                <Link
+                  href={`/firmensuche?${new URLSearchParams({
+                    ...(query ? { q: query } : {}),
+                    page: String(Math.min(totalPages, safePage + 1)),
+                  }).toString()}`}
+                  className={`btn btn-sm join-item ${safePage === totalPages ? 'btn-disabled' : ''}`}
+                >
+                  Weiter »
+                </Link>
+              </div>
             </div>
           )}
         </div>
