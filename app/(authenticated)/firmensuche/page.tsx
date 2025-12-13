@@ -1,6 +1,6 @@
 /**
  * Firmensuche (Dun & Bradstreet Stil)
- * Seite zur Suche in den DnbCompany-Mockdaten anhand von Firmenname oder DUNS-ähnlicher Nummer.
+ * Seite zur Suche in den Company-Daten (companies-Tabelle) anhand von Firmenname, Ort oder PLZ.
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -17,15 +17,16 @@ interface FirmensuchePageProps {
 export default async function FirmensuchePage({ searchParams }: FirmensuchePageProps) {
   const query = (searchParams.q ?? '').trim();
 
-  let results = [] as Awaited<ReturnType<typeof prisma.dnbCompany.findMany>>;
+  let results = [] as Awaited<ReturnType<typeof prisma.company.findMany>>;
 
   if (query.length > 1) {
-    results = await prisma.dnbCompany.findMany({
+    results = await prisma.company.findMany({
       where: {
         OR: [
           { name: { contains: query, mode: 'insensitive' } },
-          { dunsNumber: { contains: query, mode: 'insensitive' } },
           { city: { contains: query, mode: 'insensitive' } },
+          { zip: { contains: query, mode: 'insensitive' } },
+          { industry: { contains: query, mode: 'insensitive' } },
         ],
       },
       orderBy: {
@@ -44,7 +45,7 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
               Firmensuche
             </h1>
             <p className="mt-1 text-sm text-base-content/70 max-w-2xl">
-              Suche in Dun-&amp;-Bradstreet-ähnlichen Firmendaten nach Namen, DUNS-Nummern oder Orten,
+              Suche in deinen Firmenkunden (companies) nach Namen, Orten, PLZ oder Branchen,
               um passende Unternehmen für Offerten zu finden.
             </p>
           </div>
@@ -57,7 +58,7 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
           <div className="card-body gap-4">
             <label className="form-control w-full">
               <div className="label">
-                <span className="label-text font-medium">Firmenname, DUNS oder Ort</span>
+                <span className="label-text font-medium">Firmenname, Ort, PLZ oder Branche</span>
                 <span className="label-text-alt text-xs">Mindestens 2 Zeichen für Ergebnisse</span>
               </div>
               <div className="flex flex-col gap-2 md:flex-row">
@@ -65,7 +66,7 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
                   type="text"
                   name="q"
                   defaultValue={query}
-                  placeholder="z. B. Muster AG, 76-00..., Zürich"
+                  placeholder="z. B. Muster AG, Zürich, 8001, IT"
                   className="input input-bordered w-full"
                 />
                 <button type="submit" className="btn btn-primary md:w-auto w-full">
@@ -113,40 +114,24 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
                         <h2 className="card-title text-base leading-snug line-clamp-2">
                           {company.name}
                         </h2>
-                        <span className="badge badge-outline badge-sm text-[0.7rem]">DUNS {company.dunsNumber}</span>
                       </div>
                       <p className="text-sm text-base-content/70">
                         {company.address}, {company.zip} {company.city}, {company.country}
                       </p>
                       <p className="text-xs text-base-content/60 flex flex-wrap gap-x-2 gap-y-1">
-                        <span>Branche: {company.industryCode}</span>
+                        <span>Branche: {company.industry}</span>
                         <span className="hidden text-base-content/40 md:inline">•</span>
-                        <span>Mitarbeitende: {company.employeeCount}</span>
+                        <span>Mitarbeitende: {company.employees}</span>
                         <span className="hidden text-base-content/40 md:inline">•</span>
                         <span>
-                          Umsatz ca. {Number(company.annualRevenue) / 100_00} CHF
+                          Umsatz ca. {Number(company.revenue) / 100} CHF
                         </span>
                       </p>
                     </div>
 
                     <div className="flex flex-col items-end gap-2">
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="text-xs text-base-content/60">Risiko-Rating</span>
-                        <span
-                          className={
-                            'badge badge-sm text-xs ' +
-                            (company.riskRating <= 2
-                              ? 'badge-success'
-                              : company.riskRating === 3
-                              ? 'badge-warning'
-                              : 'badge-error')
-                          }
-                        >
-                          {company.riskRating} / 5
-                        </span>
-                      </div>
                       <Link
-                        href={`/quotes/new?dnbId=${company.id}`}
+                        href={`/quotes/new?companyId=${company.id}`}
                         className="btn btn-sm btn-outline whitespace-nowrap"
                       >
                         Firma in Offerte übernehmen
