@@ -63,10 +63,14 @@ export default function TopBar({ user }: TopBarProps) {
             </li>
             <div className="divider my-1"></div>
             <li>
-              <a className="text-[#0032A0] hover:bg-gray-100">Profil</a>
+              <Link href="/profil" className="text-[#0032A0] hover:bg-gray-100">
+                Profil
+              </Link>
             </li>
             <li>
-              <a className="text-[#0032A0] hover:bg-gray-100">Einstellungen</a>
+              <Link href="/profil/einstellungen" className="text-[#0032A0] hover:bg-gray-100">
+                Einstellungen
+              </Link>
             </li>
             <div className="divider my-1"></div>
             <li>

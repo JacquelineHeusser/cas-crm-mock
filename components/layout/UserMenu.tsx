@@ -39,10 +39,10 @@ export default function UserMenu({ user }: UserMenuProps) {
         </li>
         <div className="divider my-1"></div>
         <li>
-          <a>Profil</a>
+          <a href="/profil">Profil</a>
         </li>
         <li>
-          <a>Einstellungen</a>
+          <a href="/profil/einstellungen">Einstellungen</a>
         </li>
         <div className="divider my-1"></div>
         <li>
