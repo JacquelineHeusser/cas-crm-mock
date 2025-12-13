@@ -111,7 +111,7 @@ export default async function DashboardPage({
     },
   }) : [];
 
-  // Risiko-KPIs für Underwriter / Führungskräfte
+  // Risiko-KPIs und Volumen-KPIs für Underwriter / Führungskräfte
   const quoteRiskCounts: Record<string, number> = {
     A: 0,
     B: 0,
@@ -120,6 +120,9 @@ export default async function DashboardPage({
     E: 0,
   };
   let highRiskPolicyCount = 0;
+  let openQuoteCount = 0;
+  let openQuotePremiumTotal = 0; // in CHF
+  let activePolicyPremiumTotal = 0; // in CHF
 
   if (isBrokerOrUnderwriter) {
     for (const score of validRiskScores) {
@@ -141,6 +144,31 @@ export default async function DashboardPage({
         },
       },
     });
+
+    // Offene Offerten (Entwurf/Berechnet/Risikoprüfung) und deren Gesamtprämie
+    const openQuotesAgg = await prisma.quote.aggregate({
+      where: {
+        ...quoteWhere,
+        status: {
+          in: ['DRAFT', 'CALCULATED', 'PENDING_UNDERWRITING'],
+        },
+      },
+      _count: { _all: true },
+      _sum: { premium: true },
+    });
+
+    openQuoteCount = openQuotesAgg._count._all ?? 0;
+    openQuotePremiumTotal = Number(openQuotesAgg._sum.premium ?? 0) / 100;
+
+    // Gesamtprämie des aktiven Bestands (aktive Policen)
+    const activePoliciesAgg = await prisma.policy.aggregate({
+      where: {
+        status: 'ACTIVE',
+      },
+      _sum: { premium: true },
+    });
+
+    activePolicyPremiumTotal = Number(activePoliciesAgg._sum.premium ?? 0) / 100;
   }
 
   // Extrahiere Vornamen
@@ -282,9 +310,9 @@ export default async function DashboardPage({
         <ChevronRight className="text-[#0032A0]" size={20} />
       </div>
 
-      {/* Risiko-KPIs für Underwriter / Führungskräfte */}
+      {/* Risiko- und Volumen-KPIs für Underwriter / Führungskräfte */}
       {isBrokerOrUnderwriter && (
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-3 mb-8">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-4 mb-8">
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
             <p className="text-xs text-gray-500 mb-1">Offerten nach Risk Score</p>
             <div className="flex flex-wrap gap-2 text-xs">
@@ -302,9 +330,21 @@ export default async function DashboardPage({
           </div>
 
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
-            <p className="text-xs text-gray-500 mb-1">Policen mit hohem Risiko (D/E)</p>
-            <p className="text-2xl font-semibold text-[#1A1A1A]">{highRiskPolicyCount}</p>
-            <p className="text-xs text-gray-500 mt-1">Bestand mit erhöhter Cyberexponierung</p>
+            <p className="text-xs text-gray-500 mb-1">Offene Offerten</p>
+            <p className="text-2xl font-semibold text-[#1A1A1A]">{openQuoteCount}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Offertwert gesamt ca. CHF {openQuotePremiumTotal.toLocaleString('de-CH')}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
+            <p className="text-xs text-gray-500 mb-1">Aktiver Bestand</p>
+            <p className="text-2xl font-semibold text-[#1A1A1A]">
+              CHF {activePolicyPremiumTotal.toLocaleString('de-CH')}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Davon hohe Risiken (D/E): {highRiskPolicyCount}
+            </p>
           </div>
 
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
