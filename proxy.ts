@@ -1,5 +1,5 @@
 /**
- * Next.js Middleware für Auth-Schutz
+ * Next.js Proxy für Auth-Schutz
  * Schützt Routes vor unauthentifizierten Zugriffen
  */
 
@@ -21,7 +21,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 const SUPABASE_URL = supabaseUrl as string;
 const SUPABASE_ANON_KEY = supabaseAnonKey as string;
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
