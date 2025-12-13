@@ -3,6 +3,13 @@
  * Asynchrone Validierung mit detailliertem Feedback
  */
 
+import { 
+  isValidZip, 
+  getValidCitiesForZip, 
+  validateZipCityMatch,
+  searchCities 
+} from '@/lib/data/swiss-zip-codes';
+
 // Validierungs-Ergebnis Typ
 export interface ValidationResult {
   isValid: boolean;
@@ -50,6 +57,7 @@ export async function validateSwissAddress(address: string): Promise<ValidationR
 
 /**
  * Validiert eine Schweizer Postleitzahl (4-stellig)
+ * Prüft gegen PLZ-Datenbank
  */
 export async function validateSwissZip(zip: string): Promise<ValidationResult> {
   if (!zip || zip.trim().length === 0) {
@@ -78,15 +86,28 @@ export async function validateSwissZip(zip: string): Promise<ValidationResult> {
     };
   }
 
+  // Prüfen ob PLZ in Datenbank existiert
+  if (!isValidZip(zip.trim())) {
+    return {
+      isValid: false,
+      message: 'PLZ nicht in Datenbank gefunden',
+      suggestions: ['Die PLZ wird trotzdem akzeptiert'],
+    };
+  }
+
+  // Zeige zugehörige Orte als Info
+  const cities = getValidCitiesForZip(zip.trim());
+  
   return {
     isValid: true,
     message: 'Gültige PLZ',
+    suggestions: cities.length > 0 ? [`Ort: ${cities.join(', ')}`] : undefined,
   };
 }
 
 /**
  * Validiert einen Ortsnamen in Kombination mit PLZ
- * Wird später mit PLZ-Datenbank erweitert
+ * Prüft gegen PLZ-Datenbank und bietet Vorschläge
  */
 export async function validateCity(city: string, zip?: string): Promise<ValidationResult> {
   if (!city || city.trim().length === 0) {
@@ -114,10 +135,41 @@ export async function validateCity(city: string, zip?: string): Promise<Validati
     };
   }
 
-  // Wenn PLZ angegeben, später Abgleich mit Datenbank
-  if (zip) {
-    // TODO: Abgleich mit PLZ-Datenbank in Phase 1.2
-    // Placeholder: Alle Orte sind gültig
+  // Wenn PLZ angegeben, prüfe ob Ort und PLZ zusammenpassen
+  if (zip && zip.trim().length === 4) {
+    const isMatch = validateZipCityMatch(zip.trim(), city.trim());
+    
+    if (!isMatch) {
+      const validCities = getValidCitiesForZip(zip.trim());
+      
+      if (validCities.length > 0) {
+        return {
+          isValid: false,
+          message: `Ort passt nicht zu PLZ ${zip}`,
+          suggestions: [`Vorschläge: ${validCities.join(', ')}`],
+        };
+      }
+    } else {
+      return {
+        isValid: true,
+        message: 'Ort und PLZ passen zusammen',
+      };
+    }
+  }
+
+  // Fuzzy Search für Vorschläge
+  const similarCities = searchCities(city.trim(), 3);
+  
+  if (similarCities.length > 0) {
+    const suggestions = similarCities.map(
+      entry => `${entry.city} (${entry.zip})`
+    );
+    
+    return {
+      isValid: true,
+      message: 'Gültiger Ort',
+      suggestions: suggestions.length > 0 ? [`Ähnliche Orte: ${suggestions.join(', ')}`] : undefined,
+    };
   }
 
   return {
