@@ -15,13 +15,16 @@ import type { ServiceRecommendationSegment } from '@/components/customer/Service
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams?: { risk?: string };
+  searchParams: Promise<{ risk?: string }>;
 }) {
   const user = await getCurrentUser();
 
   if (!user) {
     redirect('/login');
   }
+
+  // Next.js 16: searchParams ist jetzt ein Promise
+  const resolvedSearchParams = await searchParams;
 
   // Broker, Underwriter und Führungskräfte sehen ALLE Offerten, Kunden nur ihre eigenen
   const isBrokerOrUnderwriter =
@@ -31,7 +34,7 @@ export default async function DashboardPage({
     user.role === 'HEAD_CYBER_UNDERWRITING';
 
   // Optionaler RiskScore-Filter (A-E) über Query-Parameter
-  const riskParam = searchParams?.risk;
+  const riskParam = resolvedSearchParams?.risk;
   const validRiskScores = ['A', 'B', 'C', 'D', 'E'];
   const riskScoreFilter =
     riskParam && validRiskScores.includes(riskParam.toUpperCase())

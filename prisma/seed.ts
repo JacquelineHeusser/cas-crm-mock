@@ -142,15 +142,15 @@ async function main() {
   const brokers = [brokerMaria, brokerThomas, brokerLaura, brokerSandra, brokerMarc, brokerJulia];
   console.log(`Created ${brokers.length} test brokers`);
 
-  // Standorte für Broker erstellen - echte Zurich Versicherung Standorte Schweiz
+  // Standorte für Broker erstellen (mehrere pro Broker)
   const brokerLocations = await Promise.all([
-    // Maria Schneider - Standorte Zürich Region
+    // Maria Schneider - SwissQuality (Zürich, Winterthur)
     prisma.brokerLocation.create({
       data: {
         brokerId: brokerMaria.id,
-        name: 'Zürich Hauptsitz',
-        address: 'Mythenquai 2',
-        zip: '8002',
+        name: 'Zürich Hauptbahnhof',
+        address: 'Bahnhofstrasse 100',
+        zip: '8001',
         city: 'Zürich',
         isDefault: true,
       },
@@ -158,21 +158,21 @@ async function main() {
     prisma.brokerLocation.create({
       data: {
         brokerId: brokerMaria.id,
-        name: 'Zürich Oerlikon',
-        address: 'Hagenholzstrasse 60',
-        zip: '8050',
-        city: 'Zürich',
+        name: 'Winterthur',
+        address: 'Marktgasse 15',
+        zip: '8400',
+        city: 'Winterthur',
         isDefault: false,
       },
     }),
     
-    // Thomas Weber - Standorte Bern Region
+    // Thomas Weber - Alpen Versicherungen (Bern, Thun)
     prisma.brokerLocation.create({
       data: {
         brokerId: brokerThomas.id,
-        name: 'Bern',
-        address: 'Amthausgasse 18',
-        zip: '3011',
+        name: 'Bern Bundesplatz',
+        address: 'Bundesplatz 10',
+        zip: '3003',
         city: 'Bern',
         isDefault: true,
       },
@@ -181,75 +181,65 @@ async function main() {
       data: {
         brokerId: brokerThomas.id,
         name: 'Thun',
-        address: 'Bälliz 64',
+        address: 'Bälliz 25',
         zip: '3600',
         city: 'Thun',
         isDefault: false,
       },
     }),
     
-    // Laura Müller - Standorte Zentral-/Ostschweiz
+    // Laura Müller - Vermittler Schweiz (Zürich, Luzern, St. Gallen)
+    prisma.brokerLocation.create({
+      data: {
+        brokerId: brokerLaura.id,
+        name: 'Zürich Seefeld',
+        address: 'Seefeldstrasse 200',
+        zip: '8008',
+        city: 'Zürich',
+        isDefault: true,
+      },
+    }),
     prisma.brokerLocation.create({
       data: {
         brokerId: brokerLaura.id,
         name: 'Luzern',
-        address: 'Frohburgstrasse 1',
-        zip: '6002',
+        address: 'Haldenstrasse 10',
+        zip: '6006',
         city: 'Luzern',
-        isDefault: true,
+        isDefault: false,
       },
     }),
     prisma.brokerLocation.create({
       data: {
         brokerId: brokerLaura.id,
         name: 'St. Gallen',
-        address: 'Kornhausstrasse 3',
-        zip: '9000',
+        address: 'Vadianstrasse 35',
+        zip: '9001',
         city: 'St. Gallen',
         isDefault: false,
       },
     }),
-    prisma.brokerLocation.create({
-      data: {
-        brokerId: brokerLaura.id,
-        name: 'Chur',
-        address: 'Grabenstrasse 30',
-        zip: '7000',
-        city: 'Chur',
-        isDefault: false,
-      },
-    }),
     
-    // Sandra Keller - Standorte Basel Region
+    // Sandra Keller - Basel Insurance (nur ein Standort)
     prisma.brokerLocation.create({
       data: {
         brokerId: brokerSandra.id,
-        name: 'Basel',
-        address: 'Steinenvorstadt 53',
+        name: 'Basel City',
+        address: 'Centralbahnplatz 12',
         zip: '4051',
         city: 'Basel',
         isDefault: true,
       },
     }),
-    prisma.brokerLocation.create({
-      data: {
-        brokerId: brokerSandra.id,
-        name: 'Liestal',
-        address: 'Rheinstrasse 15',
-        zip: '4410',
-        city: 'Liestal',
-        isDefault: false,
-      },
-    }),
     
-    // Marc Lindemann - Standorte Romandie
+    // Marc Lindemann - Romandie Assurances (Genf, Lausanne)
     prisma.brokerLocation.create({
       data: {
         brokerId: brokerMarc.id,
-        name: 'Genève',
-        address: 'Rue du Rhône 50',
-        zip: '1204',
-        city: 'Genève',
+        name: 'Genf Centre',
+        address: 'Rue du Mont-Blanc 20',
+        zip: '1201',
+        city: 'Genf',
         isDefault: true,
       },
     }),
@@ -257,29 +247,19 @@ async function main() {
       data: {
         brokerId: brokerMarc.id,
         name: 'Lausanne',
-        address: 'Avenue de la Gare 10',
+        address: 'Rue Centrale 5',
         zip: '1003',
         city: 'Lausanne',
         isDefault: false,
       },
     }),
-    prisma.brokerLocation.create({
-      data: {
-        brokerId: brokerMarc.id,
-        name: 'Fribourg',
-        address: 'Boulevard de Pérolles 21',
-        zip: '1700',
-        city: 'Fribourg',
-        isDefault: false,
-      },
-    }),
     
-    // Julia Meier - Standorte Winterthur/Nordostschweiz
+    // Julia Meier - Zürich Versicherungsberatung (Winterthur, Frauenfeld)
     prisma.brokerLocation.create({
       data: {
         brokerId: brokerJulia.id,
-        name: 'Winterthur',
-        address: 'Theaterstrasse 17',
+        name: 'Winterthur Oberwinterthur',
+        address: 'Technikumstrasse 8',
         zip: '8400',
         city: 'Winterthur',
         isDefault: true,
@@ -288,10 +268,10 @@ async function main() {
     prisma.brokerLocation.create({
       data: {
         brokerId: brokerJulia.id,
-        name: 'Schaffhausen',
-        address: 'Fronwagplatz 8',
-        zip: '8200',
-        city: 'Schaffhausen',
+        name: 'Frauenfeld',
+        address: 'Zürcherstrasse 120',
+        zip: '8500',
+        city: 'Frauenfeld',
         isDefault: false,
       },
     }),

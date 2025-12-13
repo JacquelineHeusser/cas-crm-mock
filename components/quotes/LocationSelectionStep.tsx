@@ -7,7 +7,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MapPin, Building2, Check } from 'lucide-react';
+import { MapPin, Building2, Check, Plus, X, Loader2 } from 'lucide-react';
 
 interface BrokerLocation {
   id: string;
@@ -36,6 +36,70 @@ export default function LocationSelectionStep({
   const [locations, setLocations] = useState<BrokerLocation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // State für Inline-Formular "Neuer Standort"
+  const [showNewLocationForm, setShowNewLocationForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [newLocation, setNewLocation] = useState({
+    name: '',
+    address: '',
+    zip: '',
+    city: '',
+  });
+
+  // Funktion zum Laden der Standorte
+  const loadLocations = async () => {
+    try {
+      const res = await fetch(`/api/brokers/${brokerId}/locations`);
+      if (!res.ok) throw new Error('Fehler beim Laden der Standorte');
+      const data = await res.json();
+      setLocations(data);
+      return data;
+    } catch (err) {
+      console.error('Error loading broker locations:', err);
+      setError('Standorte konnten nicht geladen werden');
+      return [];
+    }
+  };
+
+  // Neuen Standort speichern
+  const handleSaveNewLocation = async () => {
+    if (!newLocation.name || !newLocation.address || !newLocation.zip || !newLocation.city) {
+      setFormError('Bitte füllen Sie alle Felder aus');
+      return;
+    }
+
+    setSaving(true);
+    setFormError(null);
+
+    try {
+      const res = await fetch(`/api/brokers/${brokerId}/locations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newLocation),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Fehler beim Speichern');
+      }
+
+      const createdLocation = await res.json();
+      
+      // Standorte neu laden und neuen Standort auswählen
+      await loadLocations();
+      onSelect(createdLocation.id);
+      
+      // Formular zurücksetzen und schliessen
+      setNewLocation({ name: '', address: '', zip: '', city: '' });
+      setShowNewLocationForm(false);
+    } catch (err: any) {
+      setFormError(err.message || 'Fehler beim Speichern des Standorts');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   useEffect(() => {
     // Lade alle Standorte des Brokers
@@ -149,6 +213,128 @@ export default function LocationSelectionStep({
               </div>
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Neuer Standort Bereich */}
+      {!loading && !error && (
+        <div className="mb-6">
+          {!showNewLocationForm ? (
+            <button
+              type="button"
+              onClick={() => setShowNewLocationForm(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 text-gray-600 rounded-lg hover:border-[#0032A0] hover:text-[#0032A0] transition-colors"
+            >
+              <Plus size={18} />
+              Neuer Standort erfassen
+            </button>
+          ) : (
+            <div className="p-6 bg-gray-50 rounded-lg border-2 border-[#0032A0]">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-medium text-[#1A1A1A]">Neuer Standort erfassen</h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewLocationForm(false);
+                    setFormError(null);
+                    setNewLocation({ name: '', address: '', zip: '', city: '' });
+                  }}
+                  className="p-1 text-gray-500 hover:text-gray-700 rounded"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {formError && (
+                <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+                  {formError}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Standortname *
+                  </label>
+                  <input
+                    type="text"
+                    value={newLocation.name}
+                    onChange={(e) => setNewLocation({ ...newLocation, name: e.target.value })}
+                    placeholder="z.B. Zürich Hauptsitz"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Adresse *
+                  </label>
+                  <input
+                    type="text"
+                    value={newLocation.address}
+                    onChange={(e) => setNewLocation({ ...newLocation, address: e.target.value })}
+                    placeholder="z.B. Bahnhofstrasse 1"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    PLZ *
+                  </label>
+                  <input
+                    type="text"
+                    value={newLocation.zip}
+                    onChange={(e) => setNewLocation({ ...newLocation, zip: e.target.value })}
+                    placeholder="z.B. 8001"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Ort *
+                  </label>
+                  <input
+                    type="text"
+                    value={newLocation.city}
+                    onChange={(e) => setNewLocation({ ...newLocation, city: e.target.value })}
+                    placeholder="z.B. Zürich"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewLocationForm(false);
+                    setFormError(null);
+                    setNewLocation({ name: '', address: '', zip: '', city: '' });
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveNewLocation}
+                  disabled={saving}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#0032A0] text-white rounded-lg hover:bg-[#002080] transition-colors disabled:opacity-50"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Speichern...
+                    </>
+                  ) : (
+                    <>
+                      <Check size={18} />
+                      Standort speichern
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
