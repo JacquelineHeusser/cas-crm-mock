@@ -112,22 +112,26 @@ export default async function DashboardPage({
   }) : [];
 
   // Risiko-KPIs für Underwriter / Führungskräfte
-  let quoteRiskBuckets: { riskScore: string | null; _count: { riskScore: number } }[] = [];
+  const quoteRiskCounts: Record<string, number> = {
+    A: 0,
+    B: 0,
+    C: 0,
+    D: 0,
+    E: 0,
+  };
   let highRiskPolicyCount = 0;
 
   if (isBrokerOrUnderwriter) {
-    quoteRiskBuckets = await prisma.quote.groupBy({
-      by: ['riskScore'],
-      where: {
-        riskScore: {
-          not: null,
+    for (const score of validRiskScores) {
+      // Anzahl Offerten pro RiskScore zählen
+      quoteRiskCounts[score] = await prisma.quote.count({
+        where: {
+          riskScore: score as any,
         },
-      },
-      _count: {
-        riskScore: true,
-      },
-    });
+      });
+    }
 
+    // Anzahl Policen, deren Quote einen hohen RiskScore (D/E) hat
     highRiskPolicyCount = await prisma.policy.count({
       where: {
         quote: {
@@ -285,16 +289,12 @@ export default async function DashboardPage({
             <p className="text-xs text-gray-500 mb-1">Offerten nach Risk Score</p>
             <div className="flex flex-wrap gap-2 text-xs">
               {validRiskScores.map((score) => {
-                const bucket = quoteRiskBuckets.find((b) => b.riskScore === score) ?? {
-                  riskScore: score,
-                  _count: { riskScore: 0 },
-                };
                 return (
                   <span
                     key={score}
                     className="px-2 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-700"
                   >
-                    {score}: {bucket._count.riskScore}
+                    {score}: {quoteRiskCounts[score] ?? 0}
                   </span>
                 );
               })}
