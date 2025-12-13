@@ -111,6 +111,34 @@ export default async function DashboardPage({
     },
   }) : [];
 
+  // Risiko-KPIs für Underwriter / Führungskräfte
+  let quoteRiskBuckets: { riskScore: string | null; _count: { riskScore: number } }[] = [];
+  let highRiskPolicyCount = 0;
+
+  if (isBrokerOrUnderwriter) {
+    quoteRiskBuckets = await prisma.quote.groupBy({
+      by: ['riskScore'],
+      where: {
+        riskScore: {
+          not: null,
+        },
+      },
+      _count: {
+        riskScore: true,
+      },
+    });
+
+    highRiskPolicyCount = await prisma.policy.count({
+      where: {
+        quote: {
+          riskScore: {
+            in: ['D', 'E'],
+          },
+        },
+      },
+    });
+  }
+
   // Extrahiere Vornamen
   const firstName = user.name.split(' ')[0];
   
