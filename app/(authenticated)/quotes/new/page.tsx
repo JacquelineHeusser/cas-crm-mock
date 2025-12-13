@@ -47,6 +47,7 @@ export default function NewQuotePage() {
   const searchParams = useSearchParams();
   const editQuoteId = searchParams.get('edit');
   const companyId = searchParams.get('companyId');
+  const initialBrokerId = searchParams.get('brokerId') || undefined;
   
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<any>({});
@@ -55,9 +56,11 @@ export default function NewQuotePage() {
   const [riskScore, setRiskScore] = useState<string | null>(null);
   const [riskScoreReason, setRiskScoreReason] = useState<string | null>(null);
   const [underwritingCase, setUnderwritingCase] = useState<any>(null);
-  const [selectedBrokerId, setSelectedBrokerId] = useState<string | undefined>(undefined);
+  const [selectedBrokerId, setSelectedBrokerId] = useState<string | undefined>(initialBrokerId);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [showBrokerSelection, setShowBrokerSelection] = useState(false);
+
+  const router = useRouter();
 
   // Aktuelles Schema basierend auf Step
   const currentSchema = STEPS[currentStep - 1].schema;
@@ -120,7 +123,8 @@ export default function NewQuotePage() {
       // Setze Rolle und prüfe ob Broker-Auswahl nötig ist
       setUserRole(role);
       const needsBrokerSelection = role === 'BROKER' || role === 'UNDERWRITER' || role === 'MFU_TEAMLEITER' || role === 'HEAD_CYBER_UNDERWRITING';
-      setShowBrokerSelection(needsBrokerSelection && !editQuoteId); // Nur bei neuen Offerten
+      // Wenn bereits ein brokerId-Parameter vorhanden ist, Broker-Auswahl 1berspringen
+      setShowBrokerSelection(needsBrokerSelection && !editQuoteId && !initialBrokerId); // Nur bei neuen Offerten ohne vorgew4hlten Broker
       
       // Wenn Quote-ID vorhanden, lade existierende Quote
       if (editQuoteId) {
@@ -318,7 +322,14 @@ export default function NewQuotePage() {
     return (
       <div className="flex-1 p-8">
         <BrokerSelectionStep
-          onSelect={(brokerId) => setSelectedBrokerId(brokerId)}
+          onSelect={(brokerId) => {
+            setSelectedBrokerId(brokerId);
+
+            // brokerId in die URL schreiben, damit sie beim Wechsel zur Firmensuche erhalten bleibt
+            const params = new URLSearchParams(window.location.search);
+            params.set('brokerId', brokerId);
+            router.replace(`?${params.toString()}`);
+          }}
           selectedBrokerId={selectedBrokerId}
           onNext={() => setShowBrokerSelection(false)}
           onPrevious={() => window.location.href = '/dashboard'}
@@ -409,6 +420,7 @@ export default function NewQuotePage() {
               watch={watch}
               setValue={setValue}
               currentCompanyName={watch('companyName')}
+              selectedBrokerId={selectedBrokerId}
             />
           )}
           {currentStep === 2 && <Step2CyberRiskProfile register={register} errors={errors} />}
@@ -480,7 +492,7 @@ function QuestionField({ question, children }: { question: string; children: Rea
 }
 
 // Step 1: Unternehmensdaten mit Echtzeit-Validierung
-function Step1CompanyData({ register, errors, watch, setValue, currentCompanyName }: any) {
+function Step1CompanyData({ register, errors, watch, setValue, currentCompanyName, selectedBrokerId }: any) {
   const zipValue = watch('zip');
 
   return (
@@ -502,7 +514,17 @@ function Step1CompanyData({ register, errors, watch, setValue, currentCompanyNam
             />
           </div>
           <Link
-            href={`/firmensuche${currentCompanyName ? `?q=${encodeURIComponent(currentCompanyName)}` : ''}`}
+            href={`/firmensuche${(() => {
+              const params = new URLSearchParams();
+              if (selectedBrokerId) {
+                params.set('brokerId', selectedBrokerId);
+              }
+              if (currentCompanyName) {
+                params.set('q', currentCompanyName);
+              }
+              const search = params.toString();
+              return search ? `?${search}` : '';
+            })()}`}
             className="btn btn-outline btn-sm rounded-full whitespace-nowrap"
           >
             Firmensuche
@@ -907,7 +929,7 @@ function Step3CyberSecurity({ register, errors, watch, formData }: any) {
 
       {/* Umsatz > 5 Mio. Fragen */}
       {showRevenue5Questions && (
-        <div className="space-y-6 pl-6 border-l-4 border-[#CADB2D] bg-[#FEFCE8] p-6 rounded-lg mt-8">
+        <div className="space-y-6 pl-6 border-l-4 border-[#CADB2D] bg-[#FEFCE8] p-6 rounded-lg">
           <h3 className="text-lg font-medium text-[#0032A0] mb-4">Erweiterte Sicherheitsfragen (Umsatz &gt; CHF 5 Mio.)</h3>
           
           <QuestionField question="Jeglicher Fernzugriff auf das Firmennetzwerk erfolgt über eine verschlüsselte Verbindung und erfordert Multifaktor-Authentifizierung (MFA).">

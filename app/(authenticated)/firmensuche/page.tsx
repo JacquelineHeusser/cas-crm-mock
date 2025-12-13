@@ -16,6 +16,7 @@ interface FirmensuchePageProps {
   searchParams: {
     q?: string;
     page?: string;
+    brokerId?: string;
   };
 }
 
@@ -170,7 +171,13 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
 
                     <div className="flex flex-col items-end gap-2">
                       <Link
-                        href={`/quotes/new?companyId=${company.id}`}
+                        href={`/quotes/new?${(() => {
+                          const params = new URLSearchParams({ companyId: company.id });
+                          if (searchParams.brokerId) {
+                            params.set('brokerId', searchParams.brokerId);
+                          }
+                          return params.toString();
+                        })()}`}
                         className="btn btn-sm btn-outline whitespace-nowrap"
                       >
                         Firma in Offerte übernehmen
@@ -191,19 +198,27 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
               </div>
               <div className="join">
                 <Link
-                  href={`/firmensuche?${new URLSearchParams({
-                    ...(query ? { q: query } : {}),
-                    page: String(Math.max(1, safePage - 1)),
-                  }).toString()}`}
+                  href={`/firmensuche?${(() => {
+                    const params = new URLSearchParams({
+                      page: String(Math.max(1, safePage - 1)),
+                    });
+                    if (query) params.set('q', query);
+                    if (searchParams.brokerId) params.set('brokerId', searchParams.brokerId);
+                    return params.toString();
+                  })()}`}
                   className={`btn btn-sm join-item ${safePage === 1 ? 'btn-disabled' : ''}`}
                 >
                   « Zurück
                 </Link>
                 <Link
-                  href={`/firmensuche?${new URLSearchParams({
-                    ...(query ? { q: query } : {}),
-                    page: String(Math.min(totalPages, safePage + 1)),
-                  }).toString()}`}
+                  href={`/firmensuche?${(() => {
+                    const params = new URLSearchParams({
+                      page: String(Math.min(totalPages, safePage + 1)),
+                    });
+                    if (query) params.set('q', query);
+                    if (searchParams.brokerId) params.set('brokerId', searchParams.brokerId);
+                    return params.toString();
+                  })()}`}
                   className={`btn btn-sm join-item ${safePage === totalPages ? 'btn-disabled' : ''}`}
                 >
                   Weiter »
