@@ -126,6 +126,7 @@ export async function POST(request: NextRequest) {
           url: body.url,
           industry: body.industry,
           employees: body.employees,
+          revenue: body.revenue,
         },
       });
     }
