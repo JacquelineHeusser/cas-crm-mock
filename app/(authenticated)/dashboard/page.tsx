@@ -237,7 +237,22 @@ export default async function DashboardPage({
   const filteredQuotes = riskScoreFilter
     ? recentQuotes.filter((q) => (q.riskScore as string | null | undefined)?.toUpperCase() === riskScoreFilter)
     : recentQuotes;
-  
+
+  // Risk Score Badge Farben für Quotes
+  const getRiskScoreBadge = (score: string | null | undefined) => {
+    if (!score) return null;
+
+    const config: Record<string, { bg: string; text: string; label: string }> = {
+      A: { bg: 'bg-green-100', text: 'text-green-800', label: 'A' },
+      B: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'B' },
+      C: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'C' },
+      D: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'D' },
+      E: { bg: 'bg-red-100', text: 'text-red-800', label: 'E' },
+    };
+
+    return config[score] || null;
+  };
+
   // Status Badge Farben für Policies
   const getPolicyStatusBadge = (status: string) => {
     switch (status) {
@@ -580,6 +595,7 @@ export default async function DashboardPage({
             ) : (
               filteredQuotes.map((quote) => {
                 const statusBadge = getStatusBadge(quote.status);
+                const riskScoreBadge = getRiskScoreBadge(quote.riskScore as string | null | undefined);
                 const companyData = quote.companyData as any;
                 const companyName = companyData?.companyName || quote.company?.name || 'Unbekannt';
                 const createdDate = new Date(quote.createdAt).toLocaleDateString('de-CH');
@@ -597,9 +613,18 @@ export default async function DashboardPage({
                         </svg>
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-medium text-[#1A1A1A] mb-1">
-                          {companyName} - Cyberversicherung
-                        </h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-medium text-[#1A1A1A]">
+                            {companyName} - Cyberversicherung
+                          </h3>
+                          {riskScoreBadge && (
+                            <span
+                              className={`px-2 py-0.5 text-xs font-semibold rounded-full ${riskScoreBadge.bg} ${riskScoreBadge.text}`}
+                            >
+                              Score {riskScoreBadge.label}
+                            </span>
+                          )}
+                        </div>
                         <div className="flex gap-6 text-sm text-gray-600">
                           {isBrokerOrUnderwriter && quote.user && (
                             <span>Kunde: {quote.user.name}</span>
