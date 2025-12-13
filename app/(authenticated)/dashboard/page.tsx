@@ -9,6 +9,8 @@ import { ChevronRight, Info } from 'lucide-react';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { PACKAGES } from '@/lib/validation/premium-schema';
+import { ServiceRecommendations } from '@/components/customer/ServiceRecommendations';
+import type { ServiceRecommendationSegment } from '@/components/customer/ServiceRecommendations';
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -124,6 +126,28 @@ export default async function DashboardPage() {
         return { label: status, class: 'bg-gray-100 text-gray-700' };
     }
   };
+
+  // Leitet ein Empfehlungs-Segment aus dem Risk Score A-E ab
+  const getServiceSegmentFromRiskScore = (riskScore?: string | null): ServiceRecommendationSegment => {
+    if (!riskScore) return 'generic';
+
+    switch (riskScore) {
+      case 'A':
+      case 'B':
+        return 'generic';
+      case 'C':
+        return 'highRisk';
+      case 'D':
+      case 'E':
+        return 'critical';
+      default:
+        return 'generic';
+    }
+  };
+
+  // Verwende den Risk Score der neuesten Offerte als Basis für Empfehlungen
+  const latestQuoteRiskScore = recentQuotes[0]?.riskScore as string | null | undefined;
+  const customerServiceSegment: ServiceRecommendationSegment = getServiceSegmentFromRiskScore(latestQuoteRiskScore);
   
   // Status Badge Farben für Policies
   const getPolicyStatusBadge = (status: string) => {
@@ -272,6 +296,13 @@ export default async function DashboardPage() {
               })
             )}
           </div>
+        </div>
+      )}
+
+      {/* Service-Empfehlungen für Cyber Services (nur für Kunden sichtbar, basierend auf RiskScore A-E) */}
+      {user.role === 'CUSTOMER' && (
+        <div className="mt-4 mb-10">
+          <ServiceRecommendations segment={customerServiceSegment} />
         </div>
       )}
 
