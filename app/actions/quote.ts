@@ -142,6 +142,7 @@ export async function loadQuote(quoteId: string) {
         id: true,
         quoteNumber: true,
         status: true,
+        brokerId: true,
         companyData: true,
         cyberRiskProfile: true,
         cyberSecurity: true,

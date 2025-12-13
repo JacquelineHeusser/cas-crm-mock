@@ -133,6 +133,10 @@ export default function NewQuotePage() {
         if (result.success && result.quote) {
           // Setze Quote ID
           setQuoteId(result.quote.id);
+          // Setze ausgewählten Broker, falls vorhanden
+          if (result.quote.brokerId) {
+            setSelectedBrokerId(result.quote.brokerId);
+          }
           
           // Setze Risk Score wenn vorhanden
           if (result.quote.riskScore) {
