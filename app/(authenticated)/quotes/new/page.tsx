@@ -15,6 +15,7 @@ import { saveQuoteStep, getUserId, getUserData, loadQuote, createPolicyFromQuote
 import { getDnbCompany } from '@/app/actions/dnb';
 import ValidatedInput from '@/components/forms/ValidatedInput';
 import CityAutocomplete from '@/components/forms/CityAutocomplete';
+import ZipWithCitySuggestions from '@/components/forms/ZipWithCitySuggestions';
 import { validateSwissAddress, validateSwissZip, validateUrl, validateCompanyName } from '@/lib/validation/realtime-validators';
 import { 
   companyDataSchema, 
@@ -68,6 +69,7 @@ export default function NewQuotePage() {
     formState: { errors, isSubmitting },
     reset,
     watch,
+    setValue,
   } = useForm({
     resolver: zodResolver(currentSchema),
     defaultValues: formData,
@@ -405,6 +407,7 @@ export default function NewQuotePage() {
               register={register}
               errors={errors}
               watch={watch}
+              setValue={setValue}
               currentCompanyName={watch('companyName')}
             />
           )}
@@ -477,7 +480,7 @@ function QuestionField({ question, children }: { question: string; children: Rea
 }
 
 // Step 1: Unternehmensdaten mit Echtzeit-Validierung
-function Step1CompanyData({ register, errors, watch, currentCompanyName }: any) {
+function Step1CompanyData({ register, errors, watch, setValue, currentCompanyName }: any) {
   const zipValue = watch('zip');
 
   return (
@@ -523,25 +526,36 @@ function Step1CompanyData({ register, errors, watch, currentCompanyName }: any) 
 
       <QuestionField question="PLZ, Ort">
         <div className="grid grid-cols-2 gap-4">
-          <ValidatedInput
-            label=""
-            name="zip"
-            placeholder="PLZ*"
-            validator={validateSwissZip}
-            registerProps={register('zip')}
-            error={errors.zip}
-            showValidationIcon={true}
-            maxLength={4}
-            className="px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60"
-          />
+          {/* PLZ mit Dropdown */}
+          <div>
+            <ZipWithCitySuggestions
+              label=""
+              name="zip"
+              value={zipValue || ''}
+              placeholder="PLZ*"
+              registerProps={register('zip')}
+              error={errors.zip}
+              maxLength={4}
+              onCitySelect={(city) => {
+                // Befülle Ort-Feld automatisch
+                setValue('city', city, { shouldValidate: true });
+              }}
+              className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+            />
+          </div>
           
-          <CityAutocomplete
-            label=""
-            name="city"
-            zip={zipValue}
-            registerProps={register('city')}
-            error={errors.city}
-          />
+          {/* Ort (normal) */}
+          <div>
+            <input
+              type="text"
+              placeholder="Ort*"
+              className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
+              {...register('city')}
+            />
+            {errors.city && (
+              <p className="text-red-600 text-xs mt-2 ml-6">{errors.city.message}</p>
+            )}
+          </div>
         </div>
       </QuestionField>
 

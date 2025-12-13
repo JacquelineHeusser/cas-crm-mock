@@ -43,6 +43,13 @@ export default function CityAutocomplete({
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Sync inputValue mit externem value
+  useEffect(() => {
+    if (value !== inputValue) {
+      setInputValue(value);
+    }
+  }, [value]);
+
   const validation = useRealtimeValidation(
     (city: string, zipCode?: string) => validateCity(city, zipCode),
     {
@@ -53,13 +60,9 @@ export default function CityAutocomplete({
   );
 
   useEffect(() => {
-    if (!inputValue || inputValue.trim().length === 0) {
-      setSuggestions([]);
-      return;
-    }
-
     let citySuggestions: string[] = [];
 
+    // Priorität 1: PLZ-basierte Vorschläge (auch bei leerem Input)
     if (zip && zip.length === 4) {
       const citiesForZip = getValidCitiesForZip(zip);
       if (citiesForZip.length > 0) {
@@ -67,7 +70,8 @@ export default function CityAutocomplete({
       }
     }
 
-    if (citySuggestions.length === 0) {
+    // Priorität 2: Fuzzy Search nur wenn Input vorhanden
+    if (citySuggestions.length === 0 && inputValue && inputValue.trim().length > 0) {
       const searchResults = searchCities(inputValue, 5);
       citySuggestions = searchResults.map(entry => entry.city);
     }
@@ -177,7 +181,18 @@ export default function CityAutocomplete({
             value={inputValue}
             {...registerProps}
             onChange={handleInputChange}
-            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+            onFocus={() => {
+              // Bei gültiger PLZ: forciere Suggestions-Update und zeige Dropdown
+              if (zip && zip.length === 4) {
+                const citiesForZip = getValidCitiesForZip(zip);
+                if (citiesForZip.length > 0) {
+                  setSuggestions([...new Set(citiesForZip)]);
+                  setShowSuggestions(true);
+                }
+              } else if (suggestions.length > 0) {
+                setShowSuggestions(true);
+              }
+            }}
             onBlur={(e) => {
               setIsTouched(true);
               if (inputValue) validation.validate(inputValue);
