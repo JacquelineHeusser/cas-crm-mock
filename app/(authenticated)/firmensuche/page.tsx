@@ -21,18 +21,10 @@ interface FirmensuchePageProps {
 }
 
 export default async function FirmensuchePage({ searchParams }: FirmensuchePageProps) {
-  // Nur Fachrollen sollen die Firmensuche nutzen (Broker / Underwriter / MFU / Head)
+  // Nur eingeloggte Benutzer dürfen die Firmensuche nutzen
   const user = await getCurrentUser();
-  if (
-    !user ||
-    ![
-      'BROKER',
-      'UNDERWRITER',
-      'MFU_TEAMLEITER',
-      'HEAD_CYBER_UNDERWRITING',
-    ].includes(user.role)
-  ) {
-    redirect('/dashboard');
+  if (!user) {
+    redirect('/login');
   }
 
   const query = (searchParams.q ?? '').trim();
