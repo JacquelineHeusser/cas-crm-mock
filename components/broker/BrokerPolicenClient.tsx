@@ -39,11 +39,12 @@ interface BrokerPolicenClientProps {
 
 export default function BrokerPolicenClient({ userName, policies }: BrokerPolicenClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [riskFilter, setRiskFilter] = useState<string | null>(null);
 
   const firstName = userName.split(' ')[0];
 
   // Filter nach Suchbegriff
-  const filteredPolicies = searchQuery
+  const searchFilteredPolicies = searchQuery
     ? policies.filter(policy => {
         const query = searchQuery.toLowerCase();
         const companyName = (policy.company?.name || '').toLowerCase();
@@ -55,6 +56,11 @@ export default function BrokerPolicenClient({ userName, policies }: BrokerPolice
                policyNumber.includes(query);
       })
     : policies;
+
+  // Optionaler RiskScore-Filter (A-E) basierend auf RiskScore der zugehörigen Quote
+  const filteredPolicies = riskFilter
+    ? searchFilteredPolicies.filter((policy) => (policy.quote.riskScore || '').toUpperCase() === riskFilter)
+    : searchFilteredPolicies;
 
   // Status Badge
   const getStatusBadge = (status: string) => {
@@ -113,8 +119,38 @@ export default function BrokerPolicenClient({ userName, policies }: BrokerPolice
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-8 py-8">
-        {/* Suchleiste */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        {/* Suchleiste + RiskScore-Filter */}
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 space-y-3">
+          {/* RiskScore Filter */}
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-gray-500 mr-1">Risk Score:</span>
+            <button
+              type="button"
+              onClick={() => setRiskFilter(null)}
+              className={`px-2 py-1 rounded-full border text-xs ${
+                !riskFilter
+                  ? 'bg-[#0032A0] text-white border-[#0032A0]'
+                  : 'bg-white text-gray-700 border-gray-300'
+              }`}
+            >
+              Alle
+            </button>
+            {['A', 'B', 'C', 'D', 'E'].map((score) => (
+              <button
+                key={score}
+                type="button"
+                onClick={() => setRiskFilter(score)}
+                className={`px-2 py-1 rounded-full border text-xs ${
+                  riskFilter === score
+                    ? 'bg-[#0032A0] text-white border-[#0032A0]'
+                    : 'bg-white text-gray-700 border-gray-300'
+                }`}
+              >
+                {score}
+              </button>
+            ))}
+          </div>
+
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input

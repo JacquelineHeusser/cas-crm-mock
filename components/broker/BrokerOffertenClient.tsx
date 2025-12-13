@@ -33,11 +33,12 @@ interface BrokerOffertenClientProps {
 
 export default function BrokerOffertenClient({ userName, quotes }: BrokerOffertenClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [riskFilter, setRiskFilter] = useState<string | null>(null);
 
   const firstName = userName.split(' ')[0];
 
   // Filter nach Suchbegriff
-  const filteredQuotes = searchQuery
+  const searchFilteredQuotes = searchQuery
     ? quotes.filter(quote => {
         const query = searchQuery.toLowerCase();
         const companyData = quote.companyData as any;
@@ -50,6 +51,11 @@ export default function BrokerOffertenClient({ userName, quotes }: BrokerOfferte
                quoteNumber.includes(query);
       })
     : quotes;
+
+  // Optionaler RiskScore-Filter (A-E) auf die Suchergebnisse
+  const filteredQuotes = riskFilter
+    ? searchFilteredQuotes.filter((quote) => (quote.riskScore || '').toUpperCase() === riskFilter)
+    : searchFilteredQuotes;
 
   // Status Badge
   const getStatusBadge = (status: string) => {
@@ -105,6 +111,24 @@ export default function BrokerOffertenClient({ userName, quotes }: BrokerOfferte
     return 'Noch nicht berechnet';
   };
 
+  // Helfer: numerischen Prämienwert in CHF aus String (Rappen) berechnen
+  const getPremiumChf = (premium: string | null) => {
+    if (!premium) return 0;
+    return Number(premium) / 100;
+  };
+
+  // Aggregierte Werte pro Status
+  const totalPremiumChf = quotes.reduce((sum, q) => sum + getPremiumChf(q.premium), 0);
+  const pendingPremiumChf = quotes
+    .filter((q) => q.status === 'PENDING_UNDERWRITING')
+    .reduce((sum, q) => sum + getPremiumChf(q.premium), 0);
+  const approvedPremiumChf = quotes
+    .filter((q) => q.status === 'APPROVED')
+    .reduce((sum, q) => sum + getPremiumChf(q.premium), 0);
+  const policiedPremiumChf = quotes
+    .filter((q) => q.status === 'POLICIED')
+    .reduce((sum, q) => sum + getPremiumChf(q.premium), 0);
+
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
@@ -128,6 +152,9 @@ export default function BrokerOffertenClient({ userName, quotes }: BrokerOfferte
               <div>
                 <p className="text-2xl font-semibold text-[#1A1A1A]">{quotes.length}</p>
                 <p className="text-sm text-gray-600">Total Offerten</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Wert: CHF {totalPremiumChf.toLocaleString('de-CH')}
+                </p>
               </div>
             </div>
           </div>
@@ -142,6 +169,9 @@ export default function BrokerOffertenClient({ userName, quotes }: BrokerOfferte
                   {quotes.filter(q => q.status === 'PENDING_UNDERWRITING').length}
                 </p>
                 <p className="text-sm text-gray-600">In Prüfung</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Wert: CHF {pendingPremiumChf.toLocaleString('de-CH')}
+                </p>
               </div>
             </div>
           </div>
@@ -156,6 +186,9 @@ export default function BrokerOffertenClient({ userName, quotes }: BrokerOfferte
                   {quotes.filter(q => q.status === 'APPROVED').length}
                 </p>
                 <p className="text-sm text-gray-600">Genehmigt</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Wert: CHF {approvedPremiumChf.toLocaleString('de-CH')}
+                </p>
               </div>
             </div>
           </div>
@@ -170,13 +203,46 @@ export default function BrokerOffertenClient({ userName, quotes }: BrokerOfferte
                   {quotes.filter(q => q.status === 'POLICIED').length}
                 </p>
                 <p className="text-sm text-gray-600">Policen</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Wert: CHF {policiedPremiumChf.toLocaleString('de-CH')}
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Suchfeld */}
-        <div className="mb-6">
+        {/* RiskScore-Filter & Suchfeld */}
+        <div className="mb-6 space-y-3">
+          {/* RiskScore Filter */}
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-gray-500 mr-1">Risk Score:</span>
+            <button
+              type="button"
+              onClick={() => setRiskFilter(null)}
+              className={`px-2 py-1 rounded-full border text-xs ${
+                !riskFilter
+                  ? 'bg-[#0032A0] text-white border-[#0032A0]'
+                  : 'bg-white text-gray-700 border-gray-300'
+              }`}
+            >
+              Alle
+            </button>
+            {['A', 'B', 'C', 'D', 'E'].map((score) => (
+              <button
+                key={score}
+                type="button"
+                onClick={() => setRiskFilter(score)}
+                className={`px-2 py-1 rounded-full border text-xs ${
+                  riskFilter === score
+                    ? 'bg-[#0032A0] text-white border-[#0032A0]'
+                    : 'bg-white text-gray-700 border-gray-300'
+                }`}
+              >
+                {score}
+              </button>
+            ))}
+          </div>
+
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
