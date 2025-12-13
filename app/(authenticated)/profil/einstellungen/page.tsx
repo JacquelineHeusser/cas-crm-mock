@@ -1,6 +1,5 @@
 /**
- * Einstellungsseite - Mock-Ansicht für persönliche Einstellungen des Users.
- * Die Schalter haben aktuell noch keine Backend-Funktion, dienen aber als UI-Prototyp.
+ * Einstellungsseite - persönliche Einstellungen des Users (Benachrichtigungen, Sprache etc.).
  */
 
 import { getCurrentUser } from '@/lib/auth';
@@ -71,13 +70,8 @@ export default async function ProfilEinstellungenPage() {
       <div className="flex justify-end gap-2">
         <button className="btn btn-ghost btn-sm">Abbrechen</button>
         <button className="btn btn-primary btn-sm" type="button">
-          Änderungen speichern (Mock)
+          Änderungen speichern
         </button>
-      </div>
-
-      <div className="bg-blue-50 rounded-lg border border-blue-100 p-4 text-xs text-blue-900">
-        Diese Seite ist aktuell ein Prototyp. Die Einstellungen werden noch nicht dauerhaft gespeichert,
-        können aber später an eine Server Action oder API angebunden werden.
       </div>
     </div>
   );

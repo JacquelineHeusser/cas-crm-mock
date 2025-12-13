@@ -46,8 +46,7 @@ export default async function ProfilPage() {
       </div>
 
       <div className="bg-blue-50 rounded-lg border border-blue-100 p-4 text-xs text-blue-900">
-        Diese Seite zeigt aktuell nur eine vereinfachte Sicht auf Ihr Profil. Weitere Felder (Adresse,
-        Telefonnummer usw.) können später ergänzt und editierbar gemacht werden.
+        Weitere Profilangaben (z. B. Adresse oder Telefonnummer) können bei Bedarf ergänzt werden.
       </div>
     </div>
   );
