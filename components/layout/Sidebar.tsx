@@ -7,7 +7,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, FileText, AlertCircle, Phone, Calculator } from 'lucide-react';
+import { Home, FileText, AlertCircle, Phone, Calculator, MessageSquare } from 'lucide-react';
 import { UserRole } from '@prisma/client';
 
 interface SidebarProps {
@@ -79,6 +79,7 @@ function getNavItems(role: UserRole) {
     { href: '/policen', label: 'Meine Policen', icon: FileText },
     { href: '/offerten', label: 'Meine Offerten', icon: Calculator },
     { href: '/claims/new', label: 'Meine Schäden', icon: AlertCircle },
+    { href: '/chatbot', label: 'Assistent', icon: MessageSquare },
     { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 
@@ -86,6 +87,7 @@ function getNavItems(role: UserRole) {
     { href: '/dashboard', label: 'Home', icon: Home },
     { href: '/underwriting', label: 'Underwriting', icon: FileText },
     { href: '/quotes', label: 'Alle Offerten', icon: FileText },
+    { href: '/chatbot', label: 'Assistent', icon: MessageSquare },
     { href: '/contact', label: 'Kontakt', icon: Phone },
   ];
 

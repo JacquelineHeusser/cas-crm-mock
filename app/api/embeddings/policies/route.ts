@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '@/app/lib/supabase-client';
+import { prisma } from '@/app/lib/prisma';
 import { getAllPoliciesForEmbedding } from '@/app/lib/policy-serializer';
 import { generateEmbeddings } from '@/app/lib/embeddings';
 
@@ -13,9 +13,7 @@ export const maxDuration = 300; // 5 Minuten
 
 export async function POST() {
   try {
-    const supabase = getSupabaseAdmin();
-    
-    // 1. Alle Policen holen
+    // 1. Alle Policen holen (über Prisma)
     const policies = await getAllPoliciesForEmbedding();
     console.log(`[Policy Sync] Processing ${policies.length} policies`);
 
@@ -31,36 +29,33 @@ export async function POST() {
     const contents = policies.map(p => p.content);
     const embeddings = await generateEmbeddings(contents);
 
-    // 3. In DB speichern (Upsert)
-    const now = new Date().toISOString();
-    const records = policies.map((policy, i) => ({
-      policy_id: policy.policyId,
-      content: policy.content,
-      embedding: `[${embeddings[i].join(',')}]`,
-      metadata: policy.metadata,
-      created_at: now,
-      updated_at: now,
-    }));
+    // 3. In DB speichern (Delete + Insert über Prisma Raw SQL)
+    const policyIds = policies.map(p => p.policyId);
 
     // Alte Chunks löschen
-    const policyIds = policies.map(p => p.policyId);
-    const { error: deleteError } = await supabase
-      .from('policy_chunks')
-      .delete()
-      .in('policy_id', policyIds);
-
-    if (deleteError) {
-      console.error('[Policy Sync] Delete error:', deleteError);
-    }
+    await prisma.$executeRawUnsafe(
+      `DELETE FROM policy_chunks WHERE policy_id = ANY($1::text[])`,
+      policyIds,
+    );
 
     // Neue Chunks einfügen
-    const { error: insertError } = await supabase
-      .from('policy_chunks')
-      .insert(records);
+    for (let i = 0; i < policies.length; i++) {
+      const policy = policies[i];
+      const embedding = embeddings[i];
+      const embeddingVector = `[${embedding.join(',')}]`;
 
-    if (insertError) {
-      console.error('[Policy Sync] Insert error:', insertError);
-      throw insertError;
+      await prisma.$executeRawUnsafe(
+        `
+        INSERT INTO policy_chunks
+          (policy_id, content, embedding, chunk_index, metadata, created_at, updated_at)
+        VALUES
+          ($1, $2, $3::vector, 0, $4::jsonb, NOW(), NOW())
+        `,
+        policy.policyId,
+        policy.content,
+        embeddingVector,
+        JSON.stringify(policy.metadata),
+      );
     }
 
     console.log(`[Policy Sync] ✓ ${policies.length} Policen synchronisiert`);

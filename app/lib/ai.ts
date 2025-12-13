@@ -22,11 +22,14 @@ export function getOpenAIClient(): OpenAI {
 /**
  * Together.ai Client
  */
-export function getTogetherClient(): Together {
+export function getTogetherClient(): any {
   const apiKey = process.env.TOGETHERAI_API_KEY;
   
   if (!apiKey) {
-    throw new Error('TOGETHERAI_API_KEY fehlt in .env');
+    console.warn('[AI] TOGETHERAI_API_KEY fehlt - verwende OpenAI als Fallback');
+    // Fallback zu OpenAI wenn Together.ai nicht konfiguriert ist
+    // Gebe OpenAI Client zurück als Fallback
+    return getOpenAIClient();
   }
 
   return new Together({ apiKey });
@@ -43,11 +46,23 @@ export async function getChatCompletion(
     model?: string;
   }
 ): Promise<string> {
-  const provider = process.env.LLM_PROVIDER || 'together';
+  const provider = process.env.LLM_PROVIDER || 'openai';
+  console.log('[AI] LLM_PROVIDER:', provider);
+  console.log('[AI] OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
 
   if (provider === 'openai') {
     const client = getOpenAIClient();
-    const model = options?.model || process.env.OPENAI_CHAT_MODEL || 'gpt-4';
+    
+    // Validiere und verwende gültiges OpenAI Model
+    const envModel = process.env.OPENAI_CHAT_MODEL;
+    const validModels = ['gpt-4', 'gpt-4-turbo', 'gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo'];
+    let model = options?.model || envModel || 'gpt-4o-mini';
+    
+    // Fallback zu gpt-4o-mini wenn ungültiges Model
+    if (!validModels.includes(model) && !model.startsWith('gpt-')) {
+      console.warn(`[AI] Ungültiges Model "${model}" - verwende gpt-4o-mini als Fallback`);
+      model = 'gpt-4o-mini';
+    }
 
     const response = await client.chat.completions.create({
       model,

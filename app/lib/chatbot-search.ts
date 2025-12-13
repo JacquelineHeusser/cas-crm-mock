@@ -1,9 +1,12 @@
 /**
  * Multi-Source Vector Search für Chatbot
  * Sucht parallel in Policy, Web und Law Chunks
+ *
+ * Wichtig: Wir verwenden hier direkte SQL-Queries über Prisma,
+ * um Berechtigungsprobleme mit dem Supabase Service Role Key zu vermeiden.
  */
 
-import { getSupabaseAdmin } from './supabase-client';
+import { prisma } from '@/app/lib/prisma';
 import { generateEmbedding } from './embeddings';
 
 export interface PolicyResult {
@@ -47,25 +50,34 @@ export interface SearchResults {
 
 export async function searchPolicies(query: string): Promise<PolicyResult[]> {
   try {
-    const supabase = getSupabaseAdmin();
     const embedding = await generateEmbedding(query);
-    
-    const { data, error } = await supabase.rpc('match_policy_chunks', {
-      query_embedding: `[${embedding.join(',')}]`,
-      match_threshold: parseFloat(process.env.VECTOR_MATCH_THRESHOLD || '0.75'),
-      match_count: 5,
-    });
+    const embeddingVector = `[${embedding.join(',')}]`;
+    const matchCount = 5;
 
-    if (error) {
-      // Graceful Degradation: RPC-Funktion existiert noch nicht
-      if (error.code === '42883' || error.message?.includes('does not exist')) {
-        console.warn('[Policy Search] RPC function not available. Run SQL setup first.');
-        return [];
-      }
-      throw error;
-    }
+    const rows = await prisma.$queryRawUnsafe<{
+      id: string;
+      policyId: string;
+      content: string;
+      similarity: number;
+      metadata: any;
+    }[]>(
+      `
+      SELECT
+        id,
+        policy_id AS "policyId",
+        content,
+        1 - (embedding <=> $1::vector) AS similarity,
+        metadata
+      FROM policy_chunks
+      WHERE embedding IS NOT NULL
+      ORDER BY embedding <=> $1::vector
+      LIMIT $2
+      `,
+      embeddingVector,
+      matchCount,
+    );
 
-    return data || [];
+    return rows || [];
   } catch (error) {
     console.error('[Policy Search] Error:', error);
     return [];
@@ -74,25 +86,48 @@ export async function searchPolicies(query: string): Promise<PolicyResult[]> {
 
 export async function searchWebContent(query: string): Promise<WebResult[]> {
   try {
-    const supabase = getSupabaseAdmin();
     const embedding = await generateEmbedding(query);
-    
-    const { data, error } = await supabase.rpc('match_web_chunks', {
-      query_embedding: `[${embedding.join(',')}]`,
-      match_threshold: 0.75,
-      match_count: 10,
-    });
+    const embeddingVector = `[${embedding.join(',')}]`;
+    const threshold = 0.75;
+    const matchCount = 10;
 
-    if (error) {
-      // Graceful Degradation
-      if (error.code === '42883' || error.message?.includes('does not exist')) {
-        console.warn('[Web Search] RPC function not available. Run SQL setup first.');
-        return [];
-      }
-      throw error;
-    }
+    const rows = await prisma.$queryRawUnsafe<{
+      id: string;
+      source_url: string;
+      title: string | null;
+      content: string;
+      similarity: number;
+    }[]>(
+      `
+      SELECT
+        id,
+        source_url,
+        title,
+        content,
+        1 - (embedding <=> $1::vector) AS similarity
+      FROM web_chunks
+      WHERE embedding IS NOT NULL
+        AND 1 - (embedding <=> $1::vector) > $2
+      ORDER BY embedding <=> $1::vector
+      LIMIT $3
+      `,
+      embeddingVector,
+      threshold,
+      matchCount,
+    );
 
-    return data || [];
+    return (
+      rows?.map(row => ({
+        id: row.id,
+        sourceUrl: row.source_url,
+        title: row.title ?? '',
+        content: row.content,
+        similarity: row.similarity,
+        metadata: {
+          category: 'Allgemein',
+        },
+      })) || []
+    );
   } catch (error) {
     console.error('[Web Search] Error:', error);
     return [];
@@ -101,25 +136,48 @@ export async function searchWebContent(query: string): Promise<WebResult[]> {
 
 export async function searchLaws(query: string): Promise<LawResult[]> {
   try {
-    const supabase = getSupabaseAdmin();
     const embedding = await generateEmbedding(query);
-    
-    const { data, error } = await supabase.rpc('match_law_chunks', {
-      query_embedding: `[${embedding.join(',')}]`,
-      match_threshold: 0.75,
-      match_count: 3,
-    });
+    const embeddingVector = `[${embedding.join(',')}]`;
+    const threshold = 0.75;
+    const matchCount = 3;
 
-    if (error) {
-      // Graceful Degradation
-      if (error.code === '42883' || error.message?.includes('does not exist')) {
-        console.warn('[Law Search] RPC function not available. Run SQL setup first.');
-        return [];
-      }
-      throw error;
-    }
+    const rows = await prisma.$queryRawUnsafe<{
+      id: string;
+      law_code: string;
+      article_num: string;
+      content: string;
+      similarity: number;
+      source_url: string;
+    }[]>(
+      `
+      SELECT
+        id,
+        law_code,
+        article_num,
+        content,
+        1 - (embedding <=> $1::vector) AS similarity,
+        source_url
+      FROM law_chunks
+      WHERE embedding IS NOT NULL
+        AND 1 - (embedding <=> $1::vector) > $2
+      ORDER BY embedding <=> $1::vector
+      LIMIT $3
+      `,
+      embeddingVector,
+      threshold,
+      matchCount,
+    );
 
-    return data || [];
+    return (
+      rows?.map(row => ({
+        id: row.id,
+        lawCode: row.law_code,
+        articleNum: row.article_num,
+        content: row.content,
+        similarity: row.similarity,
+        sourceUrl: row.source_url,
+      })) || []
+    );
   } catch (error) {
     console.error('[Law Search] Error:', error);
     return [];

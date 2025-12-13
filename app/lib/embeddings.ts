@@ -37,6 +37,12 @@ export async function generateEmbeddingTogether(
   text: string,
   model?: string
 ): Promise<number[]> {
+  // Fallback zu OpenAI wenn Together.ai nicht verfügbar
+  if (!process.env.TOGETHERAI_API_KEY) {
+    console.warn('[Embeddings] TOGETHERAI_API_KEY fehlt - verwende OpenAI als Fallback');
+    return generateEmbeddingOpenAI(text);
+  }
+  
   const client = getTogetherClient();
   const embeddingModel = model || process.env.TOGETHERAI_EMBEDDING_MODEL || 'intfloat/multilingual-e5-large-instruct';
 
@@ -52,7 +58,7 @@ export async function generateEmbeddingTogether(
  * Generiert Embedding mit konfiguriertem Provider
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
-  const provider = process.env.EMBEDDING_PROVIDER || 'together';
+  const provider = process.env.EMBEDDING_PROVIDER || 'openai';
 
   if (provider === 'openai') {
     return generateEmbeddingOpenAI(text);
@@ -67,7 +73,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
  * Generiert Embeddings für mehrere Texte (Batch)
  */
 export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
-  const provider = process.env.EMBEDDING_PROVIDER || 'together';
+  const provider = process.env.EMBEDDING_PROVIDER || 'openai';
 
   if (provider === 'openai') {
     const client = getOpenAIClient();
