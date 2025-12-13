@@ -32,12 +32,57 @@ export const INDUSTRIES = [
 
 // Sektion: Unternehmensdaten
 export const companyDataSchema = z.object({
-  companyName: z.string().min(1, 'Pflichtfeld'),
-  address: z.string().min(1, 'Pflichtfeld'),
-  zip: z.string().min(1, 'Pflichtfeld').regex(/^\d{4}$/, 'PLZ muss 4-stellig sein'),
-  city: z.string().min(1, 'Pflichtfeld'),
+  companyName: z.string()
+    .min(1, 'Pflichtfeld')
+    .min(2, 'Firmenname muss mindestens 2 Zeichen lang sein')
+    .max(200, 'Firmenname darf maximal 200 Zeichen lang sein'),
+  address: z.string()
+    .min(1, 'Pflichtfeld')
+    .min(3, 'Adresse muss mindestens 3 Zeichen lang sein')
+    .regex(
+      /^[a-zäöüéèàA-ZÄÖÜÉÈÀ\s.\-']+\s+\d+[a-zA-Z]?$/,
+      'Bitte geben Sie eine gültige Adresse ein (z.B. "Bahnhofstrasse 12")'
+    ),
+  zip: z.string()
+    .min(1, 'Pflichtfeld')
+    .regex(/^\d{4}$/, 'PLZ muss 4-stellig sein')
+    .refine(
+      (val) => {
+        const zipNum = parseInt(val, 10);
+        return zipNum >= 1000 && zipNum <= 9999;
+      },
+      { message: 'Ungültige Schweizer PLZ (1000-9999)' }
+    ),
+  city: z.string()
+    .min(1, 'Pflichtfeld')
+    .min(2, 'Ortsname muss mindestens 2 Zeichen lang sein')
+    .regex(
+      /^[a-zäöüéèàA-ZÄÖÜÉÈÀ\s\-']+$/,
+      'Der Ortsname enthält ungültige Zeichen'
+    ),
   country: z.string().default('Schweiz'),
-  url: z.string().optional().or(z.literal('')),
+  url: z.string()
+    .optional()
+    .or(z.literal(''))
+    .refine(
+      (val) => {
+        if (!val || val.trim().length === 0) return true; // Optional
+        
+        // Normalisiere URL
+        let urlToCheck = val.trim();
+        if (!urlToCheck.startsWith('http://') && !urlToCheck.startsWith('https://')) {
+          urlToCheck = 'https://' + urlToCheck;
+        }
+        
+        try {
+          const urlObject = new URL(urlToCheck);
+          return urlObject.hostname.includes('.');
+        } catch {
+          return false;
+        }
+      },
+      { message: 'Bitte geben Sie eine gültige URL ein (z.B. www.firma.ch)' }
+    ),
 });
 
 // Sektion: Cyber Risikoprofil
