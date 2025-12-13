@@ -447,6 +447,25 @@ allowedDevOrigins: ['localhost:3000', '127.0.0.1:3000', '127.0.0.1:54705']
 - Zeige falsche Policy-Citations
 - Erkläre Problem
 
+**Phase 3b: Problem-Solving Deep-Dive (60s):**
+- **Problem 1:** "permission denied for schema public"
+  - Zeige Supabase RPC Error Logs
+  - Erkläre RLS und Service Role Key Issues
+  - Lösung: Umstellung auf Prisma Raw SQL Queries
+
+- **Problem 2:** "embedding dimension mismatch (1024 vs 1536)"
+  - Zeige pgvector Schema Fehler
+  - Erkläre OpenAI Model-Kompatibilität
+  - Lösung: SQL-Tabellen auf 1536 Dimensionen aktualisiert
+
+- **Problem 3:** "relation policy_chunks does not exist"
+  - Zeife leere Datenbank
+  - Lösung: Komplettes SQL-Setup-Skript erstellt
+
+- **Problem 4:** "Allgemeine Fragen zeigen Policy-Citations"
+  - Zeige User-Feedback und falsche Ergebnisse
+  - Lösung: Intent Classification System implementiert
+
 **Phase 4: Intent-Lösung (60s):**
 - Zeige Intent Classifier Code
 - Demo: Korrekte Citation-Filterung
