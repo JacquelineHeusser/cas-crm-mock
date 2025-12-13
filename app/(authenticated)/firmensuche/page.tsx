@@ -3,10 +3,13 @@
  * Seite zur Suche in den Company-Daten (companies-Tabelle) anhand von Firmenname, Ort oder PLZ.
  */
 
-import { PrismaClient } from '@prisma/client';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
 
-const prisma = new PrismaClient();
+// Diese Seite soll immer dynamisch gerendert werden (Suchparameter, Live-Daten)
+export const dynamic = 'force-dynamic';
 
 interface FirmensuchePageProps {
   searchParams: {
@@ -15,6 +18,20 @@ interface FirmensuchePageProps {
 }
 
 export default async function FirmensuchePage({ searchParams }: FirmensuchePageProps) {
+  // Nur Fachrollen sollen die Firmensuche nutzen (Broker / Underwriter / MFU / Head)
+  const user = await getCurrentUser();
+  if (
+    !user ||
+    ![
+      'BROKER',
+      'UNDERWRITER',
+      'MFU_TEAMLEITER',
+      'HEAD_CYBER_UNDERWRITING',
+    ].includes(user.role)
+  ) {
+    redirect('/dashboard');
+  }
+
   const query = (searchParams.q ?? '').trim();
 
   const results =
