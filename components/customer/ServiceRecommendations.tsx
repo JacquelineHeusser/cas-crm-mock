@@ -158,9 +158,12 @@ export function ServiceRecommendations({ segment }: ServiceRecommendationsProps)
             <p className="text-xs text-base-content/70 leading-relaxed">
               {tile.description}
             </p>
-            <div className="mt-2">
+            <div className="mt-2 flex flex-wrap gap-2">
               <a href={tile.href} className="btn btn-xs btn-outline rounded-full">
                 Mehr zu Cyber Services
+              </a>
+              <a href="/chatbot" className="btn btn-xs btn-primary rounded-full">
+                Mit Chatbot besprechen
               </a>
             </div>
           </div>
