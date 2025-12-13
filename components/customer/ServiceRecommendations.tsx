@@ -36,25 +36,25 @@ interface RecommendationTile {
 const ALL_TILES: RecommendationTile[] = [
   {
     id: 'trigger-protection',
-    title: 'Cyberrisiko erkannt? Jetzt Schutz erhöhen.',
+    title: 'Cyberrisiko erkannt? Jetzt gezielt Schutz erhöhen.',
     description:
-      'Ihr Risikoprofil zeigt Schwachstellen in der Cybersicherheit. Mit unseren Cyber Services bauen Sie gezielt Schutz auf – bevor ein Angriff passiert.',
+      'Ihr Risikoprofil zeigt, dass Angriffe realistisch sind – oft reichen wenige technische oder organisatorische Lücken. Unsere Cyber Services kombinieren Analyse, Empfehlungen und Umsetzungshilfe, damit Sie priorisiert dort investieren, wo es den grössten Effekt auf Ihr Risiko hat.',
     segments: 'all',
     href: '/services/cyber/high-risk',
   },
   {
     id: 'high-risk-resilience',
-    title: 'Erkennen Sie Ihr Risiko – stärken Sie Ihre Resilienz.',
+    title: 'Erhöhtes Risiko? Fokus auf Resilienz statt nur auf Reaktion.',
     description:
-      'Cyberangriffe treffen Unternehmen jeder Grösse. Unsere Cyber Services helfen Ihnen, Schwachstellen früh zu erkennen und Ihr Sicherheitsniveau gezielt zu erhöhen.',
+      'Bei einem hohen Risk Score steigt die Wahrscheinlichkeit schwerer Vorfälle deutlich. Mit unseren Cyber Services erhalten Sie eine strukturierte Schwachstellenanalyse, konkrete Massnahmenpläne und – falls gewünscht – Begleitung bei der Umsetzung, um Ihr Restrisiko messbar zu senken.',
     segments: ['highRisk', 'critical', 'generic'],
     href: '/services/cyber/high-risk',
   },
   {
     id: 'low-maturity-simple',
-    title: 'Cybersicherheit muss nicht kompliziert sein.',
+    title: 'Cybersicherheit pragmatisch aufbauen – Schritt für Schritt.',
     description:
-      'Sie wissen, dass Sie mehr tun sollten, aber nicht, wo Sie starten? Zurich Resilience Solutions begleitet Sie Schritt für Schritt von der Risikoanalyse bis zu wirksamen Massnahmen.',
+      'Viele KMU haben keine eigene Security-Abteilung. Wir starten mit einem einfachen Check Ihres heutigen Setups, leiten daraus priorisierte To-dos ab und unterstützen Sie dabei, mit wenigen, gut verständlichen Massnahmen ein deutlich stabileres Sicherheitsniveau zu erreichen.',
     segments: ['lowMaturity', 'generic'],
     href: '/services/cyber/low-maturity',
   },
@@ -62,39 +62,39 @@ const ALL_TILES: RecommendationTile[] = [
     id: 'post-policy-services',
     title: 'Ihre Versicherung schützt – unsere Services stärken.',
     description:
-      'Finanziell sind Sie abgesichert. Mit unseren Cyber Services erhöhen Sie zusätzlich Ihre Widerstandsfähigkeit und verhindern Vorfälle, bevor sie entstehen.',
+      'Die Police hilft im Schadenfall – ideal ist es, wenn es gar nicht erst so weit kommt. Mit unseren Cyber Services senken Sie die Eintrittswahrscheinlichkeit von Vorfällen, verkürzen Ausfallzeiten und erhöhen gleichzeitig die Sicherheit Ihrer Mitarbeitenden im Umgang mit Cyberrisiken.',
     segments: ['postPolicy', 'generic'],
     href: '/services/cyber/post-policy',
   },
   {
     id: 'interested-next-step',
-    title: 'Bereit für den nächsten Schritt in der Cybersicherheit?',
+    title: 'Von Awareness zu konkreten Verbesserungen.',
     description:
-      'Sie haben sich bereits mit Cyberrisiken beschäftigt. Nutzen Sie jetzt unsere Cyber Services für fundierte Risiko-Einschätzungen und passgenaue Schutzmassnahmen.',
+      'Sie beschäftigen sich bereits mit Cyber – der nächste Schritt ist, die richtigen Prioritäten zu setzen. Unsere Expert:innen unterstützen Sie dabei, Ihre bestehenden Massnahmen einzuordnen, Lücken zu identifizieren und ein Roadmap-ähnliches Vorgehen für die nächsten 12–24 Monate zu definieren.',
     segments: ['interested', 'generic'],
     href: '/services/cyber/interested',
   },
   {
     id: 'critical-act-now',
-    title: 'Hohe Cyberexponierung? Handeln Sie jetzt.',
+    title: 'Hohe Cyberexponierung? Sofortmassnahmen und Priorisierung.',
     description:
-      'Ihr Risikoprofil ist erhöht. Unsere Cyber Services helfen Ihnen, Schwachstellen zu reduzieren und Angriffe wirksam abzuwehren – bevor sie Schaden anrichten.',
+      'Bei sehr hoher Exponierung (z. B. Score D/E) empfehlen wir gezielte Sofortmassnahmen: Absicherung kritischer Systeme, Härtung von Zugängen und Schulung besonders exponierter Mitarbeitender. Unsere Cyber Services helfen Ihnen, zwischen „jetzt sofort“ und „im nächsten Schritt“ klar zu unterscheiden.',
     segments: ['highRisk', 'critical'],
     href: '/services/cyber/critical',
   },
   {
     id: 'generic-resilience',
-    title: 'Zukunftssichere Cyberresilienz für jedes Unternehmen.',
+    title: 'Cyberresilienz für den Alltag – nicht nur für Ausnahmesituationen.',
     description:
-      'Mit unseren Cyber Services erkennen Sie Risiken frühzeitig, verbessern Ihren Schutz und wehren Angriffe proaktiv ab – mit massgeschneiderten Lösungen aus einer Hand.',
+      'Unsere Cyber Services verbinden technische Checks, organisatorische Massnahmen und Sensibilisierung Ihrer Mitarbeitenden. So schaffen Sie eine Sicherheitskultur, die im Alltag funktioniert und im Ernstfall dafür sorgt, dass Ihr Unternehmen arbeitsfähig bleibt.',
     segments: ['generic'],
     href: '/services/cyber/overview',
   },
   {
     id: 'story-preparedness',
-    title: 'Ein Angriff kann jeden treffen – Vorbereitung macht den Unterschied.',
+    title: 'Wenn der Ernstfall eintritt – wie gut ist Ihr Unternehmen vorbereitet?',
     description:
-      'Cybervorfälle passieren täglich. Unsere Cyber Services zeigen Ihnen klar, welche Schritte Ihr Unternehmen widerstandsfähiger machen – mit messbarem Effekt.',
+      'Aus realen Schadenfällen wissen wir: Tempo und Klarheit in den ersten Stunden entscheiden über die Höhe des Schadens. Mit unseren Cyber Services üben Sie Abläufe, definieren Verantwortlichkeiten und stellen sicher, dass im Vorfall alle wissen, was zu tun ist.',
     segments: ['story', 'generic'],
     href: '/services/cyber/story',
   },
