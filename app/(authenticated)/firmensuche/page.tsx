@@ -5,6 +5,7 @@
 
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 
@@ -38,13 +39,13 @@ export default async function FirmensuchePage({ searchParams }: FirmensuchePageP
   const currentPage = Math.max(1, Number(searchParams.page ?? '1') || 1);
 
   // Gemeinsame WHERE-Bedingung für Suche (optional)
-  const whereClause = query.length > 1
+  const whereClause: Prisma.CompanyWhereInput = query.length > 1
     ? {
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { city: { contains: query, mode: 'insensitive' } },
-          { zip: { contains: query, mode: 'insensitive' } },
-          { industry: { contains: query, mode: 'insensitive' } },
+          { name: { contains: query, mode: Prisma.QueryMode.insensitive } },
+          { city: { contains: query, mode: Prisma.QueryMode.insensitive } },
+          { zip: { contains: query, mode: Prisma.QueryMode.insensitive } },
+          { industry: { contains: query, mode: Prisma.QueryMode.insensitive } },
         ],
       }
     : {};
