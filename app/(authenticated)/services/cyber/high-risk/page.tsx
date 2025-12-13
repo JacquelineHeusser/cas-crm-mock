@@ -17,6 +17,10 @@ export default function CyberHighRiskPage() {
           Schutzmassnahmen sinnvoll sind. Mit den Cyber Services von Zurich Resilience Solutions reduzieren Sie Ihre
           Angriffsfläche gezielt.
         </p>
+        <p className="text-xs text-base-content/60">
+          Ihr Risk Score (z. B. C oder D) weist darauf hin, dass Angriffe mit spürbaren Auswirkungen realistisch sind.
+          Diese Seite bündelt Angebote, mit denen Sie Ihr Risiko strukturiert senken können.
+        </p>
       </header>
 
       <section className="card bg-base-100 shadow-sm border border-base-200/80">

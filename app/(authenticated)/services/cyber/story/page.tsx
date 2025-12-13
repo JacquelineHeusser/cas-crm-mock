@@ -17,6 +17,11 @@ export default function CyberStoryPage() {
           Services geben Ihnen eine klare Orientierung, wie Sie Ihre Organisation Schritt für Schritt widerstandsfähiger
           machen – mit messbarem Effekt.
         </p>
+        <p className="text-xs text-base-content/60">
+          Der Risk Score A–E macht dieses Risiko sichtbar – aber er erzählt noch nicht die ganze Geschichte. Diese Seite
+          zeigt, wie Sie Abläufe und Zuständigkeiten so vorbereiten, dass Ihr Unternehmen im Ernstfall handlungsfähig
+          bleibt.
+        </p>
       </header>
 
       <section className="card bg-base-100 shadow-sm border border-base-200/80">

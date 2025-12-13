@@ -16,6 +16,10 @@ export default function CyberOverviewPage() {
           Unsere Cyber Services helfen Ihnen, Risiken zu erkennen, Schutz zu verbessern und Angriffsversuche frühzeitig
           abzuwehren. Prävention, Expertise und massgeschneiderte Lösungen – alles aus einer Hand.
         </p>
+         <p className="text-xs text-base-content/60">
+           Der Risk Score A–E zeigt Ihnen, wo Sie im Vergleich zu ähnlichen Unternehmen stehen. Auf dieser Seite finden
+           Sie Bausteine, mit denen Sie Ihr Niveau unabhängig vom Ausgangsscore weiterentwickeln können.
+         </p>
       </header>
 
       <section className="card bg-base-100 shadow-sm border border-base-200/80">

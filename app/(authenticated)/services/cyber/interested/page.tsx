@@ -17,6 +17,10 @@ export default function CyberInterestedPage() {
           gezielter zu schützen. Die Cyber Services von Zurich Resilience Solutions geben Ihnen Zugang zu
           Expertenwissen und passenden Massnahmen.
         </p>
+        <p className="text-xs text-base-content/60">
+          Je nach Risk Score (A–E) setzen wir unterschiedliche Schwerpunkte – von Optimierungen im Detail bis zu
+          grundlegenden Sofortmassnahmen. Diese Seite bündelt mögliche nächste Schritte.
+        </p>
       </header>
 
       <section className="card bg-base-100 shadow-sm border border-base-200/80">

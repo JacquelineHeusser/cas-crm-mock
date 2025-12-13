@@ -17,6 +17,10 @@ export default function CyberPostPolicyPage() {
           Prävention und gezielte Services. Zurich Resilience Solutions hilft Ihnen, Sicherheitsmassnahmen
           kontinuierlich zu verbessern.
         </p>
+        <p className="text-xs text-base-content/60">
+          Ihr Risk Score zeigt, wie gut Ihre Schutzmassnahmen bereits wirken. Mit zusätzlichen Services können Sie den
+          Score langfristig stabil halten oder weiter verbessern.
+        </p>
       </header>
 
       <section className="card bg-base-100 shadow-sm border border-base-200/80">

@@ -16,6 +16,10 @@ export default function CyberLowMaturityPage() {
           Viele Unternehmen wissen, dass sie mehr für Cybersicherheit tun müssten – aber nicht, wo sie anfangen sollen.
           Mit Zurich Resilience Solutions gehen Sie Schritt für Schritt vor und behalten stets den Überblick.
         </p>
+        <p className="text-xs text-base-content/60">
+          Ein tiefer Cyberreifegrad kann sich im Risk Score widerspiegeln. Diese Seite zeigt, wie Sie Ihren Score mit
+          pragmatischen Massnahmen nach und nach verbessern können.
+        </p>
       </header>
 
       <section className="card bg-base-100 shadow-sm border border-base-200/80">
