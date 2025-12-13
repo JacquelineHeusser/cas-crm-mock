@@ -161,10 +161,12 @@ export default function CityAutocomplete({
 
   return (
     <div className="w-full">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
-        {label}
-        {optional && <span className="ml-1 text-xs text-gray-500">(optional)</span>}
-      </label>
+      {label && (
+        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+          {label}
+          {optional && <span className="ml-1 text-xs text-gray-500">(optional)</span>}
+        </label>
+      )}
 
       <div className="relative">
         <div className="relative">
@@ -182,13 +184,13 @@ export default function CityAutocomplete({
               if (registerProps?.onBlur) registerProps.onBlur(e);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="z.B. Zürich"
+            placeholder="Ort*"
             autoComplete="off"
             className={`
-              w-full px-4 py-2.5 border-2 rounded-lg pr-12
-              focus:outline-none focus:ring-2 focus:ring-[#008C95] focus:border-transparent
+              w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 pr-12
+              focus:outline-none focus:ring-2 focus:ring-[#0032A0]
               transition-colors
-              ${hasError ? 'border-red-500' : 'border-gray-300'}
+              ${hasError ? 'ring-2 ring-red-500' : ''}
             `}
           />
 

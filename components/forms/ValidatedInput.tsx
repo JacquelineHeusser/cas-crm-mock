@@ -101,13 +101,15 @@ const ValidatedInput = forwardRef<HTMLInputElement, ValidatedInputProps>(
 
     return (
       <div className="w-full">
-        {/* Label */}
-        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
-          {label}
-          {optional && (
-            <span className="ml-1 text-xs text-gray-500">(optional)</span>
-          )}
-        </label>
+        {/* Label - nur anzeigen wenn vorhanden */}
+        {label && (
+          <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+            {label}
+            {optional && (
+              <span className="ml-1 text-xs text-gray-500">(optional)</span>
+            )}
+          </label>
+        )}
 
         {/* Input mit Icon */}
         <div className="relative">

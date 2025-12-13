@@ -13,6 +13,9 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { saveQuoteStep, getUserId, getUserData, loadQuote, createPolicyFromQuote, createUnderwritingCase, submitCustomerResponse } from '@/app/actions/quote';
 import { getDnbCompany } from '@/app/actions/dnb';
+import ValidatedInput from '@/components/forms/ValidatedInput';
+import CityAutocomplete from '@/components/forms/CityAutocomplete';
+import { validateSwissAddress, validateSwissZip, validateUrl, validateCompanyName } from '@/lib/validation/realtime-validators';
 import { 
   companyDataSchema, 
   cyberRiskProfileSchema,
@@ -401,6 +404,7 @@ export default function NewQuotePage() {
             <Step1CompanyData
               register={register}
               errors={errors}
+              watch={watch}
               currentCompanyName={watch('companyName')}
             />
           )}
@@ -472,20 +476,28 @@ function QuestionField({ question, children }: { question: string; children: Rea
   );
 }
 
-// Step 1: Unternehmensdaten
-function Step1CompanyData({ register, errors, currentCompanyName }: any) {
+// Step 1: Unternehmensdaten mit Echtzeit-Validierung
+function Step1CompanyData({ register, errors, watch, currentCompanyName }: any) {
+  const zipValue = watch('zip');
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-light text-[#1A1A1A] mb-8">Unternehmensdaten</h2>
       
       <QuestionField question="Versicherungsnehmer">
         <div className="flex gap-3 items-center">
-          <input
-            type="text"
-            placeholder="Versicherungsnehmer*"
-            className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
-            {...register('companyName')}
-          />
+          <div className="flex-1">
+            <ValidatedInput
+              label=""
+              name="companyName"
+              placeholder="Versicherungsnehmer*"
+              validator={validateCompanyName}
+              registerProps={register('companyName')}
+              error={errors.companyName}
+              showValidationIcon={true}
+              className="px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60"
+            />
+          </div>
           <Link
             href={`/firmensuche${currentCompanyName ? `?q=${encodeURIComponent(currentCompanyName)}` : ''}`}
             className="btn btn-outline btn-sm rounded-full whitespace-nowrap"
@@ -493,47 +505,43 @@ function Step1CompanyData({ register, errors, currentCompanyName }: any) {
             Firmensuche
           </Link>
         </div>
-        {errors.companyName && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.companyName.message}</p>
-        )}
       </QuestionField>
 
       <QuestionField question="Adresse">
-        <input
-          type="text"
-          placeholder="Adresse*"
-          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
-          {...register('address')}
+        <ValidatedInput
+          label=""
+          name="address"
+          placeholder="z.B. Bahnhofstrasse 12"
+          validator={validateSwissAddress}
+          registerProps={register('address')}
+          error={errors.address}
+          showValidationIcon={true}
+          helperText="Bitte geben Sie Strasse und Hausnummer ein"
+          className="px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60"
         />
-        {errors.address && (
-          <p className="text-red-600 text-xs mt-2 ml-6">{errors.address.message}</p>
-        )}
       </QuestionField>
 
       <QuestionField question="PLZ, Ort">
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <input
-              type="text"
-              placeholder="PLZ*"
-              className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
-              {...register('zip')}
-            />
-            {errors.zip && (
-              <p className="text-red-600 text-xs mt-2 ml-6">{errors.zip.message}</p>
-            )}
-          </div>
-          <div>
-            <input
-              type="text"
-              placeholder="Ort*"
-              className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
-              {...register('city')}
-            />
-            {errors.city && (
-              <p className="text-red-600 text-xs mt-2 ml-6">{errors.city.message}</p>
-            )}
-          </div>
+          <ValidatedInput
+            label=""
+            name="zip"
+            placeholder="PLZ*"
+            validator={validateSwissZip}
+            registerProps={register('zip')}
+            error={errors.zip}
+            showValidationIcon={true}
+            maxLength={4}
+            className="px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60"
+          />
+          
+          <CityAutocomplete
+            label=""
+            name="city"
+            zip={zipValue}
+            registerProps={register('city')}
+            error={errors.city}
+          />
         </div>
       </QuestionField>
 
@@ -548,11 +556,18 @@ function Step1CompanyData({ register, errors, currentCompanyName }: any) {
       </QuestionField>
 
       <QuestionField question="URL">
-        <input
-          type="text"
+        <ValidatedInput
+          label=""
+          name="url"
+          type="url"
           placeholder="www.beispiel.ch"
-          className="w-full px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60 focus:outline-none focus:ring-2 focus:ring-[#0032A0]"
-          {...register('url')}
+          validator={validateUrl}
+          registerProps={register('url')}
+          error={errors.url}
+          optional={true}
+          showValidationIcon={true}
+          helperText="Optional: Website Ihrer Firma"
+          className="px-6 py-4 bg-[#F5F5F5] rounded-full border-none text-[#0032A0] placeholder:text-[#0032A0]/60"
         />
       </QuestionField>
     </div>
