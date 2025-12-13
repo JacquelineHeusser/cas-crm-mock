@@ -97,6 +97,28 @@ export default function BrokerPolicenClient({ userName, policies }: BrokerPolice
     return `CHF ${amount.toLocaleString('de-CH')}`;
   };
 
+  // Helfer: numerischen Prämienwert in CHF aus String (Rappen) berechnen
+  const getPremiumChf = (premium: string) => {
+    return Number(premium) / 100;
+  };
+
+  // Aggregierte Werte für Policen
+  const activePolicies = policies.filter((p) => p.status === 'ACTIVE');
+  const cancelledPolicies = policies.filter((p) => p.status === 'CANCELLED');
+
+  const activePremiumTotalChf = activePolicies.reduce(
+    (sum, p) => sum + getPremiumChf(p.premium),
+    0,
+  );
+  const totalPremiumTotalChf = policies.reduce(
+    (sum, p) => sum + getPremiumChf(p.premium),
+    0,
+  );
+  const cancelledPremiumTotalChf = cancelledPolicies.reduce(
+    (sum, p) => sum + getPremiumChf(p.premium),
+    0,
+  );
+
   // Formatiere Datum
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -172,9 +194,12 @@ export default function BrokerPolicenClient({ userName, policies }: BrokerPolice
               </div>
               <div>
                 <p className="text-2xl font-bold text-[#1A1A1A]">
-                  {policies.filter(p => p.status === 'ACTIVE').length}
+                  {activePolicies.length}
                 </p>
                 <p className="text-sm text-gray-600">Aktive Policen</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Wert: CHF {activePremiumTotalChf.toLocaleString('de-CH')}
+                </p>
               </div>
             </div>
           </div>
@@ -189,6 +214,9 @@ export default function BrokerPolicenClient({ userName, policies }: BrokerPolice
                   {filteredPolicies.length}
                 </p>
                 <p className="text-sm text-gray-600">Gesamt Policen</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Wert: CHF {totalPremiumTotalChf.toLocaleString('de-CH')}
+                </p>
               </div>
             </div>
           </div>
@@ -200,9 +228,12 @@ export default function BrokerPolicenClient({ userName, policies }: BrokerPolice
               </div>
               <div>
                 <p className="text-2xl font-bold text-[#1A1A1A]">
-                  {policies.filter(p => p.status === 'CANCELLED').length}
+                  {cancelledPolicies.length}
                 </p>
                 <p className="text-sm text-gray-600">Gekündigt</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Wert: CHF {cancelledPremiumTotalChf.toLocaleString('de-CH')}
+                </p>
               </div>
             </div>
           </div>
